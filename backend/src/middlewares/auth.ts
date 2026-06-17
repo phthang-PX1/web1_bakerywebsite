@@ -1,18 +1,17 @@
 import type { NextFunction, Request, Response } from "express";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env";
+import { verifyAccessToken } from "../utils/jwt";
 import { AppError } from "./errorHandler";
 
 export const auth = (req: Request, _res: Response, next: NextFunction) => {
-  const token = req.headers.authorization?.replace("Bearer ", "");
+  const [scheme, token] = req.headers.authorization?.split(" ") ?? [];
 
-  if (!token) {
+  if (scheme !== "Bearer" || !token) {
     next(new AppError(401, "Authentication token is required"));
     return;
   }
 
   try {
-    jwt.verify(token, env.JWT_ACCESS_SECRET);
+    req.user = verifyAccessToken(token);
     next();
   } catch {
     next(new AppError(401, "Invalid or expired authentication token"));
