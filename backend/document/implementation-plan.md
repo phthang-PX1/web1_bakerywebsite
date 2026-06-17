@@ -17,7 +17,7 @@ Mục tiêu: có đầy đủ tài khoản, API key, connection string trước 
 | 6 | Tạo Google Cloud Project | Bật Google OAuth Consent Screen + tạo OAuth Client ID/Secret, khai báo redirect URI |
 | 7 | Tạo App Password Gmail | Cho Nodemailer SMTP (cần bật 2FA trước) |
 | 8 | Tạo tài khoản Twilio | Lấy `Account SID`, `Auth Token`, số điện thoại trial |
-| 9 | Đăng ký VNPay Sandbox | Lấy `TMN Code`, `Hash Secret`, URL sandbox |
+| 9 | Chuẩn bị QR chuyển khoản tĩnh | Lấy ảnh QR chuyển khoản ngân hàng (tải thủ công hoặc dùng dịch vụ tạo QR cố định), upload lên Cloudinary hoặc lưu URL, điền vào `STATIC_QR_URL` |
 | 10 | Tạo file `.env.example` | Liệt kê toàn bộ biến môi trường cần thiết (không chứa giá trị thật) |
 
 **Output của Phase 0:** một file `.env` (local, không commit) chứa toàn bộ secret/connection string ở trên.
@@ -127,20 +127,21 @@ modules/<ten-module>/
 | M5 | Options (option_groups + option_items) | M4 | Swagger |
 | M6 | Cart (Redis-based) | M4, M5, Redis | Swagger, kiểm tra TTL key trong Redis |
 | M7 | Coupons (validate + admin CRUD) | — | Swagger |
-| M8 | Orders (tạo đơn hàng, sinh QR động Sepay, webhook thanh toán, admin confirm fallback) | M6, M7, Sepay (QR + webhook), Email/SMS | **Quan trọng nhất** — test luồng: tạo đơn → nhận QR → dùng ngrok expose webhook → mô phỏng thanh toán (hoặc dùng nút "Gọi lại webhook" trên Sepay) → kiểm tra order được cập nhật `payment_status='paid'`, `order_status='confirmed'`; FE polling thành công |
+| M8 | Orders (tạo đơn hàng, hiển thị QR tĩnh, webhook xác nhận tự động, admin quản lý) | M6, M7, Email/SMS | **Quan trọng nhất** — test luồng: tạo đơn → nhận QR tĩnh + nội dung chuyển khoản → gọi `POST /webhooks/payment` (mô phỏng xác nhận) → kiểm tra order được cập nhật `payment_status='paid'`, `order_status='confirmed'`; FE polling thành công |
 | M9 | Reviews | M8 (cần order_status=delivered) | Update order thủ công trong Prisma Studio để test |
 | M10 | Loyalty (internal credit endpoint) | M8 | Trigger qua M8 khi order được đánh dấu delivered |
 | M11 | Analytics batch endpoint + admin reports | M8, M10 | Postman gửi batch event |
 
 **Ghi chú M8:**
-- Không còn endpoint `/orders/:id/payment` hay webhook VNPay.
-- Thay bằng: tạo QR động ngay khi tạo đơn, dùng webhook Sepay để cập nhật thanh toán.
-- Cần dùng **ngrok** khi test local để Sepay gọi được webhook.
-- Có endpoint admin confirm fallback để xử lý khi webhook lỗi.
+- Dùng QR tĩnh (cố định) lấy từ `STATIC_QR_URL` trong env.
+- Khách hàng chuyển khoản với nội dung `DH{order_id}` và đúng số tiền.
+- `POST /webhooks/payment` là endpoint không cần xác thực, mô phỏng webhook tự động xác nhận thanh toán.
+- Không cần ngrok, không cần cấu hình webhook bên ngoài.
+- Không có endpoint admin confirm thủ công — mọi xác nhận đi qua webhook.
 
 **Quy tắc khi làm mỗi milestone với Agent:**
 1. Đưa đúng phần API spec của module đó (copy đoạn liên quan từ file markdown API)
-2. Yêu cầu Agent tạo đủ 4 file theo cấu trúc module chuẩn
+2. Yêu cầu Agent tạo đủ 5 file theo cấu trúc module chuẩn
 3. Review code trước khi chạy
 4. Test từng endpoint qua Swagger trước khi commit
 5. Commit riêng theo từng milestone (`feat: auth module`, `feat: products module`...)
@@ -153,12 +154,11 @@ modules/<ten-module>/
 |---|---|---|
 | Google OAuth (Passport.js) | Auth | Redirect flow: FE → Backend `/auth/google/redirect` → Google → Backend `/auth/google/callback` → redirect FE kèm token |
 | Cloudinary | Products, Options, Users (avatar), Reviews | Dùng `multer` để nhận file, sau đó upload buffer lên Cloudinary |
-| Nodemailer (Gmail SMTP) | Auth, Orders | Dùng template HTML đơn giản cho email kích hoạt/reset/xác nhận đơn |
+| Nodemailer (Gmail SMTP) | Auth, Orders | Dùng template HTML đơn giản cho email kích hoạt/reset/xác nhận đơn (kèm QR tĩnh + nội dung chuyển khoản) |
 | Twilio SMS | Auth, Orders | Chỉ kích hoạt khi `users.email` null và `users.phone` có giá trị |
-| Sepay (QR động + webhook) | Orders | Tạo QR động qua URL qr.sepay.vn. Nhận webhook tại POST /webhooks/sepay, xác thực bằng API Key. Lưu giao dịch vào bảng transactions, chống duplicate. Cập nhật đơn hàng. |
 | GA4 + Clarity | Không thuộc backend | Nhúng script ở Angular `index.html`, không cần code backend |
 
-**Checkpoint Phase 4:** mỗi tích hợp có 1 test case độc lập (vd: gửi thử 1 email, upload thử 1 ảnh, tạo thử 1 URL thanh toán sandbox) trước khi gắn vào luồng chính ở Phase 3.
+**Checkpoint Phase 4:** mỗi tích hợp có 1 test case độc lập (vd: gửi thử 1 email, upload thử 1 ảnh, trả về thử URL QR tĩnh hoặc gọi thử webhook mô phỏng) trước khi gắn vào luồng chính ở Phase 3.
 
 ---
 
@@ -185,10 +185,10 @@ modules/<ten-module>/
 | 4 | Redis | Upstash (đã setup ở Phase 0) |
 | 5 | Cấu hình biến môi trường trên platform deploy | Copy từ `.env`, **không commit file `.env`** |
 | 6 | Cấu hình CORS cho domain Angular production | Whitelist domain thật |
-| 7 | Cập nhật Google OAuth redirect URI + VNPay return URL sang domain production | |
+| 7 | Cập nhật Google OAuth redirect URI sang domain production | |
 | 8 | Chạy `prisma migrate deploy` trên production DB | |
 | 9 | (Tùy chọn) CI/CD đơn giản với GitHub Actions: tự động deploy khi push `main` | |
-| 10 | Verify Swagger UI production hoạt động, test 1 luồng đầy đủ (đăng ký → đặt hàng → thanh toán sandbox) | |
+| 10 | Verify Swagger UI production hoạt động, test 1 luồng đầy đủ (đăng ký → đặt hàng → thanh toán QR tĩnh) | |
 
 **Checkpoint Phase 6:** Angular frontend gọi được API production, luồng checkout chạy end-to-end trên môi trường thật.
 
@@ -200,7 +200,7 @@ modules/<ten-module>/
 |---|---|
 | 1 | Theo dõi log lỗi (platform deploy thường có log viewer tích hợp sẵn) |
 | 2 | Setup uptime monitor miễn phí (vd: UptimeRobot) cho endpoint `/health` |
-| 3 | Định kỳ kiểm tra Twilio trial balance, VNPay sandbox vẫn hoạt động |
+| 3 | Định kỳ kiểm tra Twilio trial balance và đảm bảo `STATIC_QR_URL` vẫn hoạt động |
 | 4 | Cập nhật tài liệu API markdown nếu có thay đổi endpoint |
 
 ---

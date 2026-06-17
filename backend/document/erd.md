@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Danh sách bảng & thuộc tính (14 bảng)
+## 1. Danh sách bảng & thuộc tính (14 bảng — không có bảng transactions)
 
 ### 1.1 users
 
@@ -142,7 +142,6 @@
 | loyalty_points_used | INT | Default 0 |
 | created_at | TIMESTAMP | |
 | updated_at | TIMESTAMP | |
-| sepay_transaction_id | INT | Nullable, ID giao dịch từ Sepay đã thanh toán cho đơn này |
 
 ### 1.10 order_items
 
@@ -211,23 +210,7 @@
 | meta | JSON | Nullable |
 | created_at | TIMESTAMP | |
 
-### 1.15 transactions
-| Thuộc tính | Kiểu dữ liệu | Ghi chú |
-|---|---|---|
-| id | INT | PK, auto-increment (hoặc UUID nếu muốn) |
-| gateway | VARCHAR(100) | Tên ngân hàng (VD: Vietcombank) |
-| transaction_date | TIMESTAMP | Thời gian giao dịch từ ngân hàng |
-| account_number | VARCHAR(100) | Số tài khoản nhận |
-| sub_account | VARCHAR(250) | Nullable |
-| amount_in | DECIMAL(20,2) | Số tiền vào |
-| amount_out | DECIMAL(20,2) | Số tiền ra |
-| accumulated | DECIMAL(20,2) | Số dư lũy kế |
-| code | VARCHAR(250) | Nullable |
-| transaction_content | TEXT | Nội dung chuyển khoản |
-| reference_number | VARCHAR(255) | Mã tham chiếu |
-| body | TEXT | Nullable |
-| sepay_transaction_id | INT | ID giao dịch từ Sepay, dùng để chống duplicate |
-| created_at | TIMESTAMP | |
+
 
 ---
 
@@ -253,7 +236,6 @@ Ký hiệu: `Bảng A (x,y) — (m,n) Bảng B` nghĩa là một bản ghi của
 | 14 | orders (1,1) — (0,N) loyalty_logs |
 | 15 | order_items (1,1) — (0,N) order_item_options |
 | 16 | order_items (1,1) — (0,1) reviews |
-| 17 | orders (1,1) — (0,1) transactions |
 
 ---
 

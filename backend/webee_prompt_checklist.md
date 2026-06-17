@@ -20,7 +20,7 @@
 | [Phase 1](#phase-1--project-scaffolding) | Tạo khung project backend | 12 tasks |
 | [Phase 2](#phase-2--database--seed-data) | Prisma schema + Seed data | 6 tasks |
 | [Phase 3](#phase-3--xây-dựng-api-theo-milestone) | Xây dựng 11 module API | 11 milestones |
-| [Phase 4](#phase-4--tích-hợp-bên-thứ-ba) | Google OAuth, Cloudinary, Email, SMS, Sepay | 5 tích hợp |
+| [Phase 4](#phase-4--tích-hợp-bên-thứ-ba) | Google OAuth, Cloudinary, Email, SMS, QR tĩnh | 5 hạng mục |
 | [Phase 5](#phase-5--testing) | Testing toàn bộ API | 4 loại |
 | [Phase 6](#phase-6--deployment) | Deploy lên production | 10 tasks |
 
@@ -33,15 +33,15 @@
 
 ### ✅ Checklist thủ công (bạn tự làm, không cần AI):
 
-- [ ] **1. Tạo repo Git** — Tạo repo trên GitHub/GitLab, tạo 2 nhánh: `main` và `dev`. Bật branch protection cho `main`.
-- [ ] **2. Cài Node.js LTS** — Tải từ nodejs.org, cài thêm pnpm: `npm install -g pnpm`
+- [✅] **1. Tạo repo Git** — Tạo repo trên GitHub/GitLab, tạo 2 nhánh: `main` và `dev`. Bật branch protection cho `main`.
+- [✅] **2. Cài Node.js LTS** — Tải từ nodejs.org, cài thêm pnpm: `npm install -g pnpm`
 - [ ] **3. Đăng ký Supabase** — Vào supabase.com → New project → Lấy connection string (Settings → Database → Connection string → URI mode)
 - [ ] **4. Đăng ký Upstash Redis** — Vào upstash.com → Create Database → Lấy `UPSTASH_REDIS_REST_URL` và `REDIS_URL`
 - [ ] **5. Đăng ký Cloudinary** — Vào cloudinary.com → Dashboard → Lấy `cloud_name`, `api_key`, `api_secret`
 - [ ] **6. Tạo Google Cloud Project** — console.cloud.google.com → APIs & Services → Credentials → OAuth 2.0 Client ID → Khai báo redirect URI: `http://localhost:3000/auth/google/callback`
 - [ ] **7. Tạo Gmail App Password** — Bật 2FA trên tài khoản Gmail → Security → App Passwords → Tạo mới → Copy password
 - [ ] **8. Đăng ký Twilio** — twilio.com → Lấy `Account SID`, `Auth Token`, số điện thoại trial (bắt đầu bằng +1...)
-- [ ] **9. Đăng ký SePay** — my.sepay.vn → Tích hợp Webhooks → Thêm Webhooks → Chọn tài khoản ngân hàng → Điền URL webhook → Copy API Key
+- [ ] **9. Chuẩn bị QR chuyển khoản tĩnh** — Tạo hoặc tải ảnh QR ngân hàng cố định, upload lên Cloudinary hoặc nơi lưu trữ ổn định, lấy URL điền vào `STATIC_QR_URL`
 - [ ] **10. Tạo file `.env`** — Copy từ `.env.example`, điền tất cả giá trị thật vào
 
 ### 🤖 Prompt gợi ý cho Phase 0:
@@ -52,7 +52,7 @@ Tham khảo: backend/skill/skill-setup-env.md, backend/document/tech-stack.md
 
 Nhiệm vụ: Đọc skill-setup-env.md và liệt kê CHECKLIST CHI TIẾT từng bước để tôi có được
 toàn bộ các biến môi trường trong .env.example (Supabase, Upstash, Cloudinary, 
-Google OAuth, Gmail App Password, Twilio, SePay).
+Google OAuth, Gmail App Password, Twilio, QR tĩnh, JWT secrets).
 
 Đầu ra mong đợi:
 - Checklist dạng đánh dấu được (checkbox)
@@ -114,7 +114,7 @@ Không tự chạy lệnh nào.
 
 ### ✅ Checklist:
 
-- [ ] **1.** Tạo file `prisma/schema.prisma` từ ERD (15 bảng, đúng relations)
+- [ ] **1.** Tạo file `prisma/schema.prisma` từ ERD
 - [ ] **2.** Chạy `prisma migrate dev` tạo schema lần đầu *(tự làm)*
 - [ ] **3.** Viết `prisma/seed.ts`: 3-5 categories, 10-15 products, mỗi product 2-3 option_groups + option_items
 - [ ] **4.** Seed 1 admin account (`role=admin`, `is_active=true`)
@@ -338,57 +338,50 @@ Sau khi tạo module, liệt kê key Redis mẫu để tôi kiểm tra bằng re
 
 ### M8 — Module: ORDERS ⭐ QUAN TRỌNG NHẤT
 
-**Phụ thuộc:** M6, M7, SePay, Email/SMS
-**Endpoints:** tạo đơn, lịch sử, chi tiết (polling), hủy, webhook SePay, admin confirm fallback, admin list/detail/update-status
-
-> ⚠️ **Cần ngrok để test webhook local!** Cài ngrok, chạy `ngrok http 3000`, lấy URL public và cập nhật webhook URL tạm thời trên my.sepay.vn
+**Phụ thuộc:** M6, M7, Email/SMS
+**Endpoints:** tạo đơn, lịch sử, chi tiết (polling), hủy, webhook payment mô phỏng, admin list/detail/update-status
 
 #### 🤖 Prompt đặc biệt M8:
 
 ```
 Ngữ cảnh: Dự án WeBee. Đây là module QUAN TRỌNG NHẤT.
-Tham khảo: backend/document/api.md (MODULE: ORDERS), backend/skill/skill-payment-sepay.md
+Tham khảo: backend/document/api.md (MODULE: ORDERS), backend/document/implementation-plan.md (M8)
 Quy tắc: backend/skill-agent-rules.md
 
-Đọc KỸ skill-payment-sepay.md TRƯỚC khi code module Orders.
+Đọc KỸ phần MODULE: ORDERS trong `api.md` và ghi chú M8 trong `implementation-plan.md` TRƯỚC khi code module Orders.
 
 Điểm quan trọng cần implement đúng:
 1. POST /orders:
    - Lấy giỏ từ Redis → validate coupon → tính subtotal/discount/shipping/total
    - Insert orders + order_items + order_item_options (snapshot tên + giá tại thời điểm đặt)
    - Xóa giỏ Redis sau khi tạo đơn thành công
-   - Tạo QR URL: https://qr.sepay.vn/img?acc={ACCOUNT}&bank={BANK}&amount={total}&des=DH{order_id}&template=compact
+   - Lấy `STATIC_QR_URL` từ env để trả về ảnh QR cố định
    - Nếu email/phone chưa có tài khoản active: tạo user is_active=false
-   - Gửi email/SMS xác nhận đơn + QR code
-   - Trả về: order_id, tóm tắt đơn, payment_qr_url
+   - Gửi email/SMS xác nhận đơn + QR cố định + nội dung chuyển khoản `DH{order_id}`
+   - Trả về: order_id, tóm tắt đơn, payment_qr_url, transfer_content
 
-2. POST /webhooks/sepay (QUAN TRỌNG):
-   - Xác thực header: Authorization: Apikey {SEPAY_API_KEY}
-   - Kiểm tra transferType='in'
-   - Chống duplicate: kiểm tra sepay_transaction_id trong bảng transactions
-   - Lưu vào bảng transactions
-   - Dùng regex /DH(\w+)/ trích xuất order_id từ transaction_content
-   - Tìm order có total_amount = amount_in, payment_status='pending'
-   - Cập nhật payment_status='paid', order_status='confirmed', sepay_transaction_id
-   - Trả về 200 ngay (không để SePay timeout)
+2. POST /webhooks/payment (QUAN TRỌNG):
+   - Không cần xác thực cho MVP
+   - Nhận JSON `{ order_id, amount }`
+   - Tìm order có `order_id`, `total_amount = amount`, `payment_status='pending'`
+   - Nếu hợp lệ: cập nhật `payment_status='paid'`, `order_status='confirmed'`
+   - Trả về 200
 
 3. GET /orders/me/:id: FE polling mỗi 2-3 giây để phát hiện payment_status='paid'
 
 Tạo đủ 5 file + tích hợp route vào index.ts.
 ```
 
-#### 🤖 Prompt test M8 với ngrok:
+#### 🤖 Prompt test M8 với webhook mô phỏng:
 
 ```
-Tôi cần test luồng thanh toán Sepay local với ngrok.
-URL ngrok của tôi là: [ĐIỀN URL NGROK VÀO ĐÂY]
+Tôi cần test luồng thanh toán QR tĩnh local.
 
 Hãy hướng dẫn tôi:
-1. Cập nhật webhook URL trên my.sepay.vn tạm thời sang URL ngrok
-2. Tạo đơn test qua Swagger (request body mẫu hoàn chỉnh)
-3. Mô phỏng webhook SePay gửi về (curl command mẫu)
-4. Kiểm tra order được cập nhật đúng trong DB
-5. Kiểm tra FE polling phát hiện payment_status='paid'
+1. Tạo đơn test qua Swagger (request body mẫu hoàn chỉnh)
+2. Mô phỏng webhook `POST /webhooks/payment` bằng curl command mẫu
+3. Kiểm tra order được cập nhật đúng trong DB
+4. Kiểm tra FE polling phát hiện payment_status='paid'
 ```
 
 - [ ] M8 hoàn thành
@@ -503,13 +496,13 @@ Nhiệm vụ:
   - Dùng `multer` nhận file → upload buffer → lấy URL → lưu DB
 
 - [ ] **Nodemailer (Gmail SMTP)** — Module: Auth, Orders
-  - Email kích hoạt tài khoản, reset password, xác nhận đơn (kèm QR code SePay)
+  - Email kích hoạt tài khoản, reset password, xác nhận đơn (kèm QR tĩnh + nội dung chuyển khoản)
 
 - [ ] **Twilio SMS** — Module: Auth, Orders
   - Chỉ kích hoạt khi user có `phone` nhưng không có `email`
 
-- [ ] **SePay QR + Webhook** — Module: Orders
-  - Đã covered trong M8. Nhớ dùng ngrok khi test local.
+- [ ] **QR tĩnh + webhook mô phỏng** — Module: Orders
+  - Đã covered trong M8. Dùng `STATIC_QR_URL` và `POST /webhooks/payment`.
 
 ---
 
@@ -570,7 +563,7 @@ Nhiệm vụ:
 - [ ] **3.** Cấu hình biến môi trường trên platform (copy từ `.env`, KHÔNG commit file `.env`)
 - [ ] **4.** Cấu hình CORS whitelist domain Angular production
 - [ ] **5.** Cập nhật Google OAuth redirect URI sang domain production
-- [ ] **6.** Cập nhật webhook URL SePay sang domain production
+- [ ] **6.** Đảm bảo `STATIC_QR_URL` production còn hoạt động ổn định
 - [ ] **7.** Chạy `prisma migrate deploy` trên production DB
 - [ ] **8.** Verify Swagger UI production hoạt động: `https://yourdomain.com/api-docs`
 - [ ] **9.** Test 1 luồng đầy đủ: đăng ký → đặt hàng → thanh toán → nhận xác nhận
@@ -586,7 +579,7 @@ Nhiệm vụ: Hướng dẫn chi tiết từng bước deploy backend Node.js + 
 1. Cấu hình build command (tsc) và start command
 2. Cách set biến môi trường trên platform
 3. Cách chạy prisma migrate deploy (không phải migrate dev)
-4. Cập nhật CORS, Google OAuth redirect URI, SePay webhook URL cho production
+4. Cập nhật CORS, Google OAuth redirect URI, và kiểm tra `STATIC_QR_URL` cho production
 5. Cách verify deployment thành công
 
 Đầu ra: Checklist thủ công từng bước theo thứ tự.
@@ -616,7 +609,7 @@ Nhiệm vụ: Hướng dẫn chi tiết từng bước deploy backend Node.js + 
 | Scaffolding project | `skill-scaffolding.md`, `project-structure.md` |
 | Prisma schema | `erd.md` + `skill-prisma-schema.md` |
 | Bất kỳ module nào | `skill-module.md` + đoạn API spec tương ứng từ `api.md` + `skill-agent-rules.md` |
-| Module Orders | Thêm: `skill-payment-sepay.md` |
+| Module Orders | `api.md` (MODULE: ORDERS) + `implementation-plan.md` (ghi chú M8) |
 | Tích hợp 3rd-party | `skill-integration.md` |
 | Debug lỗi | `skill-debug.md` + files của module lỗi |
 | Review & commit | `skill-review-commit.md` |
@@ -642,8 +635,8 @@ M9 (Reviews) ←──────────────── M8 (order_statu
 4. FE tính realtime: base_price + Σ(extra_price của các item đã chọn)
 5. Khách nhấn "Thêm vào giỏ" → POST /cart/items (gửi kèm option_item_ids[])
 6. Giỏ hàng lưu Redis với snapshot giá
-7. Checkout → POST /orders → sinh QR SePay → hiển thị QR
-8. Khách chuyển khoản → SePay webhook → order updated → FE polling nhận paid
+7. Checkout → POST /orders → trả về QR tĩnh + nội dung chuyển khoản → hiển thị QR
+8. Khách chuyển khoản → gọi `POST /webhooks/payment` mô phỏng xác nhận → order updated → FE polling nhận paid
 ```
 
 ---

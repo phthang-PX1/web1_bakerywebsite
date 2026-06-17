@@ -1,6 +1,6 @@
 # Skill: Tích hợp dịch vụ bên thứ ba
 
-**Ngữ cảnh:** Tích hợp một dịch vụ (Cloudinary, Google OAuth, Nodemailer, Twilio, VNPay) vào module cụ thể, theo `implementation-plan.md` Phase 4.
+**Ngữ cảnh:** Tích hợp một dịch vụ (Cloudinary, Google OAuth, Nodemailer, Twilio) hoặc hoàn thiện utility thanh toán QR tĩnh vào module cụ thể, theo `implementation-plan.md` Phase 4.
 
 **Nhiệm vụ:**
 1. Xác định dịch vụ và module sẽ dùng.
