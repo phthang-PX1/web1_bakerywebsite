@@ -7,6 +7,12 @@ export const swaggerSpec = swaggerJsdoc({
       title: "WeBee API",
       version: "1.0.0"
     },
+    servers: [
+      {
+        url: "/api",
+        description: "API base path"
+      }
+    ],
     components: {
       securitySchemes: {
         bearerAuth: {
