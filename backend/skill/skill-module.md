@@ -26,3 +26,4 @@
 - Đề xuất request mẫu để test qua Swagger.
 
 **Lưu ý:** Không tự ý thêm endpoint ngoài API spec. Nếu có gì chưa rõ, hỏi tôi trước.
+Với module Orders, bám theo `api.md` và `implementation-plan.md` để implement luồng QR tĩnh + webhook `/webhooks/payment`.

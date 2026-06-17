@@ -1,7 +1,7 @@
 # Project Rules – Webee Backend
 Nếu có gì chưa rõ cần phải hỏi lại để có sự xác nhận, nếu có thay đổi gì phải check lại tài liệu, kế hoạch liên quan để chỉnh sửa lại bổ sung để cho đồng bộ (cần phải đưa tôi check lại). Code phải gọn gàng, không cần note quá chi tiết
 
-- Khi làm module Orders, bắt buộc đọc tài liệu Sepay và tuân theo `skill-payment-sepay.md`.
+- Khi làm module Orders, bắt buộc đọc kỹ `api.md` phần MODULE: ORDERS và hiểu rõ cơ chế thanh toán QR tĩnh + webhook `/webhooks/payment` trước khi code.
 ## Format response mong đợi từ AI
 - **Đối với code:** giải thích logic trước, sau đó đưa code (hoặc diff).
 - **Đối với debug:** xác định nguyên nhân → đề xuất hướng fix → không tự sửa.
@@ -31,7 +31,10 @@ Mỗi module trong src/modules/<name>/ gồm:
 - Sau khi tạo code, giải thích ngắn gọn logic end-to-end của endpoint đó.
 
 ## Tài liệu tham khảo
-- ERD: backend/document/erd.md
-- API spec: backend/document/api-spec.md
-- Kế hoạch: backend/document/implementation-plan.md
-- Cấu trúc: backend/document/project-structure.md
+- ERD: `backend/document/erd.md`
+- API spec: `backend/document/api.md`
+- Kế hoạch: `backend/document/implementation-plan.md`
+- Cấu trúc: `backend/document/project-structure.md`
+
+
+ĐIều chỉnh lại các cáu trúc skill

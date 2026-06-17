@@ -12,7 +12,7 @@
 | File Storage | Cloudinary |
 | Email | Nodemailer + Gmail SMTP |
 | SMS | Twilio |
-| Payment | VNPay |
+| Payment | Static QR chuyển khoản ngân hàng (ảnh tĩnh, không cần cổng thanh toán) |
 | API Docs | Swagger (swagger-ui-express) |
 | Frontend | Angular |
 | Analytics | GA4 + Microsoft Clarity (client-side) + endpoint batch nội bộ |
