@@ -35,3 +35,6 @@ Mỗi module trong src/modules/<name>/ gồm:
 - API spec: `backend/document/api.md`
 - Kế hoạch: `backend/document/implementation-plan.md`
 - Cấu trúc: `backend/document/project-structure.md`
+
+
+ĐIều chỉnh lại các cáu trúc skill

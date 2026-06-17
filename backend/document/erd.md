@@ -4,7 +4,7 @@
 
 ---
 
-## 1. Danh sách bảng & thuộc tính (14 bảng — không có bảng transactions)
+## 1. Danh sách bảng & thuộc tính (16 bảng — không có bảng transactions)
 
 ### 1.1 users
 
@@ -20,7 +20,7 @@
 | google_id | VARCHAR(100) | Nullable |
 | role | ENUM(member, admin) | |
 | loyalty_points | INT | Default 0 |
-| membership_tier | ENUM(bronze, silver, gold) | Default bronze |
+| membership_tier | ENUM(member, bronze, silver, gold, diamond) | Default member |
 | is_active | BOOLEAN | Default false |
 | refresh_token_hash | VARCHAR(255) | Nullable — hash refresh token hiện tại, dùng để invalidate khi logout/reset password |
 | created_at | TIMESTAMP | |
@@ -191,7 +191,30 @@
 | reason | VARCHAR(255) | |
 | created_at | TIMESTAMP | |
 
-### 1.14 analytics_events
+### 1.14 membership_cycles
+
+| Thuộc tính | Kiểu dữ liệu | Ghi chú |
+|---|---|---|
+| cycle_id | UUID | PK |
+| user_id | UUID | FK → users.user_id |
+| cycle_start | DATE | |
+| cycle_end | DATE | |
+| total_orders | INT | Số đơn trong chu kỳ |
+| total_revenue | DECIMAL(10,2) | Doanh thu trong chu kỳ |
+| tier_result | ENUM(member, bronze, silver, gold, diamond) | Hạng được xét cuối chu kỳ |
+| created_at | TIMESTAMP | |
+
+### 1.15 vouchers_inventory
+
+| Thuộc tính | Kiểu dữ liệu | Ghi chú |
+|---|---|---|
+| voucher_template_id | UUID | PK |
+| tier | ENUM(bronze, silver, gold, diamond) | Hạng được nhận voucher |
+| coupon_id | UUID | FK → coupons.coupon_id |
+| quantity_per_month | INT | Số lượng issue mỗi tháng cho hạng này |
+| is_active | BOOLEAN | Default true |
+
+### 1.16 analytics_events
 
 | Thuộc tính | Kiểu dữ liệu | Ghi chú |
 |---|---|---|
@@ -214,7 +237,7 @@
 
 ---
 
-## 2. Mối quan hệ đầy đủ (16 quan hệ)
+## 2. Mối quan hệ đầy đủ (18 quan hệ)
 
 Ký hiệu: `Bảng A (x,y) — (m,n) Bảng B` nghĩa là một bản ghi của A liên kết với (m,n) bản ghi của B, và một bản ghi của B liên kết với (x,y) bản ghi của A.
 
@@ -224,18 +247,20 @@ Ký hiệu: `Bảng A (x,y) — (m,n) Bảng B` nghĩa là một bản ghi của
 | 2 | users (1,1) — (0,N) orders |
 | 3 | users (1,1) — (0,N) reviews |
 | 4 | users (1,1) — (0,N) loyalty_logs |
-| 5 | users (1,1) — (0,N) analytics_events |
-| 6 | categories (1,1) — (0,N) products |
-| 7 | products (1,1) — (0,N) product_images |
-| 8 | products (1,1) — (0,N) option_groups |
-| 9 | products (1,1) — (0,N) order_items |
-| 10 | option_groups (1,1) — (1,N) option_items |
-| 11 | option_items (1,1) — (0,N) order_item_options |
-| 12 | coupons (1,1) — (0,N) orders |
-| 13 | orders (1,1) — (1,N) order_items |
-| 14 | orders (1,1) — (0,N) loyalty_logs |
-| 15 | order_items (1,1) — (0,N) order_item_options |
-| 16 | order_items (1,1) — (0,1) reviews |
+| 5 | users (1,1) — (0,N) membership_cycles |
+| 6 | users (1,1) — (0,N) analytics_events |
+| 7 | categories (1,1) — (0,N) products |
+| 8 | products (1,1) — (0,N) product_images |
+| 9 | products (1,1) — (0,N) option_groups |
+| 10 | products (1,1) — (0,N) order_items |
+| 11 | option_groups (1,1) — (1,N) option_items |
+| 12 | option_items (1,1) — (0,N) order_item_options |
+| 13 | coupons (1,1) — (0,N) orders |
+| 14 | coupons (1,1) — (0,N) vouchers_inventory |
+| 15 | orders (1,1) — (1,N) order_items |
+| 16 | orders (1,1) — (0,N) loyalty_logs |
+| 17 | order_items (1,1) — (0,N) order_item_options |
+| 18 | order_items (1,1) — (0,1) reviews |
 
 ---
 
@@ -245,3 +270,4 @@ Ký hiệu: `Bảng A (x,y) — (m,n) Bảng B` nghĩa là một bản ghi của
 - **2NF:** Mọi thuộc tính phụ thuộc hoàn toàn vào PK — các bảng trung gian (`order_item_options`) được tách riêng đúng cách.
 - **3NF:** Không có phụ thuộc bắc cầu. `product_name_snapshot`, `unit_price_snapshot` (trong `order_items`) và `option_name_snapshot`, `option_price_snapshot` (trong `order_item_options`) là **dữ liệu lịch sử lưu có chủ đích** (snapshot tại thời điểm đặt hàng), không phải vi phạm 3NF — giá/tên sản phẩm có thể thay đổi sau này nhưng đơn hàng cũ phải giữ nguyên giá trị đã chốt.
 - **Quyết định đã chốt:** `reviews` KHÔNG có `product_id` trực tiếp. Để lấy đánh giá theo sản phẩm, truy vấn qua `reviews → order_items.product_id → products`. Đây là quyết định có chủ đích để giữ ERD sạch, không denormalize.
+- **Loyalty:** `loyalty_points` là số điểm dùng đổi voucher, không phải tiêu chí xét hạng. `membership_tier` được xét theo chu kỳ 6 tháng dựa trên `total_orders` + `total_revenue`, và lịch sử xét hạng được lưu trong `membership_cycles`.

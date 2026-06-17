@@ -109,7 +109,7 @@
 
 | Method | Endpoint | Auth | Mô tả | Logic end-to-end |
 |--------|----------|------|-------|------------------|
-| POST | `/internal/loyalty/credit` | Internal | Cộng điểm sau đơn | Nhận `order_id` → query `total_amount` → tính điểm (vd: 1.000đ = 1 điểm) → insert `loyalty_logs` (points_delta dương) → update `users.loyalty_points` → kiểm tra ngưỡng nâng hạng (bronze/silver/gold) → update `membership_tier` nếu đủ → trả về |
+| POST | `/internal/loyalty/credit` | Internal | Cộng điểm sau đơn | Nhận `order_id` → kiểm tra đơn đã `delivered` và chưa cộng điểm → query `total_amount` + hạng hiện tại của user → tính điểm (10.000đ = 1 điểm, nhân hệ số hạng hiện tại) → insert `loyalty_logs` (points_delta dương) → update `users.loyalty_points` + `orders.loyalty_points_earned` → trả về. Hạng thành viên không xét theo tổng điểm mà xét theo chu kỳ 6 tháng trong `membership_cycles`. |
 
 ---
 
@@ -151,4 +151,4 @@
 | POST | `/webhooks/payment` | Public (không cần xác thực) | Webhook xác nhận thanh toán (mô phỏng tự động) | Nhận JSON `{ order_id, amount }`. Tìm order với `id=order_id`, `total_amount=amount`, `payment_status='pending'`. Nếu hợp lệ: cập nhật `payment_status='paid'`, `order_status='confirmed'`. Trả về 200. *Endpoint này mô phỏng webhook tự động cho MVP — trong thực tế có thể được gọi bởi script nghiệp vụ kiểm tra chuyển khoản hoặc tích hợp ngân hàng sau này. Không cần admin thao tác thủ công.* |
 | GET | `/admin/orders` | Admin | Danh sách đơn hàng | Query params: `status`, `payment_status`, `date_from`, `date_to`, `search` → build query → trả về + pagination |
 | GET | `/admin/orders/:id` | Admin | Chi tiết đơn hàng | Query đầy đủ order + items + options + thông tin khách → trả về |
-| PATCH | `/admin/orders/:id/status` | Admin | Cập nhật trạng thái đơn | Validate chuyển trạng thái hợp lệ theo thứ tự (`pending` → `confirmed` → `processing` → `ready` → `delivered`; hoặc `cancelled`). Nếu chuyển sang `delivered`: gọi internal endpoint `POST /internal/loyalty/credit` để cộng điểm. Cập nhật `order_status` → trả về. |
+| PATCH | `/admin/orders/:id/status` | Admin | Cập nhật trạng thái đơn | Validate chuyển trạng thái hợp lệ theo thứ tự (`pending` → `confirmed` → `processing` → `ready` → `delivered`; hoặc `cancelled`). Nếu chuyển sang `delivered`: gọi logic internal loyalty để cộng điểm. Nếu chuyển sang `cancelled` sau khi đã cộng điểm: trừ lại điểm tương ứng và ghi `loyalty_logs` âm. Cập nhật `order_status` → trả về. |
