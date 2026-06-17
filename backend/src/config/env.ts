@@ -26,7 +26,8 @@ const envSchema = z.object({
   TWILIO_ACCOUNT_SID: z.string().min(1),
   TWILIO_AUTH_TOKEN: z.string().min(1),
   TWILIO_PHONE_NUMBER: z.string().min(1),
-  STATIC_QR_URL: z.string().url()
+  STATIC_QR_URL: z.string().url(),
+  INTERNAL_API_KEY: z.string().min(16).optional()
 });
 
 const parsedEnv = envSchema.safeParse(process.env);

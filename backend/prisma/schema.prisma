@@ -18,9 +18,18 @@ enum UserRole {
 }
 
 enum MembershipTier {
+  member
   bronze
   silver
   gold
+  diamond
+}
+
+enum VoucherTier {
+  bronze
+  silver
+  gold
+  diamond
 }
 
 enum DiscountType {
@@ -73,17 +82,18 @@ model User {
   googleId         String?        @unique @map("google_id") @db.VarChar(100)
   role             UserRole       @default(member)
   loyaltyPoints    Int            @default(0) @map("loyalty_points")
-  membershipTier   MembershipTier @default(bronze) @map("membership_tier")
+  membershipTier   MembershipTier @default(member) @map("membership_tier")
   isActive         Boolean        @default(false) @map("is_active")
   refreshTokenHash String?        @map("refresh_token_hash") @db.VarChar(255)
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
 
-  addresses       Address[]
-  orders          Order[]
-  reviews         Review[]
-  loyaltyLogs     LoyaltyLog[]
-  analyticsEvents AnalyticsEvent[]
+  addresses        Address[]
+  orders           Order[]
+  reviews          Review[]
+  loyaltyLogs      LoyaltyLog[]
+  membershipCycles MembershipCycle[]
+  analyticsEvents  AnalyticsEvent[]
 
   @@index([email])
   @@index([phone])
@@ -202,7 +212,8 @@ model Coupon {
   endDate           DateTime     @map("end_date")
   isActive          Boolean      @default(true) @map("is_active")
 
-  orders Order[]
+  orders            Order[]
+  vouchersInventory VoucherInventory[]
 
   @@index([code])
   @@map("coupons")
@@ -308,6 +319,37 @@ model LoyaltyLog {
   @@index([userId])
   @@index([orderId])
   @@map("loyalty_logs")
+}
+
+model MembershipCycle {
+  cycleId      String         @id @default(uuid()) @map("cycle_id") @db.Uuid
+  userId       String         @map("user_id") @db.Uuid
+  cycleStart   DateTime       @map("cycle_start") @db.Date
+  cycleEnd     DateTime       @map("cycle_end") @db.Date
+  totalOrders  Int            @map("total_orders")
+  totalRevenue Decimal        @map("total_revenue") @db.Decimal(10, 2)
+  tierResult   MembershipTier @map("tier_result")
+  createdAt    DateTime       @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([cycleStart, cycleEnd])
+  @@map("membership_cycles")
+}
+
+model VoucherInventory {
+  voucherTemplateId String      @id @default(uuid()) @map("voucher_template_id") @db.Uuid
+  tier              VoucherTier
+  couponId          String      @map("coupon_id") @db.Uuid
+  quantityPerMonth  Int         @map("quantity_per_month")
+  isActive          Boolean     @default(true) @map("is_active")
+
+  coupon Coupon @relation(fields: [couponId], references: [couponId], onDelete: Cascade)
+
+  @@index([tier])
+  @@index([couponId])
+  @@map("vouchers_inventory")
 }
 
 model AnalyticsEvent {

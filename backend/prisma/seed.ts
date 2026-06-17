@@ -150,6 +150,8 @@ const products = [
 
 async function clearDatabase() {
   await prisma.analyticsEvent.deleteMany();
+  await prisma.voucherInventory.deleteMany();
+  await prisma.membershipCycle.deleteMany();
   await prisma.loyaltyLog.deleteMany();
   await prisma.review.deleteMany();
   await prisma.orderItemOption.deleteMany();
@@ -180,7 +182,7 @@ async function seedUsers() {
         role: "admin",
         isActive: true,
         loyaltyPoints: 0,
-        membershipTier: "bronze"
+        membershipTier: "member"
       },
       {
         email: "member.active@webee.vn",
@@ -202,7 +204,7 @@ async function seedUsers() {
         role: "member",
         isActive: false,
         loyaltyPoints: 0,
-        membershipTier: "bronze"
+        membershipTier: "member"
       }
     ]
   });

@@ -1,3 +1,9 @@
 import { z } from "zod";
 
-export const loyaltyEmptySchema = z.object({});
+export const creditLoyaltyBodySchema = z
+  .object({
+    order_id: z.string().uuid()
+  })
+  .transform((value) => ({
+    orderId: value.order_id
+  }));
