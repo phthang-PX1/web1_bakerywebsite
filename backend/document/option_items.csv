@@ -1,0 +1,361 @@
+﻿item_id,group_id,name,extra_price,image_url,is_active,sort_order
+a424257e-81f9-56fe-a3cc-d469581901d6,de198ceb-a51a-504d-89a8-ab07d9c7b437,12 cm,0,,True,0
+e3639e26-0149-51a6-989b-134b11e017c7,de198ceb-a51a-504d-89a8-ab07d9c7b437,16 cm,79000,,True,1
+6d6a80e8-81a2-5be0-bd4f-0d9cfc28a046,3d453f4d-6769-5e5e-ab48-90f66a04a65f,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+ac06c432-2c4f-546b-a2ca-9c2700693758,3d453f4d-6769-5e5e-ab48-90f66a04a65f,Kem phô mai,0,,True,1
+e1a08789-73f4-5ce4-a92e-7ea32f472b92,3d453f4d-6769-5e5e-ab48-90f66a04a65f,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+86c0efd6-3e2f-541e-b14e-98d554684256,3d453f4d-6769-5e5e-ab48-90f66a04a65f,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+d0fcd94d-81f4-5f5d-9be4-2b1206d4c655,d15f5a3a-f319-51d6-8080-4526a60b537e,Kem tươi (hồng),0,,True,0
+fc7e764e-11d5-5dd1-8f89-6158f0763262,d15f5a3a-f319-51d6-8080-4526a60b537e,Kem phô mai,0,,True,1
+0e238c70-7666-5c83-8f3e-f08548b59bbd,d15f5a3a-f319-51d6-8080-4526a60b537e,Kem bơ,0,,True,2
+cf5fc8da-cd6e-501b-926c-aaf25ee603d4,d15f5a3a-f319-51d6-8080-4526a60b537e,Ganache socola,0,,True,3
+c1374efa-438f-5a1a-ace1-980ec2b9ebbe,59649e99-3375-5e7b-a2e2-3d7bdad256d3,Dâu tươi,0,,True,0
+70a54a6a-2783-5cae-8671-2ed7cb1c9155,59649e99-3375-5e7b-a2e2-3d7bdad256d3,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+fb1418e2-22e5-5ec3-8ad5-3befcf85df80,59649e99-3375-5e7b-a2e2-3d7bdad256d3,Bánh quy,0,,True,2
+84a16e8d-c80b-59b8-a881-aedb805ff57b,59649e99-3375-5e7b-a2e2-3d7bdad256d3,whipping cream,0,,True,3
+12237935-fc2e-5318-8926-1f2a6de2168d,59649e99-3375-5e7b-a2e2-3d7bdad256d3,Cam tươi,0,,True,4
+877c720b-e4b4-58b3-9a94-c8a03d6b4018,8627828c-2f81-5d75-8fb4-bacdd1e87d95,12 cm,0,,True,0
+e715a95d-4aa9-5c11-ab2a-0d593715b7c6,8627828c-2f81-5d75-8fb4-bacdd1e87d95,16 cm,79000,,True,1
+53abf2c1-2ed6-5752-a2da-a698d3b024ca,87888222-eff0-5f9d-ae97-a59502c8b2eb,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+b6da348c-9c70-54cd-8b55-9f457a8193c6,87888222-eff0-5f9d-ae97-a59502c8b2eb,Kem phô mai,0,,True,1
+67652edb-6fef-5120-840e-17704d65aed3,87888222-eff0-5f9d-ae97-a59502c8b2eb,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+6e7ecf63-b183-50a3-930d-e17cf873b357,87888222-eff0-5f9d-ae97-a59502c8b2eb,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+d32fcb25-b2ad-5b51-8559-3292b4364145,90eae96a-b516-5ab7-b93e-45a3ce7f6e29,Kem tươi (hồng),0,,True,0
+05934d35-3b0d-53a7-bbc1-83d3feaee641,90eae96a-b516-5ab7-b93e-45a3ce7f6e29,Kem phô mai,0,,True,1
+2ef97e8e-1425-5421-b50a-0525ee391208,90eae96a-b516-5ab7-b93e-45a3ce7f6e29,Kem bơ,0,,True,2
+1331fc7c-569a-57be-9654-be2b32f3f9b0,90eae96a-b516-5ab7-b93e-45a3ce7f6e29,Ganache socola,0,,True,3
+786b3a11-83a3-5f71-a55b-51f73157a612,129ec636-2876-5786-948e-931ebdc9950a,Dâu tươi,0,,True,0
+6b61f32a-bbdc-5641-90ef-5e6c80ee4187,129ec636-2876-5786-948e-931ebdc9950a,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+d2311dfc-6790-5d06-b7c5-e813eb951ab9,129ec636-2876-5786-948e-931ebdc9950a,Bánh quy,0,,True,2
+4f8e2f6b-3247-54b7-af15-9306a0258e12,129ec636-2876-5786-948e-931ebdc9950a,whipping cream,0,,True,3
+b19a2f9a-c1e7-5b92-9a2a-d22e618af285,129ec636-2876-5786-948e-931ebdc9950a,Cam tươi,0,,True,4
+f797e590-a46f-5e51-8689-e1414e437ebd,b5a3313a-a8f3-5cec-b631-d155ae6430a4,12 cm,0,,True,0
+ef470edb-9b71-57c5-86ee-df18ac4c43d0,b5a3313a-a8f3-5cec-b631-d155ae6430a4,16 cm,79000,,True,1
+b49d7891-953d-5f7e-9485-387e868f864a,cfcc5033-28e3-559d-86f6-14fa1c557451,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+6b99d424-2754-5342-a8b5-63204672b615,cfcc5033-28e3-559d-86f6-14fa1c557451,Kem phô mai,0,,True,1
+93b01cec-6ddc-5ea3-a952-a203bbad4397,cfcc5033-28e3-559d-86f6-14fa1c557451,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+47022fdf-dc03-5fde-af2f-fb10ec38a581,cfcc5033-28e3-559d-86f6-14fa1c557451,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+b976d2af-0899-5d07-aa99-544146335ce5,a6e60417-d7cd-55b4-acc1-b244d9442e65,Kem tươi (hồng),0,,True,0
+53214d4f-d054-5940-8033-3f7342b1ec3b,a6e60417-d7cd-55b4-acc1-b244d9442e65,Kem phô mai,0,,True,1
+6ddfd334-1df4-58c8-bd03-bfcb0e951687,a6e60417-d7cd-55b4-acc1-b244d9442e65,Kem bơ,0,,True,2
+899b420f-e99a-5ce8-9cd0-935ee1b1903e,a6e60417-d7cd-55b4-acc1-b244d9442e65,Ganache socola,0,,True,3
+1891a372-5f6d-5227-adc7-a26fe6cc040c,f2c42259-cf10-5e9d-b1ae-9c6afce9d644,Dâu tươi,0,,True,0
+3ace01d6-5b40-53d3-976a-44cce8c407f3,f2c42259-cf10-5e9d-b1ae-9c6afce9d644,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+96be2e85-d036-5c64-be4b-43da64edb757,f2c42259-cf10-5e9d-b1ae-9c6afce9d644,Bánh quy,0,,True,2
+4ac287db-111a-5dd3-bdd5-220528b95a3e,f2c42259-cf10-5e9d-b1ae-9c6afce9d644,whipping cream,0,,True,3
+965b4d78-559f-55dd-b98e-23a03216fb78,f2c42259-cf10-5e9d-b1ae-9c6afce9d644,Cam tươi,0,,True,4
+18b274c2-c7a5-52bc-88d2-749ab9006ed6,50700520-e74d-5286-b28b-202b88b6b2b4,12 cm,0,,True,0
+571ec30b-5789-5b61-a846-7881a17a0a81,50700520-e74d-5286-b28b-202b88b6b2b4,16 cm,80000,,True,1
+f488ea41-75e6-5b51-b62d-685f456f7676,95e74bc3-775f-5e42-8758-125de56c1b3b,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+8ed2550a-a6bb-5207-955d-64edf3ec1701,95e74bc3-775f-5e42-8758-125de56c1b3b,Kem phô mai,0,,True,1
+22d29533-25b2-54ea-9c8f-9090b0b4ac36,95e74bc3-775f-5e42-8758-125de56c1b3b,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+5b95b4e7-6856-5df0-afd8-56c3b37f0473,95e74bc3-775f-5e42-8758-125de56c1b3b,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+8926bb5a-6702-5fcd-98b1-bfd64355110f,6f79e7c5-3acf-5ab2-95a9-6776f1bda74c,Kem tươi (hồng),0,,True,0
+c9967aa2-956f-5d1e-8eb8-02d30fa5dddf,6f79e7c5-3acf-5ab2-95a9-6776f1bda74c,Kem phô mai,0,,True,1
+883f9abf-4fcc-54f0-8f5e-14094e41ec9f,6f79e7c5-3acf-5ab2-95a9-6776f1bda74c,Kem bơ,0,,True,2
+5650a7ce-2729-50b2-8583-a34a94186da3,6f79e7c5-3acf-5ab2-95a9-6776f1bda74c,Ganache socola,0,,True,3
+16c6c787-2847-584a-9436-0bb9cd451910,bb5eadaf-8660-5a27-99be-94e7d67bdf6d,Dâu tươi,0,,True,0
+e430b0f0-c49c-5d42-8a0e-15111be27b16,bb5eadaf-8660-5a27-99be-94e7d67bdf6d,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+43fe331b-9fb7-516b-ad68-33534be219c8,bb5eadaf-8660-5a27-99be-94e7d67bdf6d,Bánh quy,0,,True,2
+ac08c2e0-ce2b-5661-aebf-0a895fd5a493,bb5eadaf-8660-5a27-99be-94e7d67bdf6d,whipping cream,0,,True,3
+d4db16e2-470c-5ea1-8491-7abe39023393,bb5eadaf-8660-5a27-99be-94e7d67bdf6d,Cam tươi,0,,True,4
+658f2765-a22f-5df7-af69-c478b567360a,a2730254-d6c6-54c7-828e-3e578b120e39,12 cm,0,,True,0
+99605c00-0609-5729-8634-c2ef7bbd6c87,a2730254-d6c6-54c7-828e-3e578b120e39,16 cm,80000,,True,1
+18b466ca-3797-5109-a081-7e5fe4628953,99eda600-0a08-5e26-8855-fdd8061014b9,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+75736577-9548-5382-b47b-77c555c5ac2d,99eda600-0a08-5e26-8855-fdd8061014b9,Kem phô mai,0,,True,1
+816b4035-9233-558b-8fba-5f98be8b33d7,99eda600-0a08-5e26-8855-fdd8061014b9,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+a7b6d4f8-f8af-5c17-885f-238d4b8fbfcf,99eda600-0a08-5e26-8855-fdd8061014b9,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+b655bddd-6c41-53a5-bbfd-38e20dbdc59f,85ab9be6-29e6-56e0-8e84-02acedb688c8,Kem tươi (hồng),0,,True,0
+0ed3a79e-3f11-53ce-8f34-4b0f4dad80ef,85ab9be6-29e6-56e0-8e84-02acedb688c8,Kem phô mai,0,,True,1
+52a3331c-9074-50a0-802a-6012f311c1d7,85ab9be6-29e6-56e0-8e84-02acedb688c8,Kem bơ,0,,True,2
+781dbf0b-d9b2-5c6b-aae8-f6e61e3a62ad,85ab9be6-29e6-56e0-8e84-02acedb688c8,Ganache socola,0,,True,3
+6427c309-cf60-5450-8465-6e2a165b171c,93d09765-a0a4-5ef4-a5de-60605addd5d9,Dâu tươi,0,,True,0
+88979c7c-6abb-5603-82e3-cf3753016516,93d09765-a0a4-5ef4-a5de-60605addd5d9,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+b3e34ee5-91a9-5d5b-b571-50ed79acdb9f,93d09765-a0a4-5ef4-a5de-60605addd5d9,Bánh quy,0,,True,2
+ddcd3727-a087-51cc-b4f6-964fc15624fb,93d09765-a0a4-5ef4-a5de-60605addd5d9,whipping cream,0,,True,3
+b140ddeb-6184-55ae-8f56-f94fe8bcd2c7,93d09765-a0a4-5ef4-a5de-60605addd5d9,Cam tươi,0,,True,4
+8f9f61d9-e5f3-5a1d-bd9d-51fb01d95635,518380a7-cbba-5f05-b5b4-e795bc946962,12 cm,0,,True,0
+e613c3e9-2386-57b0-b8bd-4461313915d0,518380a7-cbba-5f05-b5b4-e795bc946962,16 cm,90000,,True,1
+d5b24fb4-360d-54b1-b606-7287c790b20b,b503e1cc-bc97-5057-a500-7ea0276468e0,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+9da01451-111e-5e90-a4c8-4c4df6f5e931,b503e1cc-bc97-5057-a500-7ea0276468e0,Kem phô mai,0,,True,1
+0a8d438d-d74b-5b82-9ab7-be96abe39384,b503e1cc-bc97-5057-a500-7ea0276468e0,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+a110c786-1039-533f-993e-db6693f55964,b503e1cc-bc97-5057-a500-7ea0276468e0,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+219656c6-d3c6-5a9d-9a78-6a230ed4cce0,142c4fc8-f941-59d6-8b5e-ceb011f215a6,Kem tươi (hồng),0,,True,0
+fdc9bd50-f760-531b-baa1-b8bd77468ab2,142c4fc8-f941-59d6-8b5e-ceb011f215a6,Kem phô mai,0,,True,1
+8c0e7ef1-5bca-5bf8-a61a-8ac9485ca2ec,142c4fc8-f941-59d6-8b5e-ceb011f215a6,Kem bơ,0,,True,2
+8d9e086f-a44d-526f-af46-f3efb99ae105,142c4fc8-f941-59d6-8b5e-ceb011f215a6,Ganache socola,0,,True,3
+f23a4afd-a6c4-502f-9895-2112cfad6aa1,3e39f355-39b1-58b2-bb2b-6e31f2d72899,Dâu tươi,0,,True,0
+e0427d6f-b0e9-5741-91aa-d8c32fc68964,3e39f355-39b1-58b2-bb2b-6e31f2d72899,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+c0a1b8fc-3058-5393-8e20-cc226b697e5b,3e39f355-39b1-58b2-bb2b-6e31f2d72899,Bánh quy,0,,True,2
+8ca22229-52d1-59db-9dc5-3267e340d9ff,3e39f355-39b1-58b2-bb2b-6e31f2d72899,whipping cream,0,,True,3
+9b3e2a58-b354-5c98-ae50-d8d789175872,3e39f355-39b1-58b2-bb2b-6e31f2d72899,Cam tươi,0,,True,4
+b497f1b7-9a11-58ff-bff9-99682cfc90f3,49bb0b51-16f7-548e-b223-f59ea2f4ec94,12 cm,0,,True,0
+7c89678c-96be-5713-a999-51d6d39696e0,49bb0b51-16f7-548e-b223-f59ea2f4ec94,16 cm,90000,,True,1
+1d40cbba-8883-58de-b62c-ac75b9677215,2037d33d-3e6f-5944-a42b-4b329b3fb28e,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+543ff126-be39-50ec-8931-aa63fc66775e,2037d33d-3e6f-5944-a42b-4b329b3fb28e,Kem phô mai,0,,True,1
+1967093f-2589-5ff6-9d88-cc1bfb1962df,2037d33d-3e6f-5944-a42b-4b329b3fb28e,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+44f3ddc4-4adb-5b22-8ca3-88c197ccea53,2037d33d-3e6f-5944-a42b-4b329b3fb28e,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+f7081ca1-4dba-545a-8aee-b6af5dc9123f,f1866f91-7f01-5f1a-bce6-184eee5fe012,Kem tươi (hồng),0,,True,0
+5c1f640a-7537-56bf-9d4b-3751a083102c,f1866f91-7f01-5f1a-bce6-184eee5fe012,Kem phô mai,0,,True,1
+0288184d-0aaf-5697-b063-e82bb21dfca2,f1866f91-7f01-5f1a-bce6-184eee5fe012,Kem bơ,0,,True,2
+df9eeac6-5beb-5a86-ab6c-5138127d1166,f1866f91-7f01-5f1a-bce6-184eee5fe012,Ganache socola,0,,True,3
+2a9c74dd-646e-5e52-9b1c-302e4197013a,bb7fa03a-0275-591d-9901-9974627e183f,Dâu tươi,0,,True,0
+0669aa36-eef0-559b-af23-b6b2d02ec0c9,bb7fa03a-0275-591d-9901-9974627e183f,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+d8d3dab4-209f-5120-a8bd-f84b83aa5bb1,bb7fa03a-0275-591d-9901-9974627e183f,Bánh quy,0,,True,2
+f28212e3-ba7e-5f52-8695-fe238349b3bb,bb7fa03a-0275-591d-9901-9974627e183f,whipping cream,0,,True,3
+b25288f3-a63a-5e78-b1d1-4a48e4986af8,bb7fa03a-0275-591d-9901-9974627e183f,Cam tươi,0,,True,4
+f567936b-be06-5202-affa-d472721ab092,fa9e1ef7-1324-537a-b7ba-400aaa6eb4cf,12 cm,0,,True,0
+636a5081-9fbd-51ab-87c7-7b499a2e1b83,fa9e1ef7-1324-537a-b7ba-400aaa6eb4cf,16 cm,90000,,True,1
+b6bc3682-7e91-562d-b1d0-ec8760c7082b,df853fc9-e859-52c0-8794-200fd49eb5d2,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+187e7b76-3788-5cc3-8225-e1d57aec4b6a,df853fc9-e859-52c0-8794-200fd49eb5d2,Kem phô mai,0,,True,1
+acbc65d0-a745-507a-865c-8b2ed6d6dfc3,df853fc9-e859-52c0-8794-200fd49eb5d2,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+b58a9d2e-d1b7-5dfe-891f-6f8676cee41b,df853fc9-e859-52c0-8794-200fd49eb5d2,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+4a7ffdbd-7d01-5b40-8286-ab5193c414c7,9fb6a541-c21d-5c18-8f08-8e4355cf2282,Kem tươi (hồng),0,,True,0
+2ea6958e-1899-54be-9eb7-27d157fe60ba,9fb6a541-c21d-5c18-8f08-8e4355cf2282,Kem phô mai,0,,True,1
+1e6fdfd0-a896-56dc-98ce-5d85812f51bc,9fb6a541-c21d-5c18-8f08-8e4355cf2282,Kem bơ,0,,True,2
+29c99e52-c060-5e79-9406-f5fe975e37a2,9fb6a541-c21d-5c18-8f08-8e4355cf2282,Ganache socola,0,,True,3
+4a61c549-f80d-5154-b3c6-6fd0d2f793da,922843fd-3887-5d4a-a19d-b227aea7a6e8,Dâu tươi,0,,True,0
+d36c5325-1438-5d59-a2c3-ea8199d6d5c0,922843fd-3887-5d4a-a19d-b227aea7a6e8,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+f25fb0f3-2e40-5a6e-9abd-8fd31833e061,922843fd-3887-5d4a-a19d-b227aea7a6e8,Bánh quy,0,,True,2
+cb600b8f-4c23-5a78-9b1c-34c03d1c673b,922843fd-3887-5d4a-a19d-b227aea7a6e8,whipping cream,0,,True,3
+8c7438d2-2e3e-5cf9-84af-6c135f55deda,922843fd-3887-5d4a-a19d-b227aea7a6e8,Cam tươi,0,,True,4
+4a16fde2-39ca-5cba-a0d3-87c3d17e92cc,3b648256-6bb8-5506-8b7f-6a3219ca8809,12 cm,0,,True,0
+e1faa368-60ae-56a5-9a44-cd8a12265981,3b648256-6bb8-5506-8b7f-6a3219ca8809,16 cm,100000,,True,1
+5d6d5e9e-66b3-52e3-ad6e-fdec497f1a07,f69b415e-159a-5f64-ad5e-a772d6453cc1,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+9e890c37-ffe0-5418-b931-188daeb34f48,f69b415e-159a-5f64-ad5e-a772d6453cc1,Kem phô mai,0,,True,1
+293267bd-ad72-595d-9c9b-1a184cab0b27,f69b415e-159a-5f64-ad5e-a772d6453cc1,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+c9762c51-0964-50e3-808e-dd7e6127e8e7,f69b415e-159a-5f64-ad5e-a772d6453cc1,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+f6e0c66f-652d-5865-b734-61a304b908c3,5e8a8ee4-7542-57e5-a526-9348b3258f20,Kem tươi (hồng),0,,True,0
+3cada167-aeaa-5610-abd7-149986a4c6cf,5e8a8ee4-7542-57e5-a526-9348b3258f20,Kem phô mai,0,,True,1
+fc23e10d-251b-52f2-aae3-f22294f148f7,5e8a8ee4-7542-57e5-a526-9348b3258f20,Kem bơ,0,,True,2
+75593a15-d5c5-56e9-9efc-bb2c79aa9232,5e8a8ee4-7542-57e5-a526-9348b3258f20,Ganache socola,0,,True,3
+60d1499c-993d-5488-86e7-604421eb7426,fbe9b9db-870b-52d1-84c2-6e48ece67f25,Dâu tươi,0,,True,0
+7055f11b-8ad2-5238-9cf8-e878300d14f4,fbe9b9db-870b-52d1-84c2-6e48ece67f25,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+272ba86a-136f-5253-9364-a2921ef063db,fbe9b9db-870b-52d1-84c2-6e48ece67f25,Bánh quy,0,,True,2
+dc6f392d-1b12-567d-81b9-72f5c3d15dbe,fbe9b9db-870b-52d1-84c2-6e48ece67f25,whipping cream,0,,True,3
+3a500054-5909-5162-96ac-5850071553f7,fbe9b9db-870b-52d1-84c2-6e48ece67f25,Cam tươi,0,,True,4
+43308f59-d41f-5187-98c7-90380aa72b87,64ce74ad-97a7-5466-a6a3-427b8cbec251,12 cm,0,,True,0
+188ec4a2-5543-52b2-b165-6b4643f5d024,64ce74ad-97a7-5466-a6a3-427b8cbec251,16 cm,200000,,True,1
+fa78af96-701c-5b76-b89e-5be91d18e92c,586299a8-95f8-5463-b1b2-180547009ca6,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+c99c66f0-15bb-59a2-9f8c-375883835eaa,586299a8-95f8-5463-b1b2-180547009ca6,Kem phô mai,0,,True,1
+2032d42e-f7bd-586a-b7f0-ea744bf651de,586299a8-95f8-5463-b1b2-180547009ca6,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+9af17e2a-6006-5ef4-87a6-dd7ea26ab251,586299a8-95f8-5463-b1b2-180547009ca6,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+0356c773-2f68-5c67-a74c-2f61413e2489,8314fe83-465e-53ed-9fc5-d1098b065f8a,Kem tươi (hồng),0,,True,0
+f527959f-0a0b-535f-99a7-b41768bab1c1,8314fe83-465e-53ed-9fc5-d1098b065f8a,Kem phô mai,0,,True,1
+18ec22dc-c064-5411-b622-511892f90f55,8314fe83-465e-53ed-9fc5-d1098b065f8a,Kem bơ,0,,True,2
+7bfb154b-90c8-5098-a202-e2b2d3eb0e68,8314fe83-465e-53ed-9fc5-d1098b065f8a,Ganache socola,0,,True,3
+05c2db7e-8d38-54d3-bcd4-8a86b448477b,195bf864-4d33-5413-bb2e-32101c4dab66,Dâu tươi,0,,True,0
+5003236c-6ff7-59c8-925e-cbd8e0c4c8b4,195bf864-4d33-5413-bb2e-32101c4dab66,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+ed429adf-d20d-5e2a-ae9d-9e6853a8b28a,195bf864-4d33-5413-bb2e-32101c4dab66,Bánh quy,0,,True,2
+4dc62779-6bc5-5d8f-856a-594bf14e0300,195bf864-4d33-5413-bb2e-32101c4dab66,whipping cream,0,,True,3
+80fe69b5-bcf9-5f5a-9607-0dae4a9c352d,195bf864-4d33-5413-bb2e-32101c4dab66,Cam tươi,0,,True,4
+4407f030-cb4a-5e8d-b01d-c0223e23d286,d262e8c4-0b0c-5099-8ed1-3681dc7db04e,12 cm,0,,True,0
+8de56a43-e187-585c-8ccc-00e94ff06993,d262e8c4-0b0c-5099-8ed1-3681dc7db04e,16 cm,200000,,True,1
+b0987c1f-2b3a-56eb-9516-3ad71a0bba00,5467b03a-5bcd-550d-95d7-97957575c5d1,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+3ad6b3b8-9c15-5570-ba6f-37e75d831998,5467b03a-5bcd-550d-95d7-97957575c5d1,Kem phô mai,0,,True,1
+a621b2c0-c7e1-5797-9db9-c345456561db,5467b03a-5bcd-550d-95d7-97957575c5d1,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+c0f292ee-805e-5710-aa9a-9a8fde88bdc3,5467b03a-5bcd-550d-95d7-97957575c5d1,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+13df1b67-f7f7-56eb-9b3a-33e69786b931,e901f1d8-661a-5530-b875-6b4c13365b8e,Kem tươi (hồng),0,,True,0
+3353927f-71cd-5a19-8030-127cb8cce78d,e901f1d8-661a-5530-b875-6b4c13365b8e,Kem phô mai,0,,True,1
+ce1d1ba2-6fe2-5f9f-9f8a-877624481c45,e901f1d8-661a-5530-b875-6b4c13365b8e,Kem bơ,0,,True,2
+7ae43831-b26e-5add-9e43-d000248ad828,e901f1d8-661a-5530-b875-6b4c13365b8e,Ganache socola,0,,True,3
+236e0bf0-02f4-5af4-a02e-18b9b11dbe30,ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,Dâu tươi,0,,True,0
+6ebacf94-e560-5cf7-b6ca-d296f617fcc0,ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+d665074f-1d5e-5db7-b079-05ea15038c46,ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,Bánh quy,0,,True,2
+ce99bfe6-04dc-5e64-a775-0b1ec935aa15,ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,whipping cream,0,,True,3
+518fb868-0879-5591-9402-ba71204ddaca,ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,Cam tươi,0,,True,4
+258ad457-2fb2-5f47-91c9-bb838988d086,621611bc-a521-5af9-a46d-46262be090e7,12 cm,0,,True,0
+d7712e52-659e-566a-8919-d6c2caff2b0b,621611bc-a521-5af9-a46d-46262be090e7,16 cm,200000,,True,1
+b794eb12-9bf3-5564-8e06-c87cecdca51d,3129ce6f-f7b7-5ccc-b63a-a9f9ce2b7e50,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+d62a0167-da44-5ec6-8d3d-ed2b8e3a727d,3129ce6f-f7b7-5ccc-b63a-a9f9ce2b7e50,Kem phô mai,0,,True,1
+d7d2074c-4d99-5888-9182-3e1878eaec4c,3129ce6f-f7b7-5ccc-b63a-a9f9ce2b7e50,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+f862a4bd-0492-5ad4-8f8d-90c5e18b5d8a,3129ce6f-f7b7-5ccc-b63a-a9f9ce2b7e50,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+03f9b5a9-39fe-5805-b0db-24ce46e4a661,d466799d-4664-53a6-8858-11cb2584cd7c,Kem tươi (hồng),0,,True,0
+5e9c9863-32cd-53fc-b36f-8f8709c51041,d466799d-4664-53a6-8858-11cb2584cd7c,Kem phô mai,0,,True,1
+cad19e26-356a-5c44-8dd9-5dc9f24f2c20,d466799d-4664-53a6-8858-11cb2584cd7c,Kem bơ,0,,True,2
+05a33515-22c7-5919-b587-ad03cc933358,d466799d-4664-53a6-8858-11cb2584cd7c,Ganache socola,0,,True,3
+bf726bdb-da68-5096-b980-30dc69194ba1,4eb23555-284b-5880-b7d9-2366a7c04beb,Dâu tươi,0,,True,0
+d607686e-0306-54a5-a251-9065982e6776,4eb23555-284b-5880-b7d9-2366a7c04beb,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+24d1697a-1e37-5b40-9e61-4e4670a3584c,4eb23555-284b-5880-b7d9-2366a7c04beb,Bánh quy,0,,True,2
+016e07a2-ca1f-5de3-98c9-52dcc77e5917,4eb23555-284b-5880-b7d9-2366a7c04beb,whipping cream,0,,True,3
+137aa4d5-4892-5a2b-b45e-d9cbe6a8a617,4eb23555-284b-5880-b7d9-2366a7c04beb,Cam tươi,0,,True,4
+713f904f-8b18-549a-8c16-fb65bad28870,ae5c8907-fd76-5001-b866-337bbfda9f25,12 cm,0,,True,0
+7de7041e-669d-5878-bdaf-fecd615a4a93,ae5c8907-fd76-5001-b866-337bbfda9f25,16 cm,190000,,True,1
+9fee48a5-f6a9-5ef0-b345-8c1c6cf00f7f,fd9968c3-22c5-5351-b581-7a33123bfd77,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+9bef4f50-5862-5d0a-87e3-6c33443fce02,fd9968c3-22c5-5351-b581-7a33123bfd77,Kem phô mai,0,,True,1
+c11b0d82-c109-5666-92de-39d6c26b9b13,fd9968c3-22c5-5351-b581-7a33123bfd77,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+2d2fba7a-3ba0-5c3e-bb6d-9b6fe8fddd0d,fd9968c3-22c5-5351-b581-7a33123bfd77,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+f7849b95-954a-565f-a6b5-daf79878acfc,6d5e2b92-d3e7-5aaa-a3cf-ad1a3d18a62d,Kem tươi (hồng),0,,True,0
+a1e7d2a8-d4f9-5f8f-b63c-65a88ea7955c,6d5e2b92-d3e7-5aaa-a3cf-ad1a3d18a62d,Kem phô mai,0,,True,1
+76c5822e-ec3d-5003-9319-d464ad70efa8,6d5e2b92-d3e7-5aaa-a3cf-ad1a3d18a62d,Kem bơ,0,,True,2
+95c43c99-d480-5745-8e5c-62239d7eca64,6d5e2b92-d3e7-5aaa-a3cf-ad1a3d18a62d,Ganache socola,0,,True,3
+bfdadf32-7f73-5110-808b-281282db85c4,1b603ac4-0b0a-5031-948d-47f33b543e93,Dâu tươi,0,,True,0
+41a2218f-2649-5699-b816-aa1fb3755d0e,1b603ac4-0b0a-5031-948d-47f33b543e93,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+58e44ad1-b941-5030-b9ba-28fd093e1795,1b603ac4-0b0a-5031-948d-47f33b543e93,Bánh quy,0,,True,2
+9a548da6-2cff-555a-8ec5-02fe0f13d21c,1b603ac4-0b0a-5031-948d-47f33b543e93,whipping cream,0,,True,3
+28806b53-9ead-5651-b82a-83bf3a1dea23,1b603ac4-0b0a-5031-948d-47f33b543e93,Cam tươi,0,,True,4
+e542a4b4-8227-543c-b5d9-f339e039dacc,d6a8ed6d-a92f-5a22-b35c-b797bf98e4f5,12 cm,0,,True,0
+97c972c9-74cf-5890-ab79-fc9acf8c2d92,d6a8ed6d-a92f-5a22-b35c-b797bf98e4f5,16 cm,200000,,True,1
+e054a540-fa85-5d0d-a99d-a953fc5f8faf,abf74cc6-41e6-5f29-b842-85e65d812e0a,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+646fb7df-f172-59d3-8f1c-cfd957409fca,abf74cc6-41e6-5f29-b842-85e65d812e0a,Kem phô mai,0,,True,1
+9e3a3915-8759-5286-909a-204f9d7cc3f5,abf74cc6-41e6-5f29-b842-85e65d812e0a,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+9a5a5285-1671-5d5f-a955-3d209bb8fa55,abf74cc6-41e6-5f29-b842-85e65d812e0a,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+ce05b65f-4408-530d-b8a1-0b98a66d5b36,df92a897-4081-52fa-959b-8cc0745e133f,Kem tươi (hồng),0,,True,0
+003f054c-c525-5328-87fe-ca5a8db126c4,df92a897-4081-52fa-959b-8cc0745e133f,Kem phô mai,0,,True,1
+ae10143f-f69c-5437-9805-3a9f91a72cb0,df92a897-4081-52fa-959b-8cc0745e133f,Kem bơ,0,,True,2
+2b1416b3-ca50-542c-b398-ba73e4c7c823,df92a897-4081-52fa-959b-8cc0745e133f,Ganache socola,0,,True,3
+85cb7d39-e3fc-539e-81b0-249634baf7bb,e7b6361a-1275-55f1-9ce8-b7a8130fc894,Dâu tươi,0,,True,0
+58285f14-cc63-5a0d-b099-60682bab84ca,e7b6361a-1275-55f1-9ce8-b7a8130fc894,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+2eb6adda-fb0b-502e-ae61-0198eb0351c1,e7b6361a-1275-55f1-9ce8-b7a8130fc894,Bánh quy,0,,True,2
+a7bbb98a-6d45-5ca7-ba16-91ae1363fd2a,e7b6361a-1275-55f1-9ce8-b7a8130fc894,whipping cream,0,,True,3
+7bcb10c8-5f03-57ce-97d7-1cd390c1f9bb,e7b6361a-1275-55f1-9ce8-b7a8130fc894,Cam tươi,0,,True,4
+6519dbc3-a512-55fc-95b4-fe1ea709d9dc,b74fdd78-2666-5185-a6a4-65344763e634,12 cm,0,,True,0
+ae841518-bc21-59bc-8b6a-0a5238c0c630,b74fdd78-2666-5185-a6a4-65344763e634,16 cm,200000,,True,1
+e400873b-cd84-5698-bdc3-8943febd24a4,45c35bb1-9f14-53b8-9688-78eb384570ad,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+df8f72e1-007c-565f-bdfd-69e0e97cff75,45c35bb1-9f14-53b8-9688-78eb384570ad,Kem phô mai,0,,True,1
+7a0fb0f6-4108-5441-b2be-260e433a5b73,45c35bb1-9f14-53b8-9688-78eb384570ad,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+21826d64-28a9-5130-a843-10f9ba683bb2,45c35bb1-9f14-53b8-9688-78eb384570ad,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+eb960f82-e610-50b9-87b3-a9bb2471fda9,28d9f62b-8396-57dd-92ec-9d9eeea944c0,Kem tươi (hồng),0,,True,0
+0f51905d-e549-5a3f-ad89-fc33125de8cf,28d9f62b-8396-57dd-92ec-9d9eeea944c0,Kem phô mai,0,,True,1
+3b93aa0b-7df7-5c6b-aa99-e4405a4f1078,28d9f62b-8396-57dd-92ec-9d9eeea944c0,Kem bơ,0,,True,2
+b556e03f-6960-5517-8270-39365f143d2a,28d9f62b-8396-57dd-92ec-9d9eeea944c0,Ganache socola,0,,True,3
+79be29c6-4132-5f93-a31b-9045754ed5e9,d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,Dâu tươi,0,,True,0
+3bfb1046-2143-561e-97a0-9c3ab28c0784,d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+d55ca758-16ce-58d3-99af-df9ac88f2819,d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,Bánh quy,0,,True,2
+cf326cd7-146c-56af-af04-7001d4ed92d3,d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,whipping cream,0,,True,3
+115bc0fd-d8ce-54f1-8dc9-025dab782784,d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,Cam tươi,0,,True,4
+191edd9c-1abb-5fd6-96e5-b83cd98aac6f,888d15d9-0d00-588e-8226-37c95ab19ec3,12 cm,0,,True,0
+b55e8fba-2e94-5734-b530-4d965ae9f4ac,888d15d9-0d00-588e-8226-37c95ab19ec3,16 cm,200000,,True,1
+e76a35e9-55ba-5ae5-8ca0-3cdc495a05d0,9fb0bdbe-916d-5831-a4cf-ce4634483645,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+e7cb3c73-b317-51c0-8238-4864880a0449,9fb0bdbe-916d-5831-a4cf-ce4634483645,Kem phô mai,0,,True,1
+a2d91d30-91de-5aba-8bb6-b9508bc64fa4,9fb0bdbe-916d-5831-a4cf-ce4634483645,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+03613710-c82f-5faf-8923-b86bf1eb92ba,9fb0bdbe-916d-5831-a4cf-ce4634483645,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+b2d9b73f-d1d9-5af0-b81e-65d7dafe37cb,8f544138-755a-5bd7-aac1-b2495d3ed2eb,Kem tươi (hồng),0,,True,0
+e6fb62bf-9bfe-58de-be10-a7260634beb2,8f544138-755a-5bd7-aac1-b2495d3ed2eb,Kem phô mai,0,,True,1
+a60e4dbf-a7a1-5c6b-aaa0-37701d2b9d56,8f544138-755a-5bd7-aac1-b2495d3ed2eb,Kem bơ,0,,True,2
+eeeba6ca-0f59-589a-bbe8-912fa2ef1fbb,8f544138-755a-5bd7-aac1-b2495d3ed2eb,Ganache socola,0,,True,3
+65338b13-8fa8-50a7-9e3d-17fde1052e72,5018796b-5436-5660-b2e5-b57dadd366b9,Dâu tươi,0,,True,0
+9b39b726-8e28-5421-bb42-8ca02b371e04,5018796b-5436-5660-b2e5-b57dadd366b9,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+4f399a3d-9d26-50f3-b5bd-24309094969a,5018796b-5436-5660-b2e5-b57dadd366b9,Bánh quy,0,,True,2
+691f5965-2779-562f-b3d2-6e3eff8f2f4d,5018796b-5436-5660-b2e5-b57dadd366b9,whipping cream,0,,True,3
+75ab1e88-a7f7-544b-91f2-c1dcf209cd0d,5018796b-5436-5660-b2e5-b57dadd366b9,Cam tươi,0,,True,4
+ac12a43c-5baf-5fc2-9752-7b19c2bdc50e,73a00878-7860-551a-877f-23a580b53d70,12 cm,0,,True,0
+23d2d59d-12e6-51a4-ad81-f1fb4a7269d2,73a00878-7860-551a-877f-23a580b53d70,16 cm,200000,,True,1
+a647728c-93a3-5b52-9345-a71ace638fcd,cfcb9739-8e42-55e9-ae23-b01263e35e79,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+ba11d5fb-d51c-53d7-8840-945175eb6d51,cfcb9739-8e42-55e9-ae23-b01263e35e79,Kem phô mai,0,,True,1
+6c11a107-b951-5300-b10c-7ec3a1401264,cfcb9739-8e42-55e9-ae23-b01263e35e79,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+01842509-d061-59db-9c81-0edb74686d07,cfcb9739-8e42-55e9-ae23-b01263e35e79,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+75ea8252-d05b-5ef3-b4d1-730f9ecaf222,c6d55102-2200-551d-a2b7-08da4bddb60e,Kem tươi (hồng),0,,True,0
+9f64184f-620a-522e-8dc9-1a40e7de8b29,c6d55102-2200-551d-a2b7-08da4bddb60e,Kem phô mai,0,,True,1
+24d3aa7d-72b5-5a03-a527-58f2f7d6a7f4,c6d55102-2200-551d-a2b7-08da4bddb60e,Kem bơ,0,,True,2
+62402655-92ff-5dae-acd4-c64e77526085,c6d55102-2200-551d-a2b7-08da4bddb60e,Ganache socola,0,,True,3
+eeddada0-89a2-535f-b109-bc823304578a,069cf328-a945-5d9c-badf-9fcd08e4b4eb,Dâu tươi,0,,True,0
+fddf2638-9f1c-55c5-a68d-11e78b971fdd,069cf328-a945-5d9c-badf-9fcd08e4b4eb,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+beb00dd0-e026-548a-8ca3-c40e6ceb2c2f,069cf328-a945-5d9c-badf-9fcd08e4b4eb,Bánh quy,0,,True,2
+475a8fe2-6449-5214-a369-535f29e121eb,069cf328-a945-5d9c-badf-9fcd08e4b4eb,whipping cream,0,,True,3
+7d70e784-12ca-5033-8a3d-14327e4b685e,069cf328-a945-5d9c-badf-9fcd08e4b4eb,Cam tươi,0,,True,4
+d893a554-1944-5a44-933e-1edd7106d351,34e03daf-9515-5487-be28-9bbe34bdfe21,16 cm,0,,True,0
+09be90d3-ca39-5380-a10e-cfa71a39f74a,34e03daf-9515-5487-be28-9bbe34bdfe21,20 cm,150000,,True,1
+21040e7b-32d5-553a-b928-0043fc118127,166769bf-e80b-515d-b165-4eb0e7183794,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+6aef4567-89a8-5082-8b18-8da7148b5c27,166769bf-e80b-515d-b165-4eb0e7183794,Kem phô mai,0,,True,1
+30568917-7091-5028-a032-986b7732ce89,166769bf-e80b-515d-b165-4eb0e7183794,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+5074b2ff-da81-5154-b884-124bed49e46b,166769bf-e80b-515d-b165-4eb0e7183794,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+61bd4162-4f7e-579e-abe7-0cc4ddab28c0,bb3e1680-af80-573c-96e9-9830f88d0991,Kem tươi (hồng),0,,True,0
+ea3b2ff6-b498-5ac7-8199-ae02ed548409,bb3e1680-af80-573c-96e9-9830f88d0991,Kem phô mai,0,,True,1
+e31d97af-2ee0-522c-8e8c-26462d9cfb38,bb3e1680-af80-573c-96e9-9830f88d0991,Kem bơ,0,,True,2
+fc3fbd93-0e23-525b-acdc-796f0d3154ff,bb3e1680-af80-573c-96e9-9830f88d0991,Ganache socola,0,,True,3
+6dd69ded-f146-5bf0-86fe-f76679a4dd67,dd0130d8-0445-5237-a5b9-b59998177bd8,Dâu tươi,0,,True,0
+c729823e-18cc-5c38-a840-6953119b1ac0,dd0130d8-0445-5237-a5b9-b59998177bd8,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+76254556-ebdc-54b1-b9aa-2efdf41230e8,dd0130d8-0445-5237-a5b9-b59998177bd8,Bánh quy,0,,True,2
+ae6d699a-86ed-5fd3-b34b-d145ecef67a2,dd0130d8-0445-5237-a5b9-b59998177bd8,whipping cream,0,,True,3
+222d7780-c844-53ab-bf53-89574773404f,dd0130d8-0445-5237-a5b9-b59998177bd8,Cam tươi,0,,True,4
+25f2da89-400f-593e-a6b2-7e1d700e8897,d2d27771-774d-5d24-8cf4-edaac8c579d0,16 cm,0,,True,0
+cf0847ac-35df-51d6-a643-8f264896e517,d2d27771-774d-5d24-8cf4-edaac8c579d0,20 cm,150000,,True,1
+b556aca4-ccf5-522e-a402-a8714b7d4ee0,a4db561d-79ec-54de-8195-b20db047367e,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+e0c349a3-3844-593f-9934-06740e3c8f7e,a4db561d-79ec-54de-8195-b20db047367e,Kem phô mai,0,,True,1
+1348c9c5-5f6e-56c1-a991-28b7ae71b3f1,a4db561d-79ec-54de-8195-b20db047367e,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+33862ff1-4798-5bb2-8d55-53b93ff63817,a4db561d-79ec-54de-8195-b20db047367e,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+200b83c4-3263-5b71-b637-fc3ec9721a85,53fd6e5f-ea1e-5f4d-8506-d4f1b09bf89b,Kem tươi (hồng),0,,True,0
+fe6ea1f2-82ac-55f7-a343-2f5cf808b2de,53fd6e5f-ea1e-5f4d-8506-d4f1b09bf89b,Kem phô mai,0,,True,1
+63b64314-16c6-53b6-8660-9deeabc65ede,53fd6e5f-ea1e-5f4d-8506-d4f1b09bf89b,Kem bơ,0,,True,2
+7ffc188e-5146-5034-bad8-e9503d4c85cc,53fd6e5f-ea1e-5f4d-8506-d4f1b09bf89b,Ganache socola,0,,True,3
+8993fa7d-384f-5cfd-92be-7c285a454ca9,06cde30e-1e4d-508e-a349-18afe38434a1,Dâu tươi,0,,True,0
+7fcbdac6-a3a2-5baa-a4c6-0cd1985a2f5b,06cde30e-1e4d-508e-a349-18afe38434a1,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+04fc9b77-1759-5e19-911a-12846fd8dbfe,06cde30e-1e4d-508e-a349-18afe38434a1,Bánh quy,0,,True,2
+833c4b45-2367-59c9-8267-d3785b031ff2,06cde30e-1e4d-508e-a349-18afe38434a1,whipping cream,0,,True,3
+71996d7c-9f75-5a3e-ac36-3834b1972276,06cde30e-1e4d-508e-a349-18afe38434a1,Cam tươi,0,,True,4
+207e9058-ca0e-5ddd-a7d3-9f917ef44043,a5a02547-785b-5b61-99b6-38bba4329525,16 cm,0,,True,0
+d7fa1173-7133-52c5-873b-4c86e470e4ef,a5a02547-785b-5b61-99b6-38bba4329525,20 cm,150000,,True,1
+2087b49d-e022-5959-8c68-50df9d70a7e9,6e0efae4-7853-5fc7-8177-5928500d3ce3,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+429836d3-c5a1-5cf3-90a3-d95e55456b01,6e0efae4-7853-5fc7-8177-5928500d3ce3,Kem phô mai,0,,True,1
+3d500f16-a366-55e2-aabd-ae0cb36c62d0,6e0efae4-7853-5fc7-8177-5928500d3ce3,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+e0d67d05-be75-5108-8fe3-1a9989711876,6e0efae4-7853-5fc7-8177-5928500d3ce3,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+e3b24a07-4751-5bb8-9d70-bbab39f48acc,8d5ab7d1-db7c-5698-a829-d45ae2d717ab,Kem tươi (hồng),0,,True,0
+d391b0f5-e745-57f7-b1e6-dcb600794243,8d5ab7d1-db7c-5698-a829-d45ae2d717ab,Kem phô mai,0,,True,1
+cdfe60bb-c97a-5902-9a77-ae440b971da5,8d5ab7d1-db7c-5698-a829-d45ae2d717ab,Kem bơ,0,,True,2
+221a29ae-9dd1-5419-8364-de3fec1b0368,8d5ab7d1-db7c-5698-a829-d45ae2d717ab,Ganache socola,0,,True,3
+9d41b01e-7582-54ba-9bef-42653b8f5f26,1ee8c5c9-c293-5af2-b104-a8331c35a61d,Dâu tươi,0,,True,0
+6636f5ac-d1e5-54c9-8f16-b655c4a3cb60,1ee8c5c9-c293-5af2-b104-a8331c35a61d,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+c371f9df-c2df-5771-ae17-7213f705cb38,1ee8c5c9-c293-5af2-b104-a8331c35a61d,Bánh quy,0,,True,2
+e8e358bb-d923-5c46-a4e6-712fb35c6252,1ee8c5c9-c293-5af2-b104-a8331c35a61d,whipping cream,0,,True,3
+2c9498df-7a70-56c1-92e7-76b09834710e,1ee8c5c9-c293-5af2-b104-a8331c35a61d,Cam tươi,0,,True,4
+1ea35703-0e8c-565e-8f7b-60334ec5d157,a8ce8041-b5a4-5c1f-93de-bbf11ebb839e,16 cm,0,,True,0
+515ae548-1749-574e-b3dc-9484e86daa75,a8ce8041-b5a4-5c1f-93de-bbf11ebb839e,20cm,150000,,True,1
+1fa2070b-ae6e-50c0-a5ab-f49dc8f316d8,cd3f8697-3128-535b-91c4-74acefaf07bf,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+a9d6bc6f-fe45-57f7-bb89-37755bcfe648,cd3f8697-3128-535b-91c4-74acefaf07bf,Kem phô mai,0,,True,1
+7b7ae475-91ec-5650-a14f-3c358101151a,cd3f8697-3128-535b-91c4-74acefaf07bf,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+523b1f63-ee79-5aa0-b0ed-d58a3ca90e7f,cd3f8697-3128-535b-91c4-74acefaf07bf,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+7d3db1ec-e6ce-56da-8647-cfe9a486ec9f,779c562b-0b94-537a-8947-0a02f40a892c,Kem tươi (hồng),0,,True,0
+c7b7b66c-d26a-531d-a68d-eca297ed1c0b,779c562b-0b94-537a-8947-0a02f40a892c,Kem phô mai,0,,True,1
+4a1bf67e-747f-5ce6-9274-4b47ae4cf0d5,779c562b-0b94-537a-8947-0a02f40a892c,Kem bơ,0,,True,2
+ebd7ffa7-b239-5f63-86f7-1dce8598a595,779c562b-0b94-537a-8947-0a02f40a892c,Ganache socola,0,,True,3
+9bb58de9-8e90-53d9-9a3b-fbe925bf318e,da37f03c-8020-56f2-a8fe-1fc16a430982,Dâu tươi,0,,True,0
+d4a3e7a3-79ee-5013-bb41-0be62234666a,da37f03c-8020-56f2-a8fe-1fc16a430982,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+e1feb7c5-84a9-5b4f-9de8-c5758bf46d76,da37f03c-8020-56f2-a8fe-1fc16a430982,Bánh quy,0,,True,2
+620c31f8-d353-5f8c-bcdf-85e09c2fb7bc,da37f03c-8020-56f2-a8fe-1fc16a430982,whipping cream,0,,True,3
+0d7c87b4-595e-5ea5-8154-711cae80d931,da37f03c-8020-56f2-a8fe-1fc16a430982,Cam tươi,0,,True,4
+12381c1a-0c7d-538f-9619-0b51fc8865c0,49a716f6-d11d-519d-bc6c-34151b31063a,16 cm,0,,True,0
+5e92ddf1-7ba4-5a06-bda1-738d95cdb062,49a716f6-d11d-519d-bc6c-34151b31063a,20 cm,150000,,True,1
+3fd6435f-9117-5c40-a556-127eab6a3422,d8475c02-550e-5337-85c2-956a1f74ea1c,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+feb86f56-5d6e-5082-a431-ea1b8911a993,d8475c02-550e-5337-85c2-956a1f74ea1c,Kem phô mai,0,,True,1
+9ba99fb9-ac49-50b3-87c9-0d2e47cab21e,d8475c02-550e-5337-85c2-956a1f74ea1c,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+dfafdfa5-8a08-54c5-8c4b-43f11c290616,d8475c02-550e-5337-85c2-956a1f74ea1c,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+2d4dcdcd-a39e-5ee5-8192-ffb01a21bc08,06d30102-6cd1-571e-bee7-d8b08ab6f10f,Kem tươi (hồng),0,,True,0
+d931b0fa-3c4e-523d-94a9-5dc475b61485,06d30102-6cd1-571e-bee7-d8b08ab6f10f,Kem phô mai,0,,True,1
+209cd6d6-1dc3-5a17-8895-e159508bce40,06d30102-6cd1-571e-bee7-d8b08ab6f10f,Kem bơ,0,,True,2
+1110cc05-d524-5e4b-9644-545507e70c67,06d30102-6cd1-571e-bee7-d8b08ab6f10f,Ganache socola,0,,True,3
+04d415c1-8b56-5aa8-a0dc-68cd007aac7c,5076e513-6240-5bc0-876f-610dd9b35edc,Dâu tươi,0,,True,0
+381b1931-8af1-5c69-a869-f2dd9b5d5bf3,5076e513-6240-5bc0-876f-610dd9b35edc,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+36d6d947-5ec8-522f-ae0f-3899f685db9c,5076e513-6240-5bc0-876f-610dd9b35edc,Bánh quy,0,,True,2
+0d22bbe5-c490-5556-904b-4a92550d5960,5076e513-6240-5bc0-876f-610dd9b35edc,whipping cream,0,,True,3
+f22f86c5-36be-5f82-adb6-5329acc62c1f,5076e513-6240-5bc0-876f-610dd9b35edc,Cam tươi,0,,True,4
+3a5fd6b2-2417-56de-a0d5-47a934686536,551da1c0-1dd3-5d9e-86f0-fd33d3a0346e,16 cm,0,,True,0
+c0a2f632-ac2c-5c35-90a1-de224803a484,551da1c0-1dd3-5d9e-86f0-fd33d3a0346e,20 cm,150000,,True,1
+922074c5-35b1-512e-a4b7-ea1cc6a5f0f4,56f737fc-c6ef-5f6f-9ec4-68ad0a3a830b,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+180ec22a-d7aa-553f-8f7b-b4eea34d4469,56f737fc-c6ef-5f6f-9ec4-68ad0a3a830b,Kem phô mai,0,,True,1
+1c1ecebb-f00a-59e1-8a3b-518132afb077,56f737fc-c6ef-5f6f-9ec4-68ad0a3a830b,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+18c3d5fe-ac7c-5d60-96e1-d5d0415b6280,56f737fc-c6ef-5f6f-9ec4-68ad0a3a830b,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+cabd2cef-caf8-5f09-afba-668cbf23a242,2149366a-8a81-5a08-bbad-d0e99906dbdf,Kem tươi (hồng),0,,True,0
+aff01be8-a964-5d64-8448-1d4dacf81a11,2149366a-8a81-5a08-bbad-d0e99906dbdf,Kem phô mai,0,,True,1
+8cea7985-2523-5ee0-b253-d6f95c23f130,2149366a-8a81-5a08-bbad-d0e99906dbdf,Kem bơ,0,,True,2
+03e9c6ee-addd-5632-807d-d67bbd8aaa33,2149366a-8a81-5a08-bbad-d0e99906dbdf,Ganache socola,0,,True,3
+22b283b8-0295-5ea7-8e17-66fa47889526,d9510c14-fa77-513f-80f6-dc61ad03f4e8,Dâu tươi,0,,True,0
+2a8d5fed-fc06-5e76-8f27-46b42e11150b,d9510c14-fa77-513f-80f6-dc61ad03f4e8,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+a4c8a1cc-16b9-5067-9081-94aee888362d,d9510c14-fa77-513f-80f6-dc61ad03f4e8,Bánh quy,0,,True,2
+147573ff-3e64-5928-a81b-007bfd01b08b,d9510c14-fa77-513f-80f6-dc61ad03f4e8,whipping cream,0,,True,3
+4abf5569-f874-5801-b94f-e5379d1692f2,d9510c14-fa77-513f-80f6-dc61ad03f4e8,Cam tươi,0,,True,4
+2891310b-0e7b-53c8-aa35-51c4d668a92f,0c709b71-0d66-5d28-8372-8dc6b88cc488,16 cm,0,,True,0
+2fe61b16-cb2c-5f65-984c-12a7d0c0a3ae,0c709b71-0d66-5d28-8372-8dc6b88cc488,20 cm,150000,,True,1
+9cd19d99-2ef6-50ba-9eae-038131b0714c,a5c1c74e-3ae5-5c21-a549-3696826d73cb,Mứt dâu,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492940/product-image/options-tuychon/mut-nhan/nhan-mutdau.png,True,0
+297fe14b-a7f3-5532-b1b4-3a4b8c470804,a5c1c74e-3ae5-5c21-a549-3696826d73cb,Kem phô mai,0,,True,1
+78c38eac-6487-5887-a276-17d7f77d7c0b,a5c1c74e-3ae5-5c21-a549-3696826d73cb,Nhân hạt caramel,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492938/product-image/options-tuychon/mut-nhan/nhan-hat-caramel.png,True,2
+9cd43a93-6f32-5710-b718-04a23481b049,a5c1c74e-3ae5-5c21-a549-3696826d73cb,Chocolate,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492937/product-image/options-tuychon/mut-nhan/nhan-chocolate.png,True,3
+19bd7020-b8d4-53c6-aefa-af509122b3cb,9b8e12f2-6520-559e-bcd2-d49a4bec4d1b,Kem tươi (hồng),0,,True,0
+1aa9216c-87fc-5521-b56a-a8fe93dbfedc,9b8e12f2-6520-559e-bcd2-d49a4bec4d1b,Kem phô mai,0,,True,1
+9fbd84f2-2aa8-5d11-a74e-0fc1433088fe,9b8e12f2-6520-559e-bcd2-d49a4bec4d1b,Kem bơ,0,,True,2
+c4fd1d2e-cfde-5406-bca4-35d017f9e15d,9b8e12f2-6520-559e-bcd2-d49a4bec4d1b,Ganache socola,0,,True,3
+b7a81ac7-89c4-5819-b2c0-68d7ec97140f,9ba66602-5ff4-52c7-b22f-0281aa626f21,Dâu tươi,0,,True,0
+f4880f5c-bb67-5fe3-87ef-e9d0a1b229e0,9ba66602-5ff4-52c7-b22f-0281aa626f21,Socola,0,https://res.cloudinary.com/dhw56qppe/image/upload/v1782492952/product-image/options-tuychon/topping/topping-socola%282%29.png,True,1
+1ce39f81-fab0-5253-9ce3-084a8c2e7777,9ba66602-5ff4-52c7-b22f-0281aa626f21,Bánh quy,0,,True,2
+a3d7d5ad-fef9-5583-804a-a44571088136,9ba66602-5ff4-52c7-b22f-0281aa626f21,whipping cream,0,,True,3
+a0219225-350d-5dcc-a7b1-6c7365c12368,9ba66602-5ff4-52c7-b22f-0281aa626f21,Cam tươi,0,,True,4

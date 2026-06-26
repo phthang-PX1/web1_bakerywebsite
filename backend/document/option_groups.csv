@@ -1,0 +1,97 @@
+﻿group_id,product_id,name,is_required,is_multiple,sort_order
+de198ceb-a51a-504d-89a8-ab07d9c7b437,92697e4a-07c8-5e38-8c85-d93a737c3e15,Kích cỡ,True,False,0
+3d453f4d-6769-5e5e-ab48-90f66a04a65f,92697e4a-07c8-5e38-8c85-d93a737c3e15,Nhân bánh,False,True,1
+d15f5a3a-f319-51d6-8080-4526a60b537e,92697e4a-07c8-5e38-8c85-d93a737c3e15,Kem phủ,False,True,2
+59649e99-3375-5e7b-a2e2-3d7bdad256d3,92697e4a-07c8-5e38-8c85-d93a737c3e15,Topping,False,True,3
+8627828c-2f81-5d75-8fb4-bacdd1e87d95,99e36f3c-6d04-59b0-9ad1-7a80203e5d16,Kích cỡ,True,False,0
+87888222-eff0-5f9d-ae97-a59502c8b2eb,99e36f3c-6d04-59b0-9ad1-7a80203e5d16,Nhân bánh,False,True,1
+90eae96a-b516-5ab7-b93e-45a3ce7f6e29,99e36f3c-6d04-59b0-9ad1-7a80203e5d16,Kem phủ,False,True,2
+129ec636-2876-5786-948e-931ebdc9950a,99e36f3c-6d04-59b0-9ad1-7a80203e5d16,Topping,False,True,3
+b5a3313a-a8f3-5cec-b631-d155ae6430a4,7690844b-0ab7-5e65-88e3-8c90ac98f6e0,Kích cỡ,True,False,0
+cfcc5033-28e3-559d-86f6-14fa1c557451,7690844b-0ab7-5e65-88e3-8c90ac98f6e0,Nhân bánh,False,True,1
+a6e60417-d7cd-55b4-acc1-b244d9442e65,7690844b-0ab7-5e65-88e3-8c90ac98f6e0,Kem phủ,False,True,2
+f2c42259-cf10-5e9d-b1ae-9c6afce9d644,7690844b-0ab7-5e65-88e3-8c90ac98f6e0,Topping,False,True,3
+50700520-e74d-5286-b28b-202b88b6b2b4,d0cd67de-90a2-53dc-852f-ff2198122cfc,Kích cỡ,True,False,0
+95e74bc3-775f-5e42-8758-125de56c1b3b,d0cd67de-90a2-53dc-852f-ff2198122cfc,Nhân bánh,False,True,1
+6f79e7c5-3acf-5ab2-95a9-6776f1bda74c,d0cd67de-90a2-53dc-852f-ff2198122cfc,Kem phủ,False,True,2
+bb5eadaf-8660-5a27-99be-94e7d67bdf6d,d0cd67de-90a2-53dc-852f-ff2198122cfc,Topping,False,True,3
+a2730254-d6c6-54c7-828e-3e578b120e39,f833fbf3-bf58-544d-b6a1-549f9f0bcd81,Kích cỡ,True,False,0
+99eda600-0a08-5e26-8855-fdd8061014b9,f833fbf3-bf58-544d-b6a1-549f9f0bcd81,Nhân bánh,False,True,1
+85ab9be6-29e6-56e0-8e84-02acedb688c8,f833fbf3-bf58-544d-b6a1-549f9f0bcd81,Kem phủ,False,True,2
+93d09765-a0a4-5ef4-a5de-60605addd5d9,f833fbf3-bf58-544d-b6a1-549f9f0bcd81,Topping,False,True,3
+518380a7-cbba-5f05-b5b4-e795bc946962,ebd6074f-addc-5c79-81a1-42ed0a1418a8,Kích cỡ,True,False,0
+b503e1cc-bc97-5057-a500-7ea0276468e0,ebd6074f-addc-5c79-81a1-42ed0a1418a8,Nhân bánh,False,True,1
+142c4fc8-f941-59d6-8b5e-ceb011f215a6,ebd6074f-addc-5c79-81a1-42ed0a1418a8,Kem phủ,False,True,2
+3e39f355-39b1-58b2-bb2b-6e31f2d72899,ebd6074f-addc-5c79-81a1-42ed0a1418a8,Topping,False,True,3
+49bb0b51-16f7-548e-b223-f59ea2f4ec94,36e1a8ea-6b51-5993-8ba5-3a184f5b9374,Kích cỡ,True,False,0
+2037d33d-3e6f-5944-a42b-4b329b3fb28e,36e1a8ea-6b51-5993-8ba5-3a184f5b9374,Nhân bánh,False,True,1
+f1866f91-7f01-5f1a-bce6-184eee5fe012,36e1a8ea-6b51-5993-8ba5-3a184f5b9374,Kem phủ,False,True,2
+bb7fa03a-0275-591d-9901-9974627e183f,36e1a8ea-6b51-5993-8ba5-3a184f5b9374,Topping,False,True,3
+fa9e1ef7-1324-537a-b7ba-400aaa6eb4cf,49c1643c-4f7f-5c7c-aa36-01fcab9c8d49,Kích cỡ,True,False,0
+df853fc9-e859-52c0-8794-200fd49eb5d2,49c1643c-4f7f-5c7c-aa36-01fcab9c8d49,Nhân bánh,False,True,1
+9fb6a541-c21d-5c18-8f08-8e4355cf2282,49c1643c-4f7f-5c7c-aa36-01fcab9c8d49,Kem phủ,False,True,2
+922843fd-3887-5d4a-a19d-b227aea7a6e8,49c1643c-4f7f-5c7c-aa36-01fcab9c8d49,Topping,False,True,3
+3b648256-6bb8-5506-8b7f-6a3219ca8809,ba0deb71-2819-5fe7-8b7c-04b6d693bab0,Kích cỡ,True,False,0
+f69b415e-159a-5f64-ad5e-a772d6453cc1,ba0deb71-2819-5fe7-8b7c-04b6d693bab0,Nhân bánh,False,True,1
+5e8a8ee4-7542-57e5-a526-9348b3258f20,ba0deb71-2819-5fe7-8b7c-04b6d693bab0,Kem phủ,False,True,2
+fbe9b9db-870b-52d1-84c2-6e48ece67f25,ba0deb71-2819-5fe7-8b7c-04b6d693bab0,Topping,False,True,3
+64ce74ad-97a7-5466-a6a3-427b8cbec251,6c9c16ac-84ee-5d24-b9b7-93a8cff0ac22,Kích cỡ,True,False,0
+586299a8-95f8-5463-b1b2-180547009ca6,6c9c16ac-84ee-5d24-b9b7-93a8cff0ac22,Nhân bánh,False,True,1
+8314fe83-465e-53ed-9fc5-d1098b065f8a,6c9c16ac-84ee-5d24-b9b7-93a8cff0ac22,Kem phủ,False,True,2
+195bf864-4d33-5413-bb2e-32101c4dab66,6c9c16ac-84ee-5d24-b9b7-93a8cff0ac22,Topping,False,True,3
+d262e8c4-0b0c-5099-8ed1-3681dc7db04e,fd824b97-76d8-5409-b3af-45924860887c,Kích cỡ,True,False,0
+5467b03a-5bcd-550d-95d7-97957575c5d1,fd824b97-76d8-5409-b3af-45924860887c,Nhân bánh,False,True,1
+e901f1d8-661a-5530-b875-6b4c13365b8e,fd824b97-76d8-5409-b3af-45924860887c,Kem phủ,False,True,2
+ce1a3b4b-7f7d-5e9e-a96f-d4ff7265f55e,fd824b97-76d8-5409-b3af-45924860887c,Topping,False,True,3
+621611bc-a521-5af9-a46d-46262be090e7,7fd3ba97-c942-52ff-b97c-1481e8cd9ffe,Kích cỡ,True,False,0
+3129ce6f-f7b7-5ccc-b63a-a9f9ce2b7e50,7fd3ba97-c942-52ff-b97c-1481e8cd9ffe,Nhân bánh,False,True,1
+d466799d-4664-53a6-8858-11cb2584cd7c,7fd3ba97-c942-52ff-b97c-1481e8cd9ffe,Kem phủ,False,True,2
+4eb23555-284b-5880-b7d9-2366a7c04beb,7fd3ba97-c942-52ff-b97c-1481e8cd9ffe,Topping,False,True,3
+ae5c8907-fd76-5001-b866-337bbfda9f25,37d35a0e-3ac5-55c7-9eb5-347de3abda91,Kích cỡ,True,False,0
+fd9968c3-22c5-5351-b581-7a33123bfd77,37d35a0e-3ac5-55c7-9eb5-347de3abda91,Nhân bánh,False,True,1
+6d5e2b92-d3e7-5aaa-a3cf-ad1a3d18a62d,37d35a0e-3ac5-55c7-9eb5-347de3abda91,Kem phủ,False,True,2
+1b603ac4-0b0a-5031-948d-47f33b543e93,37d35a0e-3ac5-55c7-9eb5-347de3abda91,Topping,False,True,3
+d6a8ed6d-a92f-5a22-b35c-b797bf98e4f5,1114509d-70fe-5600-a261-e7e105d5f9e2,Kích cỡ,True,False,0
+abf74cc6-41e6-5f29-b842-85e65d812e0a,1114509d-70fe-5600-a261-e7e105d5f9e2,Nhân bánh,False,True,1
+df92a897-4081-52fa-959b-8cc0745e133f,1114509d-70fe-5600-a261-e7e105d5f9e2,Kem phủ,False,True,2
+e7b6361a-1275-55f1-9ce8-b7a8130fc894,1114509d-70fe-5600-a261-e7e105d5f9e2,Topping,False,True,3
+b74fdd78-2666-5185-a6a4-65344763e634,bf113453-758d-559e-ac4e-faf50caa8cfa,Kích cỡ,True,False,0
+45c35bb1-9f14-53b8-9688-78eb384570ad,bf113453-758d-559e-ac4e-faf50caa8cfa,Nhân bánh,False,True,1
+28d9f62b-8396-57dd-92ec-9d9eeea944c0,bf113453-758d-559e-ac4e-faf50caa8cfa,Kem phủ,False,True,2
+d9d7ff4a-45a6-59b2-bd43-db89e1a1bf89,bf113453-758d-559e-ac4e-faf50caa8cfa,Topping,False,True,3
+888d15d9-0d00-588e-8226-37c95ab19ec3,001c8b28-7c4e-5017-9f39-7b58f1d3d858,Kích cỡ,True,False,0
+9fb0bdbe-916d-5831-a4cf-ce4634483645,001c8b28-7c4e-5017-9f39-7b58f1d3d858,Nhân bánh,False,True,1
+8f544138-755a-5bd7-aac1-b2495d3ed2eb,001c8b28-7c4e-5017-9f39-7b58f1d3d858,Kem phủ,False,True,2
+5018796b-5436-5660-b2e5-b57dadd366b9,001c8b28-7c4e-5017-9f39-7b58f1d3d858,Topping,False,True,3
+73a00878-7860-551a-877f-23a580b53d70,4d6e1898-6341-5a06-95d5-b8cdd8453099,Kích cỡ,True,False,0
+cfcb9739-8e42-55e9-ae23-b01263e35e79,4d6e1898-6341-5a06-95d5-b8cdd8453099,Nhân bánh,False,True,1
+c6d55102-2200-551d-a2b7-08da4bddb60e,4d6e1898-6341-5a06-95d5-b8cdd8453099,Kem phủ,False,True,2
+069cf328-a945-5d9c-badf-9fcd08e4b4eb,4d6e1898-6341-5a06-95d5-b8cdd8453099,Topping,False,True,3
+34e03daf-9515-5487-be28-9bbe34bdfe21,7a395945-b0cb-559d-b4f5-57cd1bf4e3bb,Kích cỡ,True,False,0
+166769bf-e80b-515d-b165-4eb0e7183794,7a395945-b0cb-559d-b4f5-57cd1bf4e3bb,Nhân bánh,False,True,1
+bb3e1680-af80-573c-96e9-9830f88d0991,7a395945-b0cb-559d-b4f5-57cd1bf4e3bb,Kem phủ,False,True,2
+dd0130d8-0445-5237-a5b9-b59998177bd8,7a395945-b0cb-559d-b4f5-57cd1bf4e3bb,Topping,False,True,3
+d2d27771-774d-5d24-8cf4-edaac8c579d0,99310382-f961-57ed-8d52-e2dc08c37ba9,Kích cỡ,True,False,0
+a4db561d-79ec-54de-8195-b20db047367e,99310382-f961-57ed-8d52-e2dc08c37ba9,Nhân bánh,False,True,1
+53fd6e5f-ea1e-5f4d-8506-d4f1b09bf89b,99310382-f961-57ed-8d52-e2dc08c37ba9,Kem phủ,False,True,2
+06cde30e-1e4d-508e-a349-18afe38434a1,99310382-f961-57ed-8d52-e2dc08c37ba9,Topping,False,True,3
+a5a02547-785b-5b61-99b6-38bba4329525,c46958de-acd4-5951-a1f3-ad13cbd9400a,Kích cỡ,True,False,0
+6e0efae4-7853-5fc7-8177-5928500d3ce3,c46958de-acd4-5951-a1f3-ad13cbd9400a,Nhân bánh,False,True,1
+8d5ab7d1-db7c-5698-a829-d45ae2d717ab,c46958de-acd4-5951-a1f3-ad13cbd9400a,Kem phủ,False,True,2
+1ee8c5c9-c293-5af2-b104-a8331c35a61d,c46958de-acd4-5951-a1f3-ad13cbd9400a,Topping,False,True,3
+a8ce8041-b5a4-5c1f-93de-bbf11ebb839e,47b73c21-7e3d-5a33-8edf-55f3b5ed8bcd,Kích cỡ,True,False,0
+cd3f8697-3128-535b-91c4-74acefaf07bf,47b73c21-7e3d-5a33-8edf-55f3b5ed8bcd,Nhân bánh,False,True,1
+779c562b-0b94-537a-8947-0a02f40a892c,47b73c21-7e3d-5a33-8edf-55f3b5ed8bcd,Kem phủ,False,True,2
+da37f03c-8020-56f2-a8fe-1fc16a430982,47b73c21-7e3d-5a33-8edf-55f3b5ed8bcd,Topping,False,True,3
+49a716f6-d11d-519d-bc6c-34151b31063a,6239e932-344c-5dc0-b461-f0e426a9a70a,Kích cỡ,True,False,0
+d8475c02-550e-5337-85c2-956a1f74ea1c,6239e932-344c-5dc0-b461-f0e426a9a70a,Nhân bánh,False,True,1
+06d30102-6cd1-571e-bee7-d8b08ab6f10f,6239e932-344c-5dc0-b461-f0e426a9a70a,Kem phủ,False,True,2
+5076e513-6240-5bc0-876f-610dd9b35edc,6239e932-344c-5dc0-b461-f0e426a9a70a,Topping,False,True,3
+551da1c0-1dd3-5d9e-86f0-fd33d3a0346e,35d8ca52-87ee-546b-a3ff-39dec9154309,Kích cỡ,True,False,0
+56f737fc-c6ef-5f6f-9ec4-68ad0a3a830b,35d8ca52-87ee-546b-a3ff-39dec9154309,Nhân bánh,False,True,1
+2149366a-8a81-5a08-bbad-d0e99906dbdf,35d8ca52-87ee-546b-a3ff-39dec9154309,Kem phủ,False,True,2
+d9510c14-fa77-513f-80f6-dc61ad03f4e8,35d8ca52-87ee-546b-a3ff-39dec9154309,Topping,False,True,3
+0c709b71-0d66-5d28-8372-8dc6b88cc488,4d447a82-d8df-578b-94a1-208b06faebe2,Kích cỡ,True,False,0
+a5c1c74e-3ae5-5c21-a549-3696826d73cb,4d447a82-d8df-578b-94a1-208b06faebe2,Nhân bánh,False,True,1
+9b8e12f2-6520-559e-bcd2-d49a4bec4d1b,4d447a82-d8df-578b-94a1-208b06faebe2,Kem phủ,False,True,2
+9ba66602-5ff4-52c7-b22f-0281aa626f21,4d447a82-d8df-578b-94a1-208b06faebe2,Topping,False,True,3
