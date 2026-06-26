@@ -1,8 +1,6 @@
 ALTER TYPE "MembershipTier" ADD VALUE IF NOT EXISTS 'member';
 ALTER TYPE "MembershipTier" ADD VALUE IF NOT EXISTS 'diamond';
 
-ALTER TABLE "users" ALTER COLUMN "membership_tier" SET DEFAULT 'member';
-
 CREATE TYPE "VoucherTier" AS ENUM ('bronze', 'silver', 'gold', 'diamond');
 
 CREATE TABLE "membership_cycles" (
