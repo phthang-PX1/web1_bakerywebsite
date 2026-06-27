@@ -1,0 +1,36 @@
+<app-site-header />
+
+<main class="home-page">
+  <app-hero-banner />
+
+  <app-category-shortcuts
+    [categories]="categoriesState().data"
+    [loading]="categoriesState().loading"
+    [error]="categoriesState().error"
+  />
+
+  <app-product-section
+    title="Bánh mới ra mắt"
+    subtitle="Lựa chọn tinh tế từ bếp trưởng cho mùa này"
+    [products]="newProductsState().data"
+    [loading]="newProductsState().loading"
+    [error]="newProductsState().error"
+    (addToCart)="addToCart($event)"
+  />
+
+  <app-product-section
+    title="Bánh Bán chạy nhất"
+    subtitle="Những chiếc bánh đang được mọi người yêu thích nhất."
+    [products]="bestSellersState().data"
+    [loading]="bestSellersState().loading"
+    [error]="bestSellersState().error"
+    [softBackground]="true"
+    [compactCards]="true"
+    (addToCart)="addToCart($event)"
+  />
+
+  <app-custom-cake-cta />
+  <app-membership-faq [faqs]="faqs" />
+</main>
+
+<app-site-footer />

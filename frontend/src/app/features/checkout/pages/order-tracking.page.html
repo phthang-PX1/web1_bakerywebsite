@@ -1,0 +1,79 @@
+@if (loading()) {
+  <app-loading-spinner [fullPage]="true" />
+} @else if (error()) {
+  <div class="tracking-error">
+    <p>{{ error() }}</p>
+    <a routerLink="/">Về trang chủ</a>
+  </div>
+} @else if (order(); as o) {
+  <div class="tracking-page">
+    <div class="tracking-page__inner">
+      <div class="tracking-header">
+        <h1>Đơn hàng #{{ o.orderId.slice(-8).toUpperCase() }}</h1>
+        <span class="status-badge" [class]="'status-badge--' + o.orderStatus">{{ statusLabel(o.orderStatus) }}</span>
+      </div>
+
+      @if (o.paymentStatus === 'paid') {
+        <div class="alert alert--success">
+          ✅ Thanh toán thành công! Đơn hàng của bạn đang được xử lý. Đang chuyển hướng…
+        </div>
+      } @else if (o.orderStatus === 'cancelled') {
+        <div class="alert alert--error">
+          ❌ Đơn hàng đã bị hủy.
+        </div>
+      } @else if (o.paymentMethod === 'transfer') {
+        <div class="qr-section">
+          <h2 class="qr-section__title">Quét mã QR để thanh toán</h2>
+          @if (o.paymentQrUrl) {
+            <img class="qr-img" [src]="o.paymentQrUrl" alt="QR thanh toán" appImgFallback />
+          }
+          @if (o.transferContent) {
+            <div class="transfer-info">
+              <p>Nội dung chuyển khoản: <strong>{{ o.transferContent }}</strong></p>
+              <p>Số tiền: <strong class="text-primary">{{ o.totalAmount | currencyVnd }}</strong></p>
+            </div>
+          }
+          <p class="qr-section__note">Hệ thống sẽ tự động xác nhận thanh toán. Đừng đóng trang này.</p>
+          <div class="polling-indicator">
+            <div class="polling-dot"></div>
+            Đang chờ xác nhận thanh toán…
+          </div>
+        </div>
+      }
+
+      <div class="order-detail-grid">
+        <section class="order-detail-card">
+          <h3>Thông tin giao hàng</h3>
+          <p><strong>Người nhận:</strong> {{ o.recipientName }}</p>
+          <p><strong>Số điện thoại:</strong> {{ o.phone }}</p>
+          @if (o.deliveryAddress) {
+            <p><strong>Địa chỉ:</strong> {{ o.deliveryAddress }}</p>
+          }
+          <p><strong>Ngày nhận:</strong> {{ o.deliveryDate }}</p>
+          <p><strong>Khung giờ:</strong> {{ o.deliveryTimeSlot }}</p>
+          @if (o.note) {
+            <p><strong>Ghi chú:</strong> {{ o.note }}</p>
+          }
+        </section>
+
+        <section class="order-detail-card">
+          <h3>Tóm tắt đơn hàng</h3>
+          <div class="order-totals">
+            <div class="order-total-row"><span>Tạm tính</span><span>{{ o.subtotal | currencyVnd }}</span></div>
+            @if (o.discountAmount > 0) {
+              <div class="order-total-row text-success"><span>Giảm giá</span><span>−{{ o.discountAmount | currencyVnd }}</span></div>
+            }
+            <div class="order-total-row"><span>Phí vận chuyển</span><span class="text-success">Miễn phí</span></div>
+            <div class="order-total-row order-total-row--total"><strong>Tổng cộng</strong><strong class="text-primary">{{ o.totalAmount | currencyVnd }}</strong></div>
+          </div>
+        </section>
+      </div>
+
+      @if (o.orderStatus === 'pending' && o.paymentStatus !== 'paid') {
+        <div class="tracking-actions">
+          <button class="btn-cancel" (click)="cancelOrder()">Hủy đơn hàng</button>
+        </div>
+      }
+    </div>
+  </div>
+}

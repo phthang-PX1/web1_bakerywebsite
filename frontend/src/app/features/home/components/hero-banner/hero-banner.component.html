@@ -1,0 +1,27 @@
+<section class="hero" aria-labelledby="home-hero-title">
+  <div class="hero__copy">
+    <p class="hero__eyebrow">WeBee Bakery</p>
+    <h1 id="home-hero-title">Ưu Đãi Thành Viên WeBee</h1>
+    <p class="hero__description">
+      Giảm ngay 10% cho tất cả đơn hàng khi bạn đăng ký tài khoản thành viên.
+    </p>
+    <div class="hero__actions">
+      <a class="primary-button" routerLink="/auth/register">Đăng ký ngay</a>
+      <a class="secondary-link" routerLink="/products">Xem bánh hôm nay</a>
+    </div>
+  </div>
+
+  <div class="hero__visual">
+    <img [src]="heroImageUrl" alt="Hộp bánh WeBee trong không gian ấm áp" />
+    <div class="hero__note">
+      <strong>10%</strong>
+      <span>ưu đãi thành viên mới</span>
+    </div>
+  </div>
+
+  <div class="hero__dots" aria-hidden="true">
+    <span></span>
+    <span></span>
+    <span></span>
+  </div>
+</section>

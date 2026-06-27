@@ -1,0 +1,167 @@
+<div class="checkout-page">
+  <div class="checkout-page__inner">
+    <h1 class="checkout-page__title">Thanh toán</h1>
+
+    <div class="checkout-layout">
+      <form [formGroup]="form" (ngSubmit)="submit()" novalidate class="checkout-form">
+
+        <!-- Recipient info -->
+        <section class="checkout-section">
+          <h2 class="checkout-section__title">Thông tin người nhận</h2>
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="recipientName">Họ và tên *</label>
+              <input id="recipientName" type="text" class="field__input" formControlName="recipientName" placeholder="Nguyễn Văn A" />
+              @if (form.controls.recipientName.invalid && form.controls.recipientName.touched) {
+                <p class="field__error">Vui lòng nhập họ và tên.</p>
+              }
+            </div>
+            <div class="field">
+              <label class="field__label" for="phone">Số điện thoại *</label>
+              <input id="phone" type="tel" class="field__input" formControlName="phone" placeholder="0912345678" />
+              @if (form.controls.phone.invalid && form.controls.phone.touched) {
+                <p class="field__error">Số điện thoại không hợp lệ (9-11 chữ số).</p>
+              }
+            </div>
+          </div>
+          <div class="field">
+            <label class="field__label" for="email">Email (nhận xác nhận đơn)</label>
+            <input id="email" type="email" class="field__input" formControlName="email" placeholder="example@email.com" />
+          </div>
+        </section>
+
+        <!-- Fulfillment type -->
+        <section class="checkout-section">
+          <h2 class="checkout-section__title">Hình thức nhận hàng</h2>
+          <div class="radio-group">
+            <label class="radio-option" [class.radio-option--active]="form.controls.fulfillmentType.value === 'delivery'">
+              <input type="radio" formControlName="fulfillmentType" value="delivery" /> 🚚 Giao hàng
+            </label>
+            <label class="radio-option" [class.radio-option--active]="form.controls.fulfillmentType.value === 'pickup'">
+              <input type="radio" formControlName="fulfillmentType" value="pickup" /> 🏪 Tự lấy tại cửa hàng
+            </label>
+          </div>
+
+          @if (isDelivery()) {
+            <div class="field" style="margin-top:16px">
+              <label class="field__label" for="deliveryAddress">Địa chỉ giao hàng *</label>
+              <input id="deliveryAddress" type="text" class="field__input" formControlName="deliveryAddress" placeholder="Số nhà, đường, phường/xã, quận/huyện, tỉnh/thành" />
+              @if (form.controls.deliveryAddress.invalid && form.controls.deliveryAddress.touched) {
+                <p class="field__error">Vui lòng nhập địa chỉ giao hàng.</p>
+              }
+            </div>
+          }
+        </section>
+
+        <!-- Delivery date + time -->
+        <section class="checkout-section">
+          <h2 class="checkout-section__title">Ngày và giờ nhận hàng</h2>
+          <div class="field-row">
+            <div class="field">
+              <label class="field__label" for="deliveryDate">Ngày nhận *</label>
+              <input id="deliveryDate" type="date" class="field__input" formControlName="deliveryDate" [min]="today" />
+              @if (form.controls.deliveryDate.invalid && form.controls.deliveryDate.touched) {
+                <p class="field__error">Vui lòng chọn ngày nhận hàng.</p>
+              }
+            </div>
+            <div class="field">
+              <label class="field__label" for="deliveryTimeSlot">Khung giờ *</label>
+              <select id="deliveryTimeSlot" class="field__input" formControlName="deliveryTimeSlot">
+                <option value="">-- Chọn khung giờ --</option>
+                @for (slot of timeSlots; track slot) {
+                  <option [value]="slot">{{ slot }}</option>
+                }
+              </select>
+              @if (form.controls.deliveryTimeSlot.invalid && form.controls.deliveryTimeSlot.touched) {
+                <p class="field__error">Vui lòng chọn khung giờ.</p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <!-- Payment method -->
+        <section class="checkout-section">
+          <h2 class="checkout-section__title">Phương thức thanh toán</h2>
+          <div class="radio-group">
+            <label class="radio-option" [class.radio-option--active]="form.controls.paymentMethod.value === 'transfer'">
+              <input type="radio" formControlName="paymentMethod" value="transfer" /> 🏦 Chuyển khoản ngân hàng
+            </label>
+            <label class="radio-option" [class.radio-option--active]="form.controls.paymentMethod.value === 'cod'">
+              <input type="radio" formControlName="paymentMethod" value="cod" /> 💵 COD (Thanh toán khi nhận)
+              <!-- TODO_BACKEND: Add 'cod' to payment_method enum in order schema -->
+            </label>
+          </div>
+          @if (form.controls.paymentMethod.value === 'transfer') {
+            <p class="payment-note">Sau khi đặt hàng, bạn sẽ nhận được mã QR để chuyển khoản.</p>
+          }
+        </section>
+
+        <!-- Note -->
+        <section class="checkout-section">
+          <div class="field">
+            <label class="field__label" for="note">Ghi chú đơn hàng</label>
+            <textarea id="note" class="field__input field__input--textarea" formControlName="note" placeholder="Ghi chú cho cửa hàng (không bắt buộc)"></textarea>
+          </div>
+        </section>
+
+        <button type="submit" class="btn-submit" [disabled]="submitting()">
+          @if (submitting()) { <app-loading-spinner /> } @else { Đặt hàng →  }
+        </button>
+      </form>
+
+      <!-- Order summary -->
+      <aside class="order-summary">
+        <h2 class="order-summary__title">Đơn hàng của bạn</h2>
+
+        @let cart = cart$ | async;
+        @if (cart) {
+          <ul class="order-summary__items">
+            @for (item of cart.items; track item.cartItemId) {
+              <li class="order-summary__item">
+                <span class="order-summary__item-name">{{ item.name }} × {{ item.quantity }}</span>
+                <span>{{ item.itemTotal | currencyVnd }}</span>
+              </li>
+            }
+          </ul>
+
+          <div class="order-summary__divider"></div>
+
+          <!-- Coupon -->
+          <div class="coupon-field">
+            <div class="coupon-input-row">
+              <input type="text" class="field__input coupon-input" [formControl]="$any(form.controls.couponCode)" placeholder="Mã giảm giá" />
+              <button type="button" class="btn-apply-coupon" (click)="validateCoupon()" [disabled]="validatingCoupon()">Áp dụng</button>
+            </div>
+            @if (couponError()) {
+              <p class="field__error">{{ couponError() }}</p>
+            }
+            @if (coupon(); as c) {
+              <div class="coupon-applied">
+                <span>✓ {{ c.code }} — −{{ c.discountAmount | currencyVnd }}</span>
+                <button type="button" (click)="removeCoupon()">✕</button>
+              </div>
+            }
+          </div>
+
+          <div class="order-summary__row">
+            <span>Tạm tính</span><span>{{ cart.subtotal | currencyVnd }}</span>
+          </div>
+          @if (discount() > 0) {
+            <div class="order-summary__row text-success">
+              <span>Giảm giá</span><span>−{{ discount() | currencyVnd }}</span>
+            </div>
+          }
+          <div class="order-summary__row">
+            <span>Phí vận chuyển</span><span class="text-success">Miễn phí</span>
+          </div>
+          <div class="order-summary__row order-summary__row--total">
+            <strong>Tổng cộng</strong>
+            <strong class="text-primary">{{ (cart.subtotal - discount()) | currencyVnd }}</strong>
+          </div>
+        }
+
+        <a class="order-summary__edit" routerLink="/cart">← Chỉnh sửa giỏ hàng</a>
+      </aside>
+    </div>
+  </div>
+</div>

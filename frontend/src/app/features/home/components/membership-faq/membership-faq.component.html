@@ -1,0 +1,26 @@
+<section class="membership" aria-labelledby="membership-title">
+  <div class="membership__intro">
+    <h2 id="membership-title">Bạn là thành viên?</h2>
+    <p>Đăng nhập để xem ưu đãi và tích điểm.</p>
+    <a routerLink="/auth/login">Đăng nhập / Đăng ký</a>
+  </div>
+
+  <div class="faq-card">
+    <h3>Quyền lợi thành viên</h3>
+    <p>Nâng hạng để nhận nhiều ưu đãi hơn.</p>
+
+    <div class="faq-list">
+      @for (faq of faqs(); track faq.id) {
+        <article class="faq-item">
+          <button type="button" (click)="toggle(faq.id)" [attr.aria-expanded]="openId() === faq.id">
+            <span>{{ faq.question }}</span>
+            <strong aria-hidden="true">{{ openId() === faq.id ? '−' : '+' }}</strong>
+          </button>
+          @if (openId() === faq.id) {
+            <p>{{ faq.answer }}</p>
+          }
+        </article>
+      }
+    </div>
+  </div>
+</section>

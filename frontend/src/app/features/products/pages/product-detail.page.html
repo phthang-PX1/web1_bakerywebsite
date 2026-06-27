@@ -1,0 +1,121 @@
+@if (loading()) {
+  <app-loading-spinner [fullPage]="true" />
+} @else if (error()) {
+  <div class="detail-error">
+    <p>{{ error() }}</p>
+    <a routerLink="/products">← Quay lại sản phẩm</a>
+  </div>
+} @else if (product(); as p) {
+  <div class="product-detail">
+    <div class="product-detail__inner">
+      <!-- Gallery -->
+      <div class="gallery">
+        <div class="gallery__main">
+          <img
+            [src]="selectedImages()[selectedImageIndex()]"
+            [alt]="p.name"
+            appImgFallback
+            class="gallery__main-img"
+          />
+        </div>
+        @if (selectedImages().length > 1) {
+          <div class="gallery__thumbs">
+            @for (img of selectedImages(); track $index) {
+              <button class="gallery__thumb" [class.gallery__thumb--active]="selectedImageIndex() === $index" (click)="selectImage($index)">
+                <img [src]="img" [alt]="p.name + ' ảnh ' + ($index + 1)" appImgFallback />
+              </button>
+            }
+          </div>
+        }
+      </div>
+
+      <!-- Info panel -->
+      <div class="product-info">
+        <nav class="breadcrumb" aria-label="Điều hướng">
+          <a routerLink="/">Trang chủ</a> /
+          <a routerLink="/products">Sản phẩm</a> /
+          <span>{{ p.name }}</span>
+        </nav>
+
+        <h1 class="product-info__name">{{ p.name }}</h1>
+
+        <div class="product-info__meta">
+          <app-star-rating [rating]="p.avgRating" [reviewCount]="p.reviewCount" [showCount]="true" />
+        </div>
+
+        <p class="product-info__price">{{ totalPrice() | currencyVnd }}</p>
+
+        @if (p.description) {
+          <p class="product-info__desc">{{ p.description }}</p>
+        }
+
+        <!-- Option groups -->
+        @for (group of optionGroups(); track group.groupId) {
+          <div class="option-group">
+            <h3 class="option-group__title">
+              {{ group.name }}
+              @if (group.isRequired) { <span class="option-group__required">*</span> }
+            </h3>
+            <div class="option-group__items">
+              @for (item of group.items; track item.itemId) {
+                <button
+                  class="option-item"
+                  [class.option-item--selected]="isSelected(group.groupId, item.itemId)"
+                  (click)="toggleOption(group, item)"
+                  type="button"
+                >
+                  @if (item.imageUrl) {
+                    <img [src]="item.imageUrl" [alt]="item.name" class="option-item__img" />
+                  }
+                  <span class="option-item__name">{{ item.name }}</span>
+                  @if (item.extraPrice > 0) {
+                    <span class="option-item__price">+{{ item.extraPrice | currencyVnd }}</span>
+                  }
+                </button>
+              }
+            </div>
+          </div>
+        }
+
+        <div class="product-info__actions">
+          <app-quantity-stepper [quantity]="quantity()" (quantityChange)="quantity.set($event)" />
+          <button
+            class="btn-add-to-cart"
+            (click)="addToCart()"
+            [disabled]="!canAddToCart() || addingToCart()"
+            type="button"
+          >
+            @if (addingToCart()) { Đang thêm… } @else { Thêm vào giỏ hàng }
+          </button>
+        </div>
+
+        @if (!canAddToCart()) {
+          <p class="product-info__hint">Vui lòng chọn đầy đủ các tùy chọn bắt buộc (*) trước khi thêm vào giỏ.</p>
+        }
+      </div>
+    </div>
+
+    <!-- Reviews -->
+    <section class="reviews-section">
+      <h2 class="reviews-section__title">Đánh giá sản phẩm</h2>
+      @if (reviews().length > 0) {
+        <ul class="reviews-list">
+          @for (review of reviews(); track review.reviewId) {
+            <li class="review-item">
+              <div class="review-item__header">
+                <span class="review-item__author">{{ review.user?.fullName ?? 'Khách hàng' }}</span>
+                <app-star-rating [rating]="review.rating" />
+                <span class="review-item__date">{{ review.createdAt | slice:0:10 }}</span>
+              </div>
+              @if (review.comment) {
+                <p class="review-item__comment">{{ review.comment }}</p>
+              }
+            </li>
+          }
+        </ul>
+      } @else {
+        <p class="reviews-empty">Chưa có đánh giá nào. Hãy là người đầu tiên!</p>
+      }
+    </section>
+  </div>
+}

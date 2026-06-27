@@ -1,0 +1,26 @@
+<section class="categories" aria-labelledby="home-categories-title">
+  <div class="section-heading">
+    <h2 id="home-categories-title">Danh mục</h2>
+  </div>
+
+  @if (loading()) {
+    <div class="state-grid" aria-live="polite">
+      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+        <div class="category-skeleton"></div>
+      }
+    </div>
+  } @else if (error()) {
+    <p class="section-state">{{ error() }}</p>
+  } @else if (categories().length === 0) {
+    <p class="section-state">Chưa có danh mục đang hiển thị.</p>
+  } @else {
+    <div class="category-grid">
+      @for (category of categories(); track category.id) {
+        <a class="category-item" [routerLink]="['/products']" [queryParams]="{ category: category.slug }">
+          <span class="category-item__icon" [attr.data-icon]="category.icon" aria-hidden="true"></span>
+          <span>{{ category.name }}</span>
+        </a>
+      }
+    </div>
+  }
+</section>

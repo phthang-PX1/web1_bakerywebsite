@@ -1,0 +1,83 @@
+<div class="cart-page">
+  <div class="cart-page__inner">
+    <h1 class="cart-page__title">Giỏ hàng</h1>
+
+    @let cart = cartService.cart$ | async;
+    @if (cart && cart.items.length > 0) {
+      <div class="cart-layout">
+        <section class="cart-items">
+          @for (item of cart.items; track item.cartItemId) {
+            <article class="cart-item">
+              <img class="cart-item__img" [src]="item.thumbnailUrl ?? ''" appImgFallback [alt]="item.name" />
+              <div class="cart-item__info">
+                <a class="cart-item__name" [routerLink]="['/products', item.slug]">{{ item.name }}</a>
+                @if (item.options.length > 0) {
+                  <p class="cart-item__options">{{ item.options.map(o => o.name).join(', ') }}</p>
+                }
+                <p class="cart-item__unit-price">{{ item.unitPrice | currencyVnd }} / cái</p>
+              </div>
+              <div class="cart-item__controls">
+                <app-quantity-stepper [quantity]="item.quantity" (quantityChange)="updateQuantity(item.cartItemId, $event)" />
+                <strong class="cart-item__total">{{ item.itemTotal | currencyVnd }}</strong>
+              </div>
+              <button class="cart-item__remove" (click)="removingItemId.set(item.cartItemId)" aria-label="Xóa sản phẩm">✕</button>
+            </article>
+          }
+
+          <div class="cart-items__footer">
+            <button class="btn-clear" (click)="confirmClearOpen.set(true)">Xóa tất cả</button>
+            <a class="btn-continue" routerLink="/products">← Tiếp tục mua</a>
+          </div>
+        </section>
+
+        <aside class="cart-summary">
+          <h2 class="cart-summary__title">Tóm tắt đơn hàng</h2>
+          <div class="cart-summary__row">
+            <span>Tạm tính ({{ cart.totalQuantity }} sản phẩm)</span>
+            <span>{{ cart.subtotal | currencyVnd }}</span>
+          </div>
+          <div class="cart-summary__row">
+            <span>Phí vận chuyển</span>
+            <span class="text-success">Miễn phí</span>
+          </div>
+          <div class="cart-summary__row cart-summary__row--total">
+            <strong>Tổng cộng</strong>
+            <strong class="cart-summary__total-price">{{ cart.subtotal | currencyVnd }}</strong>
+          </div>
+          <a class="btn-checkout" routerLink="/checkout">Thanh toán ngay →</a>
+        </aside>
+      </div>
+    } @else {
+      <div class="cart-empty">
+        <p class="cart-empty__icon">🛒</p>
+        <h2>Giỏ hàng của bạn đang trống</h2>
+        <p>Hãy khám phá các sản phẩm bánh ngon của chúng tôi!</p>
+        <a class="btn-shop" routerLink="/products">Mua sắm ngay</a>
+      </div>
+    }
+  </div>
+</div>
+
+<!-- Confirm remove single item -->
+@if (removingItemId()) {
+  <app-confirm-dialog
+    [open]="true"
+    title="Xóa sản phẩm"
+    message="Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?"
+    confirmLabel="Xóa"
+    cancelLabel="Hủy"
+    (confirm)="removeItem(removingItemId()!)"
+    (cancel)="removingItemId.set(null)"
+  />
+}
+
+<!-- Confirm clear all -->
+<app-confirm-dialog
+  [open]="confirmClearOpen()"
+  title="Xóa tất cả"
+  message="Bạn có chắc muốn xóa toàn bộ giỏ hàng?"
+  confirmLabel="Xóa tất cả"
+  cancelLabel="Hủy"
+  (confirm)="clearCart()"
+  (cancel)="confirmClearOpen.set(false)"
+/>

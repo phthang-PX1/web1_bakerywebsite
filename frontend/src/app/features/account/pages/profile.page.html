@@ -1,0 +1,75 @@
+<div class="account-form-page">
+  <div class="page-header">
+    <a class="back-link" routerLink="/account">← Tài khoản</a>
+    <h1>Hồ sơ cá nhân</h1>
+  </div>
+
+  @if (authService.currentUser$ | async; as user) {
+    <!-- Avatar -->
+    <section class="form-section">
+      <h2 class="form-section__title">Ảnh đại diện</h2>
+      <div class="avatar-upload">
+        <div class="avatar-preview">
+          @if (user.avatarUrl) {
+            <img [src]="user.avatarUrl" [alt]="user.fullName" appImgFallback />
+          } @else {
+            <span>{{ user.fullName.charAt(0).toUpperCase() }}</span>
+          }
+        </div>
+        <label class="btn-upload" for="avatarInput">
+          @if (uploadingAvatar()) { Đang tải… } @else { Thay ảnh }
+        </label>
+        <input id="avatarInput" type="file" accept="image/*" (change)="onAvatarChange($event)" hidden [disabled]="uploadingAvatar()" />
+      </div>
+    </section>
+
+    <!-- Profile info -->
+    <section class="form-section">
+      <h2 class="form-section__title">Thông tin cá nhân</h2>
+      <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" novalidate>
+        <div class="field">
+          <label class="field__label" for="fullName">Họ và tên *</label>
+          <input id="fullName" type="text" class="field__input" formControlName="fullName" />
+          @if (profileForm.controls.fullName.invalid && profileForm.controls.fullName.touched) {
+            <p class="field__error">Vui lòng nhập họ và tên.</p>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label">Email</label>
+          <input type="email" class="field__input field__input--disabled" [value]="user.email ?? ''" disabled />
+        </div>
+        <div class="field">
+          <label class="field__label" for="phone">Số điện thoại</label>
+          <input id="phone" type="tel" class="field__input" formControlName="phone" placeholder="0912345678" />
+        </div>
+        <button type="submit" class="btn-save" [disabled]="savingProfile()">
+          @if (savingProfile()) { <app-loading-spinner /> } @else { Lưu thay đổi }
+        </button>
+      </form>
+    </section>
+
+    <!-- Change password -->
+    <section class="form-section">
+      <h2 class="form-section__title">Đổi mật khẩu</h2>
+      <form [formGroup]="passwordForm" (ngSubmit)="savePassword()" novalidate>
+        <div class="field">
+          <label class="field__label" for="currentPassword">Mật khẩu hiện tại *</label>
+          <input id="currentPassword" type="password" class="field__input" formControlName="currentPassword" />
+          @if (passwordForm.controls.currentPassword.invalid && passwordForm.controls.currentPassword.touched) {
+            <p class="field__error">Vui lòng nhập mật khẩu hiện tại.</p>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label" for="newPassword">Mật khẩu mới *</label>
+          <input id="newPassword" type="password" class="field__input" formControlName="newPassword" placeholder="Tối thiểu 8 ký tự" />
+          @if (passwordForm.controls.newPassword.invalid && passwordForm.controls.newPassword.touched) {
+            <p class="field__error">Mật khẩu phải có ít nhất 8 ký tự.</p>
+          }
+        </div>
+        <button type="submit" class="btn-save" [disabled]="savingPassword()">
+          @if (savingPassword()) { <app-loading-spinner /> } @else { Đổi mật khẩu }
+        </button>
+      </form>
+    </section>
+  }
+</div>

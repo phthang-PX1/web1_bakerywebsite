@@ -1,645 +1,645 @@
-# 📋 WeBee — Checklist Hướng dẫn Flow & Prompt cho từng Phase
+﻿# ðŸ“‹ WeBee â€” Checklist HÆ°á»›ng dáº«n Flow & Prompt cho tá»«ng Phase
 
-> **Tổng quan dự án:** WeBee là website thương mại điện tử bán bánh với tính năng customize bánh cho khách hàng (chọn kích cỡ, kem phủ, topping, v.v.). Mục tiêu: triển khai MVP.
+> **Tá»•ng quan dá»± Ã¡n:** WeBee lÃ  website thÆ°Æ¡ng máº¡i Ä‘iá»‡n tá»­ bÃ¡n bÃ¡nh vá»›i tÃ­nh nÄƒng customize bÃ¡nh cho khÃ¡ch hÃ ng (chá»n kÃ­ch cá»¡, kem phá»§, topping, v.v.). Má»¥c tiÃªu: triá»ƒn khai MVP.
 >
 > **Tech Stack:** Node.js + TypeScript + Express + Prisma + PostgreSQL (Supabase) + Redis + Zod | Frontend: Angular
 >
-> **Quy tắc vàng khi làm việc với AI:**
-> - Luôn đính kèm tài liệu tham chiếu vào đầu prompt (ERD, API spec, implementation-plan)
-> - Không để AI tự ý chạy `npm install`, `prisma migrate`, `git commit`
-> - Nếu AI đề xuất thay đổi ERD/API spec → hỏi lại và cập nhật tài liệu trước
-> - Sau mỗi milestone → test thủ công bằng Swagger trước khi commit
+> **Quy táº¯c vÃ ng khi lÃ m viá»‡c vá»›i AI:**
+> - LuÃ´n Ä‘Ã­nh kÃ¨m tÃ i liá»‡u tham chiáº¿u vÃ o Ä‘áº§u prompt (ERD, API spec, implementation-plan)
+> - KhÃ´ng Ä‘á»ƒ AI tá»± Ã½ cháº¡y `npm install`, `prisma migrate`, `git commit`
+> - Náº¿u AI Ä‘á» xuáº¥t thay Ä‘á»•i ERD/API spec â†’ há»i láº¡i vÃ  cáº­p nháº­t tÃ i liá»‡u trÆ°á»›c
+> - Sau má»—i milestone â†’ test thá»§ cÃ´ng báº±ng Swagger trÆ°á»›c khi commit
 
 ---
 
-## 🗂️ MỤC LỤC NHANH
+## ðŸ—‚ï¸ Má»¤C Lá»¤C NHANH
 
-| Phase | Nội dung | Số lượng task |
+| Phase | Ná»™i dung | Sá»‘ lÆ°á»£ng task |
 |-------|----------|---------------|
-| [Phase 0](#phase-0--setup-môi-trường--kết-nối-bên-thứ-ba) | Setup môi trường & API keys | 10 tasks |
-| [Phase 1](#phase-1--project-scaffolding) | Tạo khung project backend | 12 tasks |
+| [Phase 0](#phase-0--setup-mÃ´i-trÆ°á»ng--káº¿t-ná»‘i-bÃªn-thá»©-ba) | Setup mÃ´i trÆ°á»ng & API keys | 10 tasks |
+| [Phase 1](#phase-1--project-scaffolding) | Táº¡o khung project backend | 12 tasks |
 | [Phase 2](#phase-2--database--seed-data) | Prisma schema + Seed data | 6 tasks |
-| [Phase 3](#phase-3--xây-dựng-api-theo-milestone) | Xây dựng 11 module API | 11 milestones |
-| [Phase 4](#phase-4--tích-hợp-bên-thứ-ba) | Google OAuth, Cloudinary, Email, SMS, QR tĩnh | 5 hạng mục |
-| [Phase 5](#phase-5--testing) | Testing toàn bộ API | 4 loại |
-| [Phase 6](#phase-6--deployment) | Deploy lên production | 10 tasks |
+| [Phase 3](#phase-3--xÃ¢y-dá»±ng-api-theo-milestone) | XÃ¢y dá»±ng 11 module API | 11 milestones |
+| [Phase 4](#phase-4--tÃ­ch-há»£p-bÃªn-thá»©-ba) | Google OAuth, Cloudinary, Email, SMS, QR tÄ©nh | 5 háº¡ng má»¥c |
+| [Phase 5](#phase-5--testing) | Testing toÃ n bá»™ API | 4 loáº¡i |
+| [Phase 6](#phase-6--deployment) | Deploy lÃªn production | 10 tasks |
 
 ---
 
-## PHASE 0 — Setup Môi Trường & Kết Nối Bên Thứ Ba
+## PHASE 0 â€” Setup MÃ´i TrÆ°á»ng & Káº¿t Ná»‘i BÃªn Thá»© Ba
 
-> **Mục tiêu:** Có đầy đủ tài khoản, API key, connection string trước khi code dòng nào.
+> **Má»¥c tiÃªu:** CÃ³ Ä‘áº§y Ä‘á»§ tÃ i khoáº£n, API key, connection string trÆ°á»›c khi code dÃ²ng nÃ o.
 > **Skill:** `skill-setup-env.md`
 
-### ✅ Checklist thủ công (bạn tự làm, không cần AI):
+### âœ… Checklist thá»§ cÃ´ng (báº¡n tá»± lÃ m, khÃ´ng cáº§n AI):
 
-- [✅] **1. Tạo repo Git** — Tạo repo trên GitHub/GitLab, tạo 2 nhánh: `main` và `dev`. Bật branch protection cho `main`.
-- [✅] **2. Cài Node.js LTS** — Tải từ nodejs.org, cài thêm pnpm: `npm install -g pnpm`
-- [ ] **3. Đăng ký Supabase** — Vào supabase.com → New project → Lấy connection string (Settings → Database → Connection string → URI mode)
-- [ ] **4. Đăng ký Upstash Redis** — Vào upstash.com → Create Database → Lấy `UPSTASH_REDIS_REST_URL` và `REDIS_URL`
-- [ ] **5. Đăng ký Cloudinary** — Vào cloudinary.com → Dashboard → Lấy `cloud_name`, `api_key`, `api_secret`
-- [ ] **6. Tạo Google Cloud Project** — console.cloud.google.com → APIs & Services → Credentials → OAuth 2.0 Client ID → Khai báo redirect URI: `http://localhost:3000/auth/google/callback`
-- [ ] **7. Tạo Gmail App Password** — Bật 2FA trên tài khoản Gmail → Security → App Passwords → Tạo mới → Copy password
-- [ ] **8. Đăng ký Twilio** — twilio.com → Lấy `Account SID`, `Auth Token`, số điện thoại trial (bắt đầu bằng +1...)
-- [ ] **9. Chuẩn bị QR chuyển khoản tĩnh** — Tạo hoặc tải ảnh QR ngân hàng cố định, upload lên Cloudinary hoặc nơi lưu trữ ổn định, lấy URL điền vào `STATIC_QR_URL`
-- [ ] **10. Tạo file `.env`** — Copy từ `.env.example`, điền tất cả giá trị thật vào
+- [âœ…] **1. Táº¡o repo Git** â€” Táº¡o repo trÃªn GitHub/GitLab, táº¡o 2 nhÃ¡nh: `main` vÃ  `dev`. Báº­t branch protection cho `main`.
+- [âœ…] **2. CÃ i Node.js LTS** â€” Táº£i tá»« nodejs.org, cÃ i thÃªm pnpm: `npm install -g pnpm`
+- [ ] **3. ÄÄƒng kÃ½ Supabase** â€” VÃ o supabase.com â†’ New project â†’ Láº¥y connection string (Settings â†’ Database â†’ Connection string â†’ URI mode)
+- [ ] **4. ÄÄƒng kÃ½ Upstash Redis** â€” VÃ o upstash.com â†’ Create Database â†’ Láº¥y `UPSTASH_REDIS_REST_URL` vÃ  `REDIS_URL`
+- [ ] **5. ÄÄƒng kÃ½ Cloudinary** â€” VÃ o cloudinary.com â†’ Dashboard â†’ Láº¥y `cloud_name`, `api_key`, `api_secret`
+- [ ] **6. Táº¡o Google Cloud Project** â€” console.cloud.google.com â†’ APIs & Services â†’ Credentials â†’ OAuth 2.0 Client ID â†’ Khai bÃ¡o redirect URI: `http://localhost:3000/auth/google/callback`
+- [ ] **7. Táº¡o Gmail App Password** â€” Báº­t 2FA trÃªn tÃ i khoáº£n Gmail â†’ Security â†’ App Passwords â†’ Táº¡o má»›i â†’ Copy password
+- [ ] **8. ÄÄƒng kÃ½ Twilio** â€” twilio.com â†’ Láº¥y `Account SID`, `Auth Token`, sá»‘ Ä‘iá»‡n thoáº¡i trial (báº¯t Ä‘áº§u báº±ng +1...)
+- [ ] **9. Chuáº©n bá»‹ QR chuyá»ƒn khoáº£n tÄ©nh** â€” Táº¡o hoáº·c táº£i áº£nh QR ngÃ¢n hÃ ng cá»‘ Ä‘á»‹nh, upload lÃªn Cloudinary hoáº·c nÆ¡i lÆ°u trá»¯ á»•n Ä‘á»‹nh, láº¥y URL Ä‘iá»n vÃ o `STATIC_QR_URL`
+- [ ] **10. Táº¡o file `.env`** â€” Copy tá»« `.env.example`, Ä‘iá»n táº¥t cáº£ giÃ¡ trá»‹ tháº­t vÃ o
 
-### 🤖 Prompt gợi ý cho Phase 0:
+### ðŸ¤– Prompt gá»£i Ã½ cho Phase 0:
 
 ```
-Ngữ cảnh: Dự án backend WeBee (Node.js + TypeScript + Express + Prisma + PostgreSQL + Redis).
-Tham khảo: backend/skill/skill-setup-env.md, backend/document/tech-stack.md
+Ngá»¯ cáº£nh: Dá»± Ã¡n backend WeBee (Node.js + TypeScript + Express + Prisma + PostgreSQL + Redis).
+Tham kháº£o: skill/skill-setup-env.md, document/tech-stack.md
 
-Nhiệm vụ: Đọc skill-setup-env.md và liệt kê CHECKLIST CHI TIẾT từng bước để tôi có được
-toàn bộ các biến môi trường trong .env.example (Supabase, Upstash, Cloudinary, 
-Google OAuth, Gmail App Password, Twilio, QR tĩnh, JWT secrets).
+Nhiá»‡m vá»¥: Äá»c skill-setup-env.md vÃ  liá»‡t kÃª CHECKLIST CHI TIáº¾T tá»«ng bÆ°á»›c Ä‘á»ƒ tÃ´i cÃ³ Ä‘Æ°á»£c
+toÃ n bá»™ cÃ¡c biáº¿n mÃ´i trÆ°á»ng trong .env.example (Supabase, Upstash, Cloudinary, 
+Google OAuth, Gmail App Password, Twilio, QR tÄ©nh, JWT secrets).
 
-Đầu ra mong đợi:
-- Checklist dạng đánh dấu được (checkbox)
-- Mỗi bước có link đăng ký + mô tả ngắn nơi tìm thông tin
-- KHÔNG hỏi tôi về secret, chỉ hướng dẫn cách lấy
+Äáº§u ra mong Ä‘á»£i:
+- Checklist dáº¡ng Ä‘Ã¡nh dáº¥u Ä‘Æ°á»£c (checkbox)
+- Má»—i bÆ°á»›c cÃ³ link Ä‘Äƒng kÃ½ + mÃ´ táº£ ngáº¯n nÆ¡i tÃ¬m thÃ´ng tin
+- KHÃ”NG há»i tÃ´i vá» secret, chá»‰ hÆ°á»›ng dáº«n cÃ¡ch láº¥y
 ```
 
 ---
 
-## PHASE 1 — Project Scaffolding
+## PHASE 1 â€” Project Scaffolding
 
-> **Mục tiêu:** Server chạy được, kết nối DB + Redis thành công, Swagger UI hiển thị tại `/api-docs`
+> **Má»¥c tiÃªu:** Server cháº¡y Ä‘Æ°á»£c, káº¿t ná»‘i DB + Redis thÃ nh cÃ´ng, Swagger UI hiá»ƒn thá»‹ táº¡i `/api-docs`
 > **Skill:** `skill-scaffolding.md`
 
-### ✅ Checklist:
+### âœ… Checklist:
 
-- [ ] **1.** npm init + cài TypeScript, ts-node-dev, Express
-- [ ] **2.** Cấu hình `tsconfig.json` (strict mode bật)
-- [ ] **3.** Tạo cấu trúc thư mục chuẩn (11 module trong `src/modules/`)
-- [ ] **4.** Cài Prisma, chạy `prisma init`
+- [ ] **1.** npm init + cÃ i TypeScript, ts-node-dev, Express
+- [ ] **2.** Cáº¥u hÃ¬nh `tsconfig.json` (strict mode báº­t)
+- [ ] **3.** Táº¡o cáº¥u trÃºc thÆ° má»¥c chuáº©n (11 module trong `src/modules/`)
+- [ ] **4.** CÃ i Prisma, cháº¡y `prisma init`
 - [ ] **5.** Setup Redis client (`ioredis`)
 - [ ] **6.** Setup Cloudinary SDK
 - [ ] **7.** Setup middleware: `errorHandler`, `validate` (Zod), `auth` (JWT), `role`
-- [ ] **8.** Setup CORS (cho phép `localhost:4200` + production domain)
-- [ ] **9.** Setup Swagger tại route `/api-docs`
+- [ ] **8.** Setup CORS (cho phÃ©p `localhost:4200` + production domain)
+- [ ] **9.** Setup Swagger táº¡i route `/api-docs`
 - [ ] **10.** Setup logging (`morgan` cho dev)
-- [ ] **11.** Viết `app.ts` + `server.ts`
-- [ ] **12.** Test endpoint `GET /health` trả về 200
+- [ ] **11.** Viáº¿t `app.ts` + `server.ts`
+- [ ] **12.** Test endpoint `GET /health` tráº£ vá» 200
 
-### 🤖 Prompt cho Phase 1:
+### ðŸ¤– Prompt cho Phase 1:
 
 ```
-Ngữ cảnh: Dự án backend WeBee — Node.js + TypeScript + Express + Prisma + Zod + Redis.
-Tham khảo: backend/skill/skill-scaffolding.md, backend/document/project-structure.md, backend/document/tech-stack.md
+Ngá»¯ cáº£nh: Dá»± Ã¡n backend WeBee â€” Node.js + TypeScript + Express + Prisma + Zod + Redis.
+Tham kháº£o: skill/skill-scaffolding.md, document/backend/project-structure.md, document/tech-stack.md
 
-Nhiệm vụ: Tạo toàn bộ khung project theo skill-scaffolding.md:
-- package.json với đủ dependencies (Express, TypeScript, Prisma, Zod, JWT, bcrypt, ioredis, 
+Nhiá»‡m vá»¥: Táº¡o toÃ n bá»™ khung project theo skill-scaffolding.md:
+- package.json vá»›i Ä‘á»§ dependencies (Express, TypeScript, Prisma, Zod, JWT, bcrypt, ioredis, 
   cloudinary, multer, nodemailer, swagger-ui-express, swagger-jsdoc, cors, morgan, 
   passport, passport-google-oauth20)
 - tsconfig.json strict mode
-- Cấu trúc thư mục theo project-structure.md
-- src/app.ts + src/server.ts có GET /health trả {status: "ok"}
-- src/config/env.ts dùng Zod validate biến môi trường
+- Cáº¥u trÃºc thÆ° má»¥c theo project-structure.md
+- src/app.ts + src/server.ts cÃ³ GET /health tráº£ {status: "ok"}
+- src/config/env.ts dÃ¹ng Zod validate biáº¿n mÃ´i trÆ°á»ng
 - src/middlewares/errorHandler.ts (class AppError)
 - CORS cho localhost:4200
 
-Đầu ra: Liệt kê file đã tạo + các lệnh thủ công TÔI cần chạy (npm install, tạo .env, dev server).
-Không tự chạy lệnh nào.
+Äáº§u ra: Liá»‡t kÃª file Ä‘Ã£ táº¡o + cÃ¡c lá»‡nh thá»§ cÃ´ng TÃ”I cáº§n cháº¡y (npm install, táº¡o .env, dev server).
+KhÃ´ng tá»± cháº¡y lá»‡nh nÃ o.
 ```
 
-### 🔖 Checkpoint Phase 1:
-> Server chạy, `GET /health` → 200, mở `http://localhost:3000/api-docs` thấy Swagger UI
+### ðŸ”– Checkpoint Phase 1:
+> Server cháº¡y, `GET /health` â†’ 200, má»Ÿ `http://localhost:3000/api-docs` tháº¥y Swagger UI
 
 ---
 
-## PHASE 2 — Database & Seed Data
+## PHASE 2 â€” Database & Seed Data
 
-> **Mục tiêu:** Mở Prisma Studio thấy đủ dữ liệu mẫu, sẵn sàng test API ngay.
+> **Má»¥c tiÃªu:** Má»Ÿ Prisma Studio tháº¥y Ä‘á»§ dá»¯ liá»‡u máº«u, sáºµn sÃ ng test API ngay.
 
-### ✅ Checklist:
+### âœ… Checklist:
 
-- [ ] **1.** Tạo file `prisma/schema.prisma` từ ERD
-- [ ] **2.** Chạy `prisma migrate dev` tạo schema lần đầu *(tự làm)*
-- [ ] **3.** Viết `prisma/seed.ts`: 3-5 categories, 10-15 products, mỗi product 2-3 option_groups + option_items
+- [ ] **1.** Táº¡o file `prisma/schema.prisma` tá»« ERD
+- [ ] **2.** Cháº¡y `prisma migrate dev` táº¡o schema láº§n Ä‘áº§u *(tá»± lÃ m)*
+- [ ] **3.** Viáº¿t `prisma/seed.ts`: 3-5 categories, 10-15 products, má»—i product 2-3 option_groups + option_items
 - [ ] **4.** Seed 1 admin account (`role=admin`, `is_active=true`)
-- [ ] **5.** Seed 2-3 user mẫu (1 active, 1 inactive)
-- [ ] **6.** Seed 1-2 coupon mẫu (1 percent, 1 fixed)
-- [ ] **Chạy:** `npx prisma db seed` *(tự làm)*, mở `npx prisma studio` kiểm tra
+- [ ] **5.** Seed 2-3 user máº«u (1 active, 1 inactive)
+- [ ] **6.** Seed 1-2 coupon máº«u (1 percent, 1 fixed)
+- [ ] **Cháº¡y:** `npx prisma db seed` *(tá»± lÃ m)*, má»Ÿ `npx prisma studio` kiá»ƒm tra
 
-### 🤖 Prompt A — Tạo Prisma Schema:
-
-```
-Ngữ cảnh: Dự án backend WeBee.
-Tham khảo: backend/document/erd.md (15 bảng, relations, enums).
-
-Nhiệm vụ theo skill-prisma-schema.md:
-1. Đọc erd.md và tạo prisma/schema.prisma đầy đủ:
-   - Đúng tên bảng, kiểu dữ liệu, PK (UUID dùng @default(uuid()))
-   - Chuyển ENUM sang enum Prisma
-   - Định nghĩa đúng relations 1-N, 0-1 với @relation
-   - Thêm @@index cho: email, phone, slug
-   - Thêm @updatedAt cho trường updatedAt
-2. Sau đó đối chiếu lại với ERD: kiểm tra đủ 17 relations chưa
-
-Đầu ra: Nội dung schema.prisma. Giải thích các relation đã map đúng ERD chưa.
-Lưu ý: Tôi sẽ tự chạy `npx prisma migrate dev`. Không tự động chạy lệnh.
-```
-
-### 🤖 Prompt B — Tạo Seed Data:
+### ðŸ¤– Prompt A â€” Táº¡o Prisma Schema:
 
 ```
-Ngữ cảnh: Đã có prisma/schema.prisma hoàn chỉnh cho dự án WeBee.
-Tham khảo: backend/document/erd.md, backend/document/implementation-plan.md (Phase 2).
+Ngá»¯ cáº£nh: Dá»± Ã¡n backend WeBee.
+Tham kháº£o: document/erd.md (15 báº£ng, relations, enums).
 
-Nhiệm vụ: Tạo file prisma/seed.ts với dữ liệu mẫu:
-- 3-5 categories (bánh kem, bánh mì, cupcake...)
-- 10-15 products mỗi cái có thumbnail_url dùng picsum.photos, có is_customizable=true cho ít nhất 5 sản phẩm
-- Mỗi customizable product: 2-3 option_groups (Kích cỡ, Kem phủ, Topping) + option_items tương ứng
+Nhiá»‡m vá»¥ theo skill-prisma-schema.md:
+1. Äá»c erd.md vÃ  táº¡o prisma/schema.prisma Ä‘áº§y Ä‘á»§:
+   - ÄÃºng tÃªn báº£ng, kiá»ƒu dá»¯ liá»‡u, PK (UUID dÃ¹ng @default(uuid()))
+   - Chuyá»ƒn ENUM sang enum Prisma
+   - Äá»‹nh nghÄ©a Ä‘Ãºng relations 1-N, 0-1 vá»›i @relation
+   - ThÃªm @@index cho: email, phone, slug
+   - ThÃªm @updatedAt cho trÆ°á»ng updatedAt
+2. Sau Ä‘Ã³ Ä‘á»‘i chiáº¿u láº¡i vá»›i ERD: kiá»ƒm tra Ä‘á»§ 17 relations chÆ°a
+
+Äáº§u ra: Ná»™i dung schema.prisma. Giáº£i thÃ­ch cÃ¡c relation Ä‘Ã£ map Ä‘Ãºng ERD chÆ°a.
+LÆ°u Ã½: TÃ´i sáº½ tá»± cháº¡y `npx prisma migrate dev`. KhÃ´ng tá»± Ä‘á»™ng cháº¡y lá»‡nh.
+```
+
+### ðŸ¤– Prompt B â€” Táº¡o Seed Data:
+
+```
+Ngá»¯ cáº£nh: ÄÃ£ cÃ³ prisma/schema.prisma hoÃ n chá»‰nh cho dá»± Ã¡n WeBee.
+Tham kháº£o: document/erd.md, document/backend/implementation-plan.md (Phase 2).
+
+Nhiá»‡m vá»¥: Táº¡o file prisma/seed.ts vá»›i dá»¯ liá»‡u máº«u:
+- 3-5 categories (bÃ¡nh kem, bÃ¡nh mÃ¬, cupcake...)
+- 10-15 products má»—i cÃ¡i cÃ³ thumbnail_url dÃ¹ng picsum.photos, cÃ³ is_customizable=true cho Ã­t nháº¥t 5 sáº£n pháº©m
+- Má»—i customizable product: 2-3 option_groups (KÃ­ch cá»¡, Kem phá»§, Topping) + option_items tÆ°Æ¡ng á»©ng
 - 1 admin user: role=admin, is_active=true, email: admin@webee.vn, password: Admin@123
-- 2 user mẫu: 1 active (member), 1 inactive (để test flow kích hoạt)
-- 1 coupon percent (WELCOME10 = 10%) + 1 coupon fixed (SAVE50K = giảm 50.000đ, đơn tối thiểu 200k)
+- 2 user máº«u: 1 active (member), 1 inactive (Ä‘á»ƒ test flow kÃ­ch hoáº¡t)
+- 1 coupon percent (WELCOME10 = 10%) + 1 coupon fixed (SAVE50K = giáº£m 50.000Ä‘, Ä‘Æ¡n tá»‘i thiá»ƒu 200k)
 
-Đầu ra: Nội dung seed.ts hoàn chỉnh, có thể chạy bằng `npx prisma db seed`.
+Äáº§u ra: Ná»™i dung seed.ts hoÃ n chá»‰nh, cÃ³ thá»ƒ cháº¡y báº±ng `npx prisma db seed`.
 ```
 
-### 🔖 Checkpoint Phase 2:
-> `npx prisma studio` → thấy đủ data, đặc biệt kiểm tra bảng `option_groups` và `option_items`
+### ðŸ”– Checkpoint Phase 2:
+> `npx prisma studio` â†’ tháº¥y Ä‘á»§ data, Ä‘áº·c biá»‡t kiá»ƒm tra báº£ng `option_groups` vÃ  `option_items`
 
 ---
 
-## PHASE 3 — Xây dựng API theo Milestone
+## PHASE 3 â€” XÃ¢y dá»±ng API theo Milestone
 
-> **Quy trình bắt buộc cho mỗi milestone:**
-> 1. Copy đúng phần API spec của module vào prompt
-> 2. Yêu cầu tạo đủ 5 file theo chuẩn module
-> 3. Review code trước khi chạy
-> 4. Test từng endpoint qua Swagger
-> 5. Commit riêng từng milestone
+> **Quy trÃ¬nh báº¯t buá»™c cho má»—i milestone:**
+> 1. Copy Ä‘Ãºng pháº§n API spec cá»§a module vÃ o prompt
+> 2. YÃªu cáº§u táº¡o Ä‘á»§ 5 file theo chuáº©n module
+> 3. Review code trÆ°á»›c khi cháº¡y
+> 4. Test tá»«ng endpoint qua Swagger
+> 5. Commit riÃªng tá»«ng milestone
 
-### 🤖 Template prompt chung cho mọi module:
+### ðŸ¤– Template prompt chung cho má»i module:
 
 ```
-Ngữ cảnh: Dự án backend WeBee. Đã có scaffold, Prisma schema, seed data.
-Tham khảo: backend/skill/skill-module.md, backend/document/api.md (phần MODULE: [TÊN MODULE])
-Quy tắc code: backend/skill-agent-rules.md
+Ngá»¯ cáº£nh: Dá»± Ã¡n backend WeBee. ÄÃ£ cÃ³ scaffold, Prisma schema, seed data.
+Tham kháº£o: skill/skill-module.md, document/backend/api.md (pháº§n MODULE: [TÃŠN MODULE])
+Quy táº¯c code: backend/skill-agent-rules.md
 
-Nhiệm vụ: Tạo module [TÊN MODULE] theo skill-module.md.
-[DÁN NỘI DUNG PHẦN API SPEC CỦA MODULE ĐÓ TỪ api.md VÀO ĐÂY]
+Nhiá»‡m vá»¥: Táº¡o module [TÃŠN MODULE] theo skill-module.md.
+[DÃN Ná»˜I DUNG PHáº¦N API SPEC Cá»¦A MODULE ÄÃ“ Tá»ª api.md VÃ€O ÄÃ‚Y]
 
-Tạo 5 file trong src/modules/[tên-module]/:
-- [tên].routes.ts (gán middleware auth, role, validate đúng theo Auth column trong API spec)
-- [tên].controller.ts (chỉ gọi service, không business logic)
-- [tên].service.ts (implement logic theo cột "Logic end-to-end" trong API spec)
-- [tên].schema.ts (Zod schema cho body, params, query)
-- [tên].types.ts (interface export)
+Táº¡o 5 file trong src/modules/[tÃªn-module]/:
+- [tÃªn].routes.ts (gÃ¡n middleware auth, role, validate Ä‘Ãºng theo Auth column trong API spec)
+- [tÃªn].controller.ts (chá»‰ gá»i service, khÃ´ng business logic)
+- [tÃªn].service.ts (implement logic theo cá»™t "Logic end-to-end" trong API spec)
+- [tÃªn].schema.ts (Zod schema cho body, params, query)
+- [tÃªn].types.ts (interface export)
 
-Đầu ra:
-- Nội dung 5 file
-- Danh sách endpoint đã tạo (method + path)
-- Giải thích ngắn logic end-to-end mỗi endpoint
-- Request mẫu test qua Swagger
-Lưu ý: Không thêm endpoint ngoài API spec. Nếu chưa rõ, hỏi trước.
+Äáº§u ra:
+- Ná»™i dung 5 file
+- Danh sÃ¡ch endpoint Ä‘Ã£ táº¡o (method + path)
+- Giáº£i thÃ­ch ngáº¯n logic end-to-end má»—i endpoint
+- Request máº«u test qua Swagger
+LÆ°u Ã½: KhÃ´ng thÃªm endpoint ngoÃ i API spec. Náº¿u chÆ°a rÃµ, há»i trÆ°á»›c.
 ```
 
 ---
 
-### M1 — Module: AUTH
+### M1 â€” Module: AUTH
 
-**Phụ thuộc:** Users table đã có trong DB
+**Phá»¥ thuá»™c:** Users table Ä‘Ã£ cÃ³ trong DB
 **Endpoints:** register, login, activate, forgot/reset password, refresh, logout, Google OAuth
 
-#### 🤖 Prompt đặc biệt M1:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M1:
 
 ```
-[Dùng template chung ở trên]
+[DÃ¹ng template chung á»Ÿ trÃªn]
 
-Thêm lưu ý quan trọng cho module Auth:
-- Hash password bằng bcrypt (salt rounds = 12)
-- JWT: access token 15 phút, refresh token 7 ngày
-- Lưu refresh_token_hash vào DB (không lưu raw token)
-- Endpoint activate/reset password dùng JWT token riêng (không phải access token)
-- Google OAuth: dùng Passport.js, flow redirect FE → BE /auth/google → Google → BE /auth/google/callback → redirect FE kèm token
-- Kiểm tra is_active=true khi login — nếu false, trả lỗi 403
+ThÃªm lÆ°u Ã½ quan trá»ng cho module Auth:
+- Hash password báº±ng bcrypt (salt rounds = 12)
+- JWT: access token 15 phÃºt, refresh token 7 ngÃ y
+- LÆ°u refresh_token_hash vÃ o DB (khÃ´ng lÆ°u raw token)
+- Endpoint activate/reset password dÃ¹ng JWT token riÃªng (khÃ´ng pháº£i access token)
+- Google OAuth: dÃ¹ng Passport.js, flow redirect FE â†’ BE /auth/google â†’ Google â†’ BE /auth/google/callback â†’ redirect FE kÃ¨m token
+- Kiá»ƒm tra is_active=true khi login â€” náº¿u false, tráº£ lá»—i 403
 ```
 
-- [ ] M1 hoàn thành
-- [ ] Test: Đăng ký → nhận email → activate → login → nhận access + refresh token
+- [ ] M1 hoÃ n thÃ nh
+- [ ] Test: ÄÄƒng kÃ½ â†’ nháº­n email â†’ activate â†’ login â†’ nháº­n access + refresh token
 
 ---
 
-### M2 — Module: USERS
+### M2 â€” Module: USERS
 
-**Phụ thuộc:** M1 (cần token)
+**Phá»¥ thuá»™c:** M1 (cáº§n token)
 **Endpoints:** profile, avatar, password, addresses, loyalty
 
-#### 🤖 Prompt đặc biệt M2:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M2:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Lưu ý:
-- Avatar upload: dùng multer nhận file → upload buffer lên Cloudinary → lưu URL vào DB
-- Địa chỉ: khi set is_default=true → reset tất cả địa chỉ khác của user về false trước
-- Loyalty: chỉ đọc, không có endpoint chỉnh sửa điểm ở đây (sẽ có ở M10)
+LÆ°u Ã½:
+- Avatar upload: dÃ¹ng multer nháº­n file â†’ upload buffer lÃªn Cloudinary â†’ lÆ°u URL vÃ o DB
+- Äá»‹a chá»‰: khi set is_default=true â†’ reset táº¥t cáº£ Ä‘á»‹a chá»‰ khÃ¡c cá»§a user vá» false trÆ°á»›c
+- Loyalty: chá»‰ Ä‘á»c, khÃ´ng cÃ³ endpoint chá»‰nh sá»­a Ä‘iá»ƒm á»Ÿ Ä‘Ã¢y (sáº½ cÃ³ á»Ÿ M10)
 ```
 
-- [ ] M2 hoàn thành
-- [ ] Test: Update profile, upload avatar, thêm/sửa/xóa địa chỉ, xem điểm loyalty
+- [ ] M2 hoÃ n thÃ nh
+- [ ] Test: Update profile, upload avatar, thÃªm/sá»­a/xÃ³a Ä‘á»‹a chá»‰, xem Ä‘iá»ƒm loyalty
 
 ---
 
-### M3 — Module: CATEGORIES
+### M3 â€” Module: CATEGORIES
 
-**Phụ thuộc:** Không
+**Phá»¥ thuá»™c:** KhÃ´ng
 **Endpoints:** Public list/detail, Admin CRUD
 
-- [ ] M3 hoàn thành
-- [ ] Test: GET /categories → thấy danh mục từ seed. Admin: tạo/sửa/ẩn danh mục
+- [ ] M3 hoÃ n thÃ nh
+- [ ] Test: GET /categories â†’ tháº¥y danh má»¥c tá»« seed. Admin: táº¡o/sá»­a/áº©n danh má»¥c
 
 ---
 
-### M4 — Module: PRODUCTS
+### M4 â€” Module: PRODUCTS
 
-**Phụ thuộc:** M3 (categories), Cloudinary
+**Phá»¥ thuá»™c:** M3 (categories), Cloudinary
 **Endpoints:** Public list/detail/reviews, Admin CRUD + images
 
-#### 🤖 Prompt đặc biệt M4:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M4:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Lưu ý:
-- GET /products: hỗ trợ query params: category (slug), search, min_price, max_price, sort (price_asc, price_desc, newest, rating), page, limit
-- GET /products/:slug: join product_images, option_groups, option_items → trả về kèm avg_rating
-- Admin upload ảnh: multer → Cloudinary → insert product_images
-- is_customizable: true nếu product có option_groups
+LÆ°u Ã½:
+- GET /products: há»— trá»£ query params: category (slug), search, min_price, max_price, sort (price_asc, price_desc, newest, rating), page, limit
+- GET /products/:slug: join product_images, option_groups, option_items â†’ tráº£ vá» kÃ¨m avg_rating
+- Admin upload áº£nh: multer â†’ Cloudinary â†’ insert product_images
+- is_customizable: true náº¿u product cÃ³ option_groups
 ```
 
-- [ ] M4 hoàn thành
-- [ ] Test: GET /products?category=banh-kem&sort=price_asc → danh sách có pagination
+- [ ] M4 hoÃ n thÃ nh
+- [ ] Test: GET /products?category=banh-kem&sort=price_asc â†’ danh sÃ¡ch cÃ³ pagination
 
 ---
 
-### M5 — Module: OPTIONS (Customize Bánh)
+### M5 â€” Module: OPTIONS (Customize BÃ¡nh)
 
-**Phụ thuộc:** M4
-**Endpoints:** Public lấy options theo product, Admin CRUD option_groups + option_items
+**Phá»¥ thuá»™c:** M4
+**Endpoints:** Public láº¥y options theo product, Admin CRUD option_groups + option_items
 
-> ⚠️ **Đây là module cốt lõi của tính năng customize bánh!**
+> âš ï¸ **ÄÃ¢y lÃ  module cá»‘t lÃµi cá»§a tÃ­nh nÄƒng customize bÃ¡nh!**
 
-#### 🤖 Prompt đặc biệt M5:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M5:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Đặc biệt quan trọng — đây là module tùy chỉnh bánh:
-- GET /products/:id/options: trả về cây dữ liệu:
+Äáº·c biá»‡t quan trá»ng â€” Ä‘Ã¢y lÃ  module tÃ¹y chá»‰nh bÃ¡nh:
+- GET /products/:id/options: tráº£ vá» cÃ¢y dá»¯ liá»‡u:
   [{ group_id, name, is_required, is_multiple, items: [{item_id, name, extra_price, image_url}] }]
-- Khi FE render trang customize bánh, dùng response này để build UI chọn tùy chọn
-- Admin có thể ẩn/hiện từng option_item (is_active toggle)
-- Khi xóa option_group: kiểm tra không có order đang dùng option_items của group đó
+- Khi FE render trang customize bÃ¡nh, dÃ¹ng response nÃ y Ä‘á»ƒ build UI chá»n tÃ¹y chá»n
+- Admin cÃ³ thá»ƒ áº©n/hiá»‡n tá»«ng option_item (is_active toggle)
+- Khi xÃ³a option_group: kiá»ƒm tra khÃ´ng cÃ³ order Ä‘ang dÃ¹ng option_items cá»§a group Ä‘Ã³
 ```
 
-- [ ] M5 hoàn thành
-- [ ] Test: GET /products/:id/options → thấy cây nhóm-tùy chọn đúng format
+- [ ] M5 hoÃ n thÃ nh
+- [ ] Test: GET /products/:id/options â†’ tháº¥y cÃ¢y nhÃ³m-tÃ¹y chá»n Ä‘Ãºng format
 
 ---
 
-### M6 — Module: CART (Redis-based)
+### M6 â€” Module: CART (Redis-based)
 
-**Phụ thuộc:** M4, M5, Redis
+**Phá»¥ thuá»™c:** M4, M5, Redis
 **Endpoints:** get, add item, update quantity, delete item, clear, merge
 
-#### 🤖 Prompt đặc biệt M6:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M6:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Lưu ý kỹ về cách lưu cart trong Redis:
-- Key: cart:{session_id} cho guest, cart:{user_id} cho member (TTL: 7 ngày)
-- Value: JSON array các cart items, mỗi item gồm: {cartItemId, product_id, quantity, option_item_ids[], unit_price, item_total}
-- Khi GET /cart: tính lại tổng tiền theo giá DB hiện tại (đề phòng giá sản phẩm thay đổi)
-- POST /cart/merge: merge giỏ guest vào giỏ member, không trùng lặp product+options
-- session_id lấy từ cookie, user_id từ JWT nếu đã đăng nhập
+LÆ°u Ã½ ká»¹ vá» cÃ¡ch lÆ°u cart trong Redis:
+- Key: cart:{session_id} cho guest, cart:{user_id} cho member (TTL: 7 ngÃ y)
+- Value: JSON array cÃ¡c cart items, má»—i item gá»“m: {cartItemId, product_id, quantity, option_item_ids[], unit_price, item_total}
+- Khi GET /cart: tÃ­nh láº¡i tá»•ng tiá»n theo giÃ¡ DB hiá»‡n táº¡i (Ä‘á» phÃ²ng giÃ¡ sáº£n pháº©m thay Ä‘á»•i)
+- POST /cart/merge: merge giá» guest vÃ o giá» member, khÃ´ng trÃ¹ng láº·p product+options
+- session_id láº¥y tá»« cookie, user_id tá»« JWT náº¿u Ä‘Ã£ Ä‘Äƒng nháº­p
 
-Sau khi tạo module, liệt kê key Redis mẫu để tôi kiểm tra bằng redis-cli.
+Sau khi táº¡o module, liá»‡t kÃª key Redis máº«u Ä‘á»ƒ tÃ´i kiá»ƒm tra báº±ng redis-cli.
 ```
 
-- [ ] M6 hoàn thành
-- [ ] Test: Thêm bánh + options vào giỏ, kiểm tra TTL key trong Redis
+- [ ] M6 hoÃ n thÃ nh
+- [ ] Test: ThÃªm bÃ¡nh + options vÃ o giá», kiá»ƒm tra TTL key trong Redis
 
 ---
 
-### M7 — Module: COUPONS
+### M7 â€” Module: COUPONS
 
-**Phụ thuộc:** Không
+**Phá»¥ thuá»™c:** KhÃ´ng
 **Endpoints:** validate coupon (Public), Admin CRUD
 
-- [ ] M7 hoàn thành
-- [ ] Test: POST /coupons/validate với code WELCOME10 + order_value 300000 → tính được discount
+- [ ] M7 hoÃ n thÃ nh
+- [ ] Test: POST /coupons/validate vá»›i code WELCOME10 + order_value 300000 â†’ tÃ­nh Ä‘Æ°á»£c discount
 
 ---
 
-### M8 — Module: ORDERS ⭐ QUAN TRỌNG NHẤT
+### M8 â€” Module: ORDERS â­ QUAN TRá»ŒNG NHáº¤T
 
-**Phụ thuộc:** M6, M7, Email/SMS
-**Endpoints:** tạo đơn, lịch sử, chi tiết (polling), hủy, webhook payment mô phỏng, admin list/detail/update-status
+**Phá»¥ thuá»™c:** M6, M7, Email/SMS
+**Endpoints:** táº¡o Ä‘Æ¡n, lá»‹ch sá»­, chi tiáº¿t (polling), há»§y, webhook payment mÃ´ phá»ng, admin list/detail/update-status
 
-#### 🤖 Prompt đặc biệt M8:
+#### ðŸ¤– Prompt Ä‘áº·c biá»‡t M8:
 
 ```
-Ngữ cảnh: Dự án WeBee. Đây là module QUAN TRỌNG NHẤT.
-Tham khảo: backend/document/api.md (MODULE: ORDERS), backend/document/implementation-plan.md (M8)
-Quy tắc: backend/skill-agent-rules.md
+Ngá»¯ cáº£nh: Dá»± Ã¡n WeBee. ÄÃ¢y lÃ  module QUAN TRá»ŒNG NHáº¤T.
+Tham kháº£o: document/backend/api.md (MODULE: ORDERS), document/backend/implementation-plan.md (M8)
+Quy táº¯c: backend/skill-agent-rules.md
 
-Đọc KỸ phần MODULE: ORDERS trong `api.md` và ghi chú M8 trong `implementation-plan.md` TRƯỚC khi code module Orders.
+Äá»c Ká»¸ pháº§n MODULE: ORDERS trong `api.md` vÃ  ghi chÃº M8 trong `implementation-plan.md` TRÆ¯á»šC khi code module Orders.
 
-Điểm quan trọng cần implement đúng:
+Äiá»ƒm quan trá»ng cáº§n implement Ä‘Ãºng:
 1. POST /orders:
-   - Lấy giỏ từ Redis → validate coupon → tính subtotal/discount/shipping/total
-   - Insert orders + order_items + order_item_options (snapshot tên + giá tại thời điểm đặt)
-   - Xóa giỏ Redis sau khi tạo đơn thành công
-   - Lấy `STATIC_QR_URL` từ env để trả về ảnh QR cố định
-   - Nếu email/phone chưa có tài khoản active: tạo user is_active=false
-   - Gửi email/SMS xác nhận đơn + QR cố định + nội dung chuyển khoản `DH{order_id}`
-   - Trả về: order_id, tóm tắt đơn, payment_qr_url, transfer_content
+   - Láº¥y giá» tá»« Redis â†’ validate coupon â†’ tÃ­nh subtotal/discount/shipping/total
+   - Insert orders + order_items + order_item_options (snapshot tÃªn + giÃ¡ táº¡i thá»i Ä‘iá»ƒm Ä‘áº·t)
+   - XÃ³a giá» Redis sau khi táº¡o Ä‘Æ¡n thÃ nh cÃ´ng
+   - Láº¥y `STATIC_QR_URL` tá»« env Ä‘á»ƒ tráº£ vá» áº£nh QR cá»‘ Ä‘á»‹nh
+   - Náº¿u email/phone chÆ°a cÃ³ tÃ i khoáº£n active: táº¡o user is_active=false
+   - Gá»­i email/SMS xÃ¡c nháº­n Ä‘Æ¡n + QR cá»‘ Ä‘á»‹nh + ná»™i dung chuyá»ƒn khoáº£n `DH{order_id}`
+   - Tráº£ vá»: order_id, tÃ³m táº¯t Ä‘Æ¡n, payment_qr_url, transfer_content
 
-2. POST /webhooks/payment (QUAN TRỌNG):
-   - Không cần xác thực cho MVP
-   - Nhận JSON `{ order_id, amount }`
-   - Tìm order có `order_id`, `total_amount = amount`, `payment_status='pending'`
-   - Nếu hợp lệ: cập nhật `payment_status='paid'`, `order_status='confirmed'`
-   - Trả về 200
+2. POST /webhooks/payment (QUAN TRá»ŒNG):
+   - KhÃ´ng cáº§n xÃ¡c thá»±c cho MVP
+   - Nháº­n JSON `{ order_id, amount }`
+   - TÃ¬m order cÃ³ `order_id`, `total_amount = amount`, `payment_status='pending'`
+   - Náº¿u há»£p lá»‡: cáº­p nháº­t `payment_status='paid'`, `order_status='confirmed'`
+   - Tráº£ vá» 200
 
-3. GET /orders/me/:id: FE polling mỗi 2-3 giây để phát hiện payment_status='paid'
+3. GET /orders/me/:id: FE polling má»—i 2-3 giÃ¢y Ä‘á»ƒ phÃ¡t hiá»‡n payment_status='paid'
 
-Tạo đủ 5 file + tích hợp route vào index.ts.
+Táº¡o Ä‘á»§ 5 file + tÃ­ch há»£p route vÃ o index.ts.
 ```
 
-#### 🤖 Prompt test M8 với webhook mô phỏng:
+#### ðŸ¤– Prompt test M8 vá»›i webhook mÃ´ phá»ng:
 
 ```
-Tôi cần test luồng thanh toán QR tĩnh local.
+TÃ´i cáº§n test luá»“ng thanh toÃ¡n QR tÄ©nh local.
 
-Hãy hướng dẫn tôi:
-1. Tạo đơn test qua Swagger (request body mẫu hoàn chỉnh)
-2. Mô phỏng webhook `POST /webhooks/payment` bằng curl command mẫu
-3. Kiểm tra order được cập nhật đúng trong DB
-4. Kiểm tra FE polling phát hiện payment_status='paid'
+HÃ£y hÆ°á»›ng dáº«n tÃ´i:
+1. Táº¡o Ä‘Æ¡n test qua Swagger (request body máº«u hoÃ n chá»‰nh)
+2. MÃ´ phá»ng webhook `POST /webhooks/payment` báº±ng curl command máº«u
+3. Kiá»ƒm tra order Ä‘Æ°á»£c cáº­p nháº­t Ä‘Ãºng trong DB
+4. Kiá»ƒm tra FE polling phÃ¡t hiá»‡n payment_status='paid'
 ```
 
-- [ ] M8 hoàn thành
-- [ ] Test đầy đủ: Tạo đơn → thấy QR → webhook → order cập nhật → polling FE nhận được
+- [ ] M8 hoÃ n thÃ nh
+- [ ] Test Ä‘áº§y Ä‘á»§: Táº¡o Ä‘Æ¡n â†’ tháº¥y QR â†’ webhook â†’ order cáº­p nháº­t â†’ polling FE nháº­n Ä‘Æ°á»£c
 
 ---
 
-### M9 — Module: REVIEWS
+### M9 â€” Module: REVIEWS
 
-**Phụ thuộc:** M8 (cần order_status=delivered)
+**Phá»¥ thuá»™c:** M8 (cáº§n order_status=delivered)
 
-> 💡 Tip: Dùng Prisma Studio cập nhật thủ công 1 order sang status=delivered để test
+> ðŸ’¡ Tip: DÃ¹ng Prisma Studio cáº­p nháº­t thá»§ cÃ´ng 1 order sang status=delivered Ä‘á»ƒ test
 
-#### 🤖 Prompt M9:
+#### ðŸ¤– Prompt M9:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Lưu ý:
-- Kiểm tra: order_item thuộc về user đang gửi review
-- Kiểm tra: order status = 'delivered' (nếu không → 403)
-- Kiểm tra: order_item chưa có review nào (nếu có rồi → 409)
-- Sau khi insert review: tính lại avg_rating cho product (round 2 decimal)
-  → UPDATE products SET avg_rating = (SELECT AVG(rating) FROM reviews JOIN order_items...)
-- Upload ảnh review: multer → Cloudinary (optional field)
+LÆ°u Ã½:
+- Kiá»ƒm tra: order_item thuá»™c vá» user Ä‘ang gá»­i review
+- Kiá»ƒm tra: order status = 'delivered' (náº¿u khÃ´ng â†’ 403)
+- Kiá»ƒm tra: order_item chÆ°a cÃ³ review nÃ o (náº¿u cÃ³ rá»“i â†’ 409)
+- Sau khi insert review: tÃ­nh láº¡i avg_rating cho product (round 2 decimal)
+  â†’ UPDATE products SET avg_rating = (SELECT AVG(rating) FROM reviews JOIN order_items...)
+- Upload áº£nh review: multer â†’ Cloudinary (optional field)
 ```
 
-- [ ] M9 hoàn thành
-- [ ] Test: Thêm review → kiểm tra avg_rating trên product cập nhật
+- [ ] M9 hoÃ n thÃ nh
+- [ ] Test: ThÃªm review â†’ kiá»ƒm tra avg_rating trÃªn product cáº­p nháº­t
 
 ---
 
-### M10 — Module: LOYALTY
+### M10 â€” Module: LOYALTY
 
-**Phụ thuộc:** M8 (trigger khi order delivered)
+**Phá»¥ thuá»™c:** M8 (trigger khi order delivered)
 **Endpoints:** Internal /internal/loyalty/credit
 
-#### 🤖 Prompt M10:
+#### ðŸ¤– Prompt M10:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Đây là internal endpoint, chỉ được gọi từ module Orders (khi admin đổi status sang delivered).
+ÄÃ¢y lÃ  internal endpoint, chá»‰ Ä‘Æ°á»£c gá»i tá»« module Orders (khi admin Ä‘á»•i status sang delivered).
 
-Logic cộng điểm:
-- 1.000đ = 1 điểm (làm tròn xuống)
-- Insert loyalty_logs (points_delta dương, reason='order_delivered')
+Logic cá»™ng Ä‘iá»ƒm:
+- 1.000Ä‘ = 1 Ä‘iá»ƒm (lÃ m trÃ²n xuá»‘ng)
+- Insert loyalty_logs (points_delta dÆ°Æ¡ng, reason='order_delivered')
 - Update users.loyalty_points += points_delta
-- Kiểm tra ngưỡng nâng hạng:
-  * Bronze → Silver: 500 điểm
-  * Silver → Gold: 2000 điểm
-- Nếu đủ ngưỡng → update membership_tier
+- Kiá»ƒm tra ngÆ°á»¡ng nÃ¢ng háº¡ng:
+  * Bronze â†’ Silver: 500 Ä‘iá»ƒm
+  * Silver â†’ Gold: 2000 Ä‘iá»ƒm
+- Náº¿u Ä‘á»§ ngÆ°á»¡ng â†’ update membership_tier
 
-Lưu ý: Module Orders gọi endpoint này ở PATCH /admin/orders/:id/status khi status='delivered'.
+LÆ°u Ã½: Module Orders gá»i endpoint nÃ y á»Ÿ PATCH /admin/orders/:id/status khi status='delivered'.
 ```
 
-- [ ] M10 hoàn thành
+- [ ] M10 hoÃ n thÃ nh
 
 ---
 
-### M11 — Module: ANALYTICS
+### M11 â€” Module: ANALYTICS
 
-**Phụ thuộc:** M8, M10
+**Phá»¥ thuá»™c:** M8, M10
 **Endpoints:** batch events (Public), admin overview, admin behavior, admin customers
 
-#### 🤖 Prompt M11:
+#### ðŸ¤– Prompt M11:
 
 ```
-[Dùng template chung]
+[DÃ¹ng template chung]
 
-Lưu ý:
-- POST /analytics/events/batch: nhận mảng tối đa 20 events → bulk insert → 204 No Content
-  (Angular gọi mỗi 10s hoặc khi đủ 20 events, dùng navigator.sendBeacon khi đóng tab)
-- GET /admin/analytics/overview: nhận query params date_from, date_to
-  → tổng hợp: tổng doanh thu, số đơn, số khách mới, top 5 sản phẩm bán chạy
+LÆ°u Ã½:
+- POST /analytics/events/batch: nháº­n máº£ng tá»‘i Ä‘a 20 events â†’ bulk insert â†’ 204 No Content
+  (Angular gá»i má»—i 10s hoáº·c khi Ä‘á»§ 20 events, dÃ¹ng navigator.sendBeacon khi Ä‘Ã³ng tab)
+- GET /admin/analytics/overview: nháº­n query params date_from, date_to
+  â†’ tá»•ng há»£p: tá»•ng doanh thu, sá»‘ Ä‘Æ¡n, sá»‘ khÃ¡ch má»›i, top 5 sáº£n pháº©m bÃ¡n cháº¡y
 - GET /admin/analytics/behavior: group analytics_events theo event_type, page_url, utm_source
-- GET /admin/customers: join users + orders → thông tin, hạng, điểm, số đơn
+- GET /admin/customers: join users + orders â†’ thÃ´ng tin, háº¡ng, Ä‘iá»ƒm, sá»‘ Ä‘Æ¡n
 ```
 
-- [ ] M11 hoàn thành
+- [ ] M11 hoÃ n thÃ nh
 
 ---
 
-## PHASE 4 — Tích Hợp Bên Thứ Ba
+## PHASE 4 â€” TÃ­ch Há»£p BÃªn Thá»© Ba
 
-> **Quy trình:** Tạo test endpoint độc lập → test OK → gắn vào module chính
+> **Quy trÃ¬nh:** Táº¡o test endpoint Ä‘á»™c láº­p â†’ test OK â†’ gáº¯n vÃ o module chÃ­nh
 > **Skill:** `skill-integration.md`
 
-### 🤖 Prompt template cho mỗi tích hợp:
+### ðŸ¤– Prompt template cho má»—i tÃ­ch há»£p:
 
 ```
-Ngữ cảnh: Dự án WeBee backend, đã có scaffold hoàn chỉnh.
-Tham khảo: backend/skill/skill-integration.md, backend/document/implementation-plan.md (Phase 4)
+Ngá»¯ cáº£nh: Dá»± Ã¡n WeBee backend, Ä‘Ã£ cÃ³ scaffold hoÃ n chá»‰nh.
+Tham kháº£o: skill/skill-integration.md, document/backend/implementation-plan.md (Phase 4)
 
-Tích hợp: [TÊN DỊCH VỤ]
-Module sẽ dùng: [TÊN MODULE]
+TÃ­ch há»£p: [TÃŠN Dá»ŠCH Vá»¤]
+Module sáº½ dÃ¹ng: [TÃŠN MODULE]
 
-Nhiệm vụ:
-1. Tạo file src/utils/[tên].ts với các hàm tiện ích
-2. Thêm biến môi trường vào src/config/env.ts nếu chưa có
-3. Tạo endpoint test riêng: [POST /test/tên-dịch-vụ]
-4. Giải thích luồng gọi API của dịch vụ
-5. Sau khi tôi xác nhận test OK → hướng dẫn gắn vào module thật
+Nhiá»‡m vá»¥:
+1. Táº¡o file src/utils/[tÃªn].ts vá»›i cÃ¡c hÃ m tiá»‡n Ã­ch
+2. ThÃªm biáº¿n mÃ´i trÆ°á»ng vÃ o src/config/env.ts náº¿u chÆ°a cÃ³
+3. Táº¡o endpoint test riÃªng: [POST /test/tÃªn-dá»‹ch-vá»¥]
+4. Giáº£i thÃ­ch luá»“ng gá»i API cá»§a dá»‹ch vá»¥
+5. Sau khi tÃ´i xÃ¡c nháº­n test OK â†’ hÆ°á»›ng dáº«n gáº¯n vÃ o module tháº­t
 ```
 
-### ✅ Checklist tích hợp:
+### âœ… Checklist tÃ­ch há»£p:
 
-- [ ] **Google OAuth (Passport.js)** — Module: Auth
-  - Flow: FE → BE `/auth/google/redirect` → Google → BE `/auth/google/callback` → redirect FE kèm token trong query param
+- [ ] **Google OAuth (Passport.js)** â€” Module: Auth
+  - Flow: FE â†’ BE `/auth/google/redirect` â†’ Google â†’ BE `/auth/google/callback` â†’ redirect FE kÃ¨m token trong query param
 
-- [ ] **Cloudinary** — Module: Products, Users (avatar), Reviews
-  - Dùng `multer` nhận file → upload buffer → lấy URL → lưu DB
+- [ ] **Cloudinary** â€” Module: Products, Users (avatar), Reviews
+  - DÃ¹ng `multer` nháº­n file â†’ upload buffer â†’ láº¥y URL â†’ lÆ°u DB
 
-- [ ] **Nodemailer (Gmail SMTP)** — Module: Auth, Orders
-  - Email kích hoạt tài khoản, reset password, xác nhận đơn (kèm QR tĩnh + nội dung chuyển khoản)
+- [ ] **Nodemailer (Gmail SMTP)** â€” Module: Auth, Orders
+  - Email kÃ­ch hoáº¡t tÃ i khoáº£n, reset password, xÃ¡c nháº­n Ä‘Æ¡n (kÃ¨m QR tÄ©nh + ná»™i dung chuyá»ƒn khoáº£n)
 
-- [ ] **Twilio SMS** — Module: Auth, Orders
-  - Chỉ kích hoạt khi user có `phone` nhưng không có `email`
+- [ ] **Twilio SMS** â€” Module: Auth, Orders
+  - Chá»‰ kÃ­ch hoáº¡t khi user cÃ³ `phone` nhÆ°ng khÃ´ng cÃ³ `email`
 
-- [ ] **QR tĩnh + webhook mô phỏng** — Module: Orders
-  - Đã covered trong M8. Dùng `STATIC_QR_URL` và `POST /webhooks/payment`.
+- [ ] **QR tÄ©nh + webhook mÃ´ phá»ng** â€” Module: Orders
+  - ÄÃ£ covered trong M8. DÃ¹ng `STATIC_QR_URL` vÃ  `POST /webhooks/payment`.
 
 ---
 
-## PHASE 5 — Testing
+## PHASE 5 â€” Testing
 
-### ✅ Checklist testing:
+### âœ… Checklist testing:
 
-- [ ] **Manual test qua Swagger UI** — Test từng endpoint sau mỗi milestone *(ưu tiên cao nhất)*
-- [ ] **Postman Collection** — Export collection cho từng module làm regression test
-- [ ] **Unit test (optional)** — Jest: service layer tính giá đơn, validate coupon, tính điểm loyalty
-- [ ] **Integration test (optional)** — Jest + Supertest: luồng POST /orders end-to-end
+- [ ] **Manual test qua Swagger UI** â€” Test tá»«ng endpoint sau má»—i milestone *(Æ°u tiÃªn cao nháº¥t)*
+- [ ] **Postman Collection** â€” Export collection cho tá»«ng module lÃ m regression test
+- [ ] **Unit test (optional)** â€” Jest: service layer tÃ­nh giÃ¡ Ä‘Æ¡n, validate coupon, tÃ­nh Ä‘iá»ƒm loyalty
+- [ ] **Integration test (optional)** â€” Jest + Supertest: luá»“ng POST /orders end-to-end
 
-### 🤖 Prompt debug khi gặp lỗi:
+### ðŸ¤– Prompt debug khi gáº·p lá»—i:
 
 ```
-Dùng skill: backend/skill/skill-debug.md
+DÃ¹ng skill: skill/skill-debug.md
 
-Tôi gặp lỗi khi gọi [METHOD] [ENDPOINT]:
+TÃ´i gáº·p lá»—i khi gá»i [METHOD] [ENDPOINT]:
 
 Request body/params:
-[DÁN REQUEST VÀO ĐÂY]
+[DÃN REQUEST VÃ€O ÄÃ‚Y]
 
-Response lỗi:
-[DÁN RESPONSE/LOG VÀO ĐÂY]
+Response lá»—i:
+[DÃN RESPONSE/LOG VÃ€O ÄÃ‚Y]
 
-Nhiệm vụ của bạn:
-1. Đọc các file liên quan: [tên-module].routes.ts, controller.ts, service.ts, schema.ts
-2. Xác định nguyên nhân (validation, logic, DB, middleware?)
-3. Giải thích nguyên nhân rõ ràng
-4. ĐỀ XUẤT cách sửa — KHÔNG tự sửa, chờ tôi xác nhận
+Nhiá»‡m vá»¥ cá»§a báº¡n:
+1. Äá»c cÃ¡c file liÃªn quan: [tÃªn-module].routes.ts, controller.ts, service.ts, schema.ts
+2. XÃ¡c Ä‘á»‹nh nguyÃªn nhÃ¢n (validation, logic, DB, middleware?)
+3. Giáº£i thÃ­ch nguyÃªn nhÃ¢n rÃµ rÃ ng
+4. Äá»€ XUáº¤T cÃ¡ch sá»­a â€” KHÃ”NG tá»± sá»­a, chá» tÃ´i xÃ¡c nháº­n
 ```
 
-### 🤖 Prompt review & commit sau mỗi milestone:
+### ðŸ¤– Prompt review & commit sau má»—i milestone:
 
 ```
-Dùng skill: backend/skill/skill-review-commit.md
+DÃ¹ng skill: skill/skill-review-commit.md
 
-Tôi vừa hoàn thành module [TÊN MODULE].
+TÃ´i vá»«a hoÃ n thÃ nh module [TÃŠN MODULE].
 
-Nhiệm vụ:
-1. Tổng hợp các file đã tạo/sửa
-2. Tóm tắt logic chính các endpoint
-3. Chỉ ra edge cases cần test kỹ
-4. Đề xuất commit message theo format: feat(<module>): <mô tả>
-5. Liệt kê các bước tôi cần làm trước khi commit (lint, test, migration check)
+Nhiá»‡m vá»¥:
+1. Tá»•ng há»£p cÃ¡c file Ä‘Ã£ táº¡o/sá»­a
+2. TÃ³m táº¯t logic chÃ­nh cÃ¡c endpoint
+3. Chá»‰ ra edge cases cáº§n test ká»¹
+4. Äá» xuáº¥t commit message theo format: feat(<module>): <mÃ´ táº£>
+5. Liá»‡t kÃª cÃ¡c bÆ°á»›c tÃ´i cáº§n lÃ m trÆ°á»›c khi commit (lint, test, migration check)
 ```
 
 ---
 
-## PHASE 6 — Deployment
+## PHASE 6 â€” Deployment
 
-> **Mục tiêu:** Angular frontend gọi được API production, luồng checkout chạy end-to-end
+> **Má»¥c tiÃªu:** Angular frontend gá»i Ä‘Æ°á»£c API production, luá»“ng checkout cháº¡y end-to-end
 
-### ✅ Checklist deployment:
+### âœ… Checklist deployment:
 
-- [ ] **1.** Build TypeScript: `npx tsc` → kiểm tra không có lỗi compile
-- [ ] **2.** Deploy backend lên **Render** hoặc **Railway** (free tier)
-- [ ] **3.** Cấu hình biến môi trường trên platform (copy từ `.env`, KHÔNG commit file `.env`)
-- [ ] **4.** Cấu hình CORS whitelist domain Angular production
-- [ ] **5.** Cập nhật Google OAuth redirect URI sang domain production
-- [ ] **6.** Đảm bảo `STATIC_QR_URL` production còn hoạt động ổn định
-- [ ] **7.** Chạy `prisma migrate deploy` trên production DB
-- [ ] **8.** Verify Swagger UI production hoạt động: `https://yourdomain.com/api-docs`
-- [ ] **9.** Test 1 luồng đầy đủ: đăng ký → đặt hàng → thanh toán → nhận xác nhận
+- [ ] **1.** Build TypeScript: `npx tsc` â†’ kiá»ƒm tra khÃ´ng cÃ³ lá»—i compile
+- [ ] **2.** Deploy backend lÃªn **Render** hoáº·c **Railway** (free tier)
+- [ ] **3.** Cáº¥u hÃ¬nh biáº¿n mÃ´i trÆ°á»ng trÃªn platform (copy tá»« `.env`, KHÃ”NG commit file `.env`)
+- [ ] **4.** Cáº¥u hÃ¬nh CORS whitelist domain Angular production
+- [ ] **5.** Cáº­p nháº­t Google OAuth redirect URI sang domain production
+- [ ] **6.** Äáº£m báº£o `STATIC_QR_URL` production cÃ²n hoáº¡t Ä‘á»™ng á»•n Ä‘á»‹nh
+- [ ] **7.** Cháº¡y `prisma migrate deploy` trÃªn production DB
+- [ ] **8.** Verify Swagger UI production hoáº¡t Ä‘á»™ng: `https://yourdomain.com/api-docs`
+- [ ] **9.** Test 1 luá»“ng Ä‘áº§y Ä‘á»§: Ä‘Äƒng kÃ½ â†’ Ä‘áº·t hÃ ng â†’ thanh toÃ¡n â†’ nháº­n xÃ¡c nháº­n
 - [ ] **10.** (Optional) Setup GitHub Actions CI/CD: auto deploy khi push `main`
 
-### 🤖 Prompt deployment:
+### ðŸ¤– Prompt deployment:
 
 ```
-Ngữ cảnh: Backend WeBee hoàn chỉnh, cần deploy lên Render/Railway.
-Tham khảo: backend/document/implementation-plan.md (Phase 6)
+Ngá»¯ cáº£nh: Backend WeBee hoÃ n chá»‰nh, cáº§n deploy lÃªn Render/Railway.
+Tham kháº£o: document/backend/implementation-plan.md (Phase 6)
 
-Nhiệm vụ: Hướng dẫn chi tiết từng bước deploy backend Node.js + TypeScript lên [RENDER/RAILWAY]:
-1. Cấu hình build command (tsc) và start command
-2. Cách set biến môi trường trên platform
-3. Cách chạy prisma migrate deploy (không phải migrate dev)
-4. Cập nhật CORS, Google OAuth redirect URI, và kiểm tra `STATIC_QR_URL` cho production
-5. Cách verify deployment thành công
+Nhiá»‡m vá»¥: HÆ°á»›ng dáº«n chi tiáº¿t tá»«ng bÆ°á»›c deploy backend Node.js + TypeScript lÃªn [RENDER/RAILWAY]:
+1. Cáº¥u hÃ¬nh build command (tsc) vÃ  start command
+2. CÃ¡ch set biáº¿n mÃ´i trÆ°á»ng trÃªn platform
+3. CÃ¡ch cháº¡y prisma migrate deploy (khÃ´ng pháº£i migrate dev)
+4. Cáº­p nháº­t CORS, Google OAuth redirect URI, vÃ  kiá»ƒm tra `STATIC_QR_URL` cho production
+5. CÃ¡ch verify deployment thÃ nh cÃ´ng
 
-Đầu ra: Checklist thủ công từng bước theo thứ tự.
+Äáº§u ra: Checklist thá»§ cÃ´ng tá»«ng bÆ°á»›c theo thá»© tá»±.
 ```
 
 ---
 
-## PHASE 7 — Sau Khi Deploy (Monitoring)
+## PHASE 7 â€” Sau Khi Deploy (Monitoring)
 
-### ✅ Checklist post-deploy:
+### âœ… Checklist post-deploy:
 
-- [ ] Setup **UptimeRobot** (free) monitor endpoint `GET /health` mỗi 5 phút
-- [ ] Kiểm tra log lỗi định kỳ trên platform dashboard (Render/Railway)
-- [ ] Theo dõi Twilio trial balance (hết balance sẽ không gửi được SMS)
-- [ ] Cập nhật tài liệu `api.md` nếu có thay đổi endpoint
-- [ ] Backup DB định kỳ (Supabase có auto backup)
+- [ ] Setup **UptimeRobot** (free) monitor endpoint `GET /health` má»—i 5 phÃºt
+- [ ] Kiá»ƒm tra log lá»—i Ä‘á»‹nh ká»³ trÃªn platform dashboard (Render/Railway)
+- [ ] Theo dÃµi Twilio trial balance (háº¿t balance sáº½ khÃ´ng gá»­i Ä‘Æ°á»£c SMS)
+- [ ] Cáº­p nháº­t tÃ i liá»‡u `api.md` náº¿u cÃ³ thay Ä‘á»•i endpoint
+- [ ] Backup DB Ä‘á»‹nh ká»³ (Supabase cÃ³ auto backup)
 
 ---
 
-## 📌 BẢNG TÓM TẮT QUICK REFERENCE
+## ðŸ“Œ Báº¢NG TÃ“M Táº®T QUICK REFERENCE
 
-### Các tài liệu cần đính kèm vào prompt:
+### CÃ¡c tÃ i liá»‡u cáº§n Ä‘Ã­nh kÃ¨m vÃ o prompt:
 
-| Khi làm gì | Đính kèm tài liệu |
+| Khi lÃ m gÃ¬ | ÄÃ­nh kÃ¨m tÃ i liá»‡u |
 |------------|-------------------|
-| Setup môi trường | `skill-setup-env.md`, `tech-stack.md` |
+| Setup mÃ´i trÆ°á»ng | `skill-setup-env.md`, `tech-stack.md` |
 | Scaffolding project | `skill-scaffolding.md`, `project-structure.md` |
 | Prisma schema | `erd.md` + `skill-prisma-schema.md` |
-| Bất kỳ module nào | `skill-module.md` + đoạn API spec tương ứng từ `api.md` + `skill-agent-rules.md` |
-| Module Orders | `api.md` (MODULE: ORDERS) + `implementation-plan.md` (ghi chú M8) |
-| Tích hợp 3rd-party | `skill-integration.md` |
-| Debug lỗi | `skill-debug.md` + files của module lỗi |
+| Báº¥t ká»³ module nÃ o | `skill-module.md` + Ä‘oáº¡n API spec tÆ°Æ¡ng á»©ng tá»« `api.md` + `skill-agent-rules.md` |
+| Module Orders | `api.md` (MODULE: ORDERS) + `implementation-plan.md` (ghi chÃº M8) |
+| TÃ­ch há»£p 3rd-party | `skill-integration.md` |
+| Debug lá»—i | `skill-debug.md` + files cá»§a module lá»—i |
 | Review & commit | `skill-review-commit.md` |
 
-### Thứ tự dependency giữa các module:
+### Thá»© tá»± dependency giá»¯a cÃ¡c module:
 
 ```
-M3 (Categories) → M4 (Products) → M5 (Options) → M6 (Cart) → M8 (Orders)
-M1 (Auth) → M2 (Users)                                           ↓
-M7 (Coupons) ─────────────────────────────────────────────────→ M8
-                                                                  ↓
-M9 (Reviews) ←──────────────── M8 (order_status=delivered) ──→ M10 (Loyalty)
-                                                                  ↓
+M3 (Categories) â†’ M4 (Products) â†’ M5 (Options) â†’ M6 (Cart) â†’ M8 (Orders)
+M1 (Auth) â†’ M2 (Users)                                           â†“
+M7 (Coupons) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â†’ M8
+                                                                  â†“
+M9 (Reviews) â†â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€ M8 (order_status=delivered) â”€â”€â†’ M10 (Loyalty)
+                                                                  â†“
                                                                M11 (Analytics)
 ```
 
-### Flow tùy chỉnh bánh (Customize Flow) — Điểm cốt lõi MVP:
+### Flow tÃ¹y chá»‰nh bÃ¡nh (Customize Flow) â€” Äiá»ƒm cá»‘t lÃµi MVP:
 
 ```
-1. Khách vào trang product detail (is_customizable=true)
-2. FE gọi GET /products/:id/options → nhận cây option_groups + option_items
-3. Khách chọn: Kích cỡ (required) + Kem phủ (required) + Topping (multiple, optional)
-4. FE tính realtime: base_price + Σ(extra_price của các item đã chọn)
-5. Khách nhấn "Thêm vào giỏ" → POST /cart/items (gửi kèm option_item_ids[])
-6. Giỏ hàng lưu Redis với snapshot giá
-7. Checkout → POST /orders → trả về QR tĩnh + nội dung chuyển khoản → hiển thị QR
-8. Khách chuyển khoản → gọi `POST /webhooks/payment` mô phỏng xác nhận → order updated → FE polling nhận paid
+1. KhÃ¡ch vÃ o trang product detail (is_customizable=true)
+2. FE gá»i GET /products/:id/options â†’ nháº­n cÃ¢y option_groups + option_items
+3. KhÃ¡ch chá»n: KÃ­ch cá»¡ (required) + Kem phá»§ (required) + Topping (multiple, optional)
+4. FE tÃ­nh realtime: base_price + Î£(extra_price cá»§a cÃ¡c item Ä‘Ã£ chá»n)
+5. KhÃ¡ch nháº¥n "ThÃªm vÃ o giá»" â†’ POST /cart/items (gá»­i kÃ¨m option_item_ids[])
+6. Giá» hÃ ng lÆ°u Redis vá»›i snapshot giÃ¡
+7. Checkout â†’ POST /orders â†’ tráº£ vá» QR tÄ©nh + ná»™i dung chuyá»ƒn khoáº£n â†’ hiá»ƒn thá»‹ QR
+8. KhÃ¡ch chuyá»ƒn khoáº£n â†’ gá»i `POST /webhooks/payment` mÃ´ phá»ng xÃ¡c nháº­n â†’ order updated â†’ FE polling nháº­n paid
 ```
 
 ---
 
-> **Ghi chú cuối:** Luôn test checkpoint của từng phase trước khi sang phase tiếp theo.
-> Commit theo từng milestone với message format: `feat(<module>): <mô tả ngắn>`
+> **Ghi chÃº cuá»‘i:** LuÃ´n test checkpoint cá»§a tá»«ng phase trÆ°á»›c khi sang phase tiáº¿p theo.
+> Commit theo tá»«ng milestone vá»›i message format: `feat(<module>): <mÃ´ táº£ ngáº¯n>`

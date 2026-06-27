@@ -1,0 +1,23 @@
+<article class="product-card" [class.product-card--compact]="compact()">
+  <a class="product-card__media" [routerLink]="['/products', product().slug]" [attr.aria-label]="product().name">
+    <img [src]="product().imageUrl" [alt]="product().name" loading="lazy" />
+    @if (product().badge) {
+      <span class="product-card__badge">{{ product().badge }}</span>
+    }
+  </a>
+
+  <div class="product-card__body">
+    <a class="product-card__name" [routerLink]="['/products', product().slug]">{{ product().name }}</a>
+    <div class="product-card__rating" aria-label="Đánh giá sản phẩm">
+      <span aria-hidden="true">★</span>
+      <strong>{{ product().rating.toFixed(1) }}</strong>
+      <span>({{ product().reviewCount }})</span>
+    </div>
+    <div class="product-card__price">{{ product().price | currencyVnd }}</div>
+  </div>
+
+  <button class="product-card__button" type="button" (click)="onAddToCart()">
+    <span aria-hidden="true">+</span>
+    Thêm vào giỏ
+  </button>
+</article>

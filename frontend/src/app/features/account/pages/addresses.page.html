@@ -1,0 +1,87 @@
+<div class="account-form-page">
+  <div class="page-header">
+    <a class="back-link" routerLink="/account">← Tài khoản</a>
+    <h1>Địa chỉ giao hàng</h1>
+    <button class="btn-add" (click)="openAdd()">+ Thêm địa chỉ</button>
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (addresses().length === 0 && !showForm()) {
+    <div class="empty-state">
+      <p>📍 Bạn chưa có địa chỉ nào.</p>
+      <button class="btn-save" (click)="openAdd()">Thêm địa chỉ đầu tiên</button>
+    </div>
+  }
+
+  @if (showForm()) {
+    <section class="form-section">
+      <h2 class="form-section__title">{{ editingAddress() ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ mới' }}</h2>
+      <form [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field">
+          <label class="field__label" for="rName">Họ và tên người nhận *</label>
+          <input id="rName" type="text" class="field__input" formControlName="recipientName" />
+          @if (form.controls.recipientName.invalid && form.controls.recipientName.touched) {
+            <p class="field__error">Vui lòng nhập tên người nhận.</p>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label" for="rPhone">Số điện thoại *</label>
+          <input id="rPhone" type="tel" class="field__input" formControlName="phone" />
+          @if (form.controls.phone.invalid && form.controls.phone.touched) {
+            <p class="field__error">Vui lòng nhập số điện thoại.</p>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label" for="street">Địa chỉ (số nhà, đường) *</label>
+          <input id="street" type="text" class="field__input" formControlName="street" />
+          @if (form.controls.street.invalid && form.controls.street.touched) {
+            <p class="field__error">Vui lòng nhập địa chỉ.</p>
+          }
+        </div>
+        <div class="field">
+          <label class="field__label" for="district">Quận/Huyện *</label>
+          <input id="district" type="text" class="field__input" formControlName="district" />
+        </div>
+        <div class="field">
+          <label class="field__label" for="city">Tỉnh/Thành phố *</label>
+          <input id="city" type="text" class="field__input" formControlName="city" />
+        </div>
+        <label class="checkbox-label">
+          <input type="checkbox" formControlName="isDefault" />
+          Đặt làm địa chỉ mặc định
+        </label>
+        <div class="form-actions">
+          <button type="button" class="btn-cancel-form" (click)="cancel()">Hủy</button>
+          <button type="submit" class="btn-save" [disabled]="saving()">
+            @if (saving()) { <app-loading-spinner /> } @else { Lưu địa chỉ }
+          </button>
+        </div>
+      </form>
+    </section>
+  }
+
+  @for (addr of addresses(); track addr.addressId) {
+    <div class="address-card">
+      @if (addr.isDefault) {
+        <span class="address-card__default">Mặc định</span>
+      }
+      <p class="address-card__name">{{ addr.recipientName }} · {{ addr.phone }}</p>
+      <p class="address-card__addr">{{ addr.street }}, {{ addr.district }}, {{ addr.city }}</p>
+      <div class="address-card__actions">
+        <button class="btn-edit" (click)="openEdit(addr)">Chỉnh sửa</button>
+        <button class="btn-delete" (click)="deletingAddressId.set(addr.addressId)">Xóa</button>
+      </div>
+    </div>
+  }
+</div>
+
+<app-confirm-dialog
+  [open]="!!deletingAddressId()"
+  title="Xóa địa chỉ"
+  message="Bạn có chắc muốn xóa địa chỉ này?"
+  confirmLabel="Xóa"
+  cancelLabel="Hủy"
+  (confirm)="deleteAddress()"
+  (cancel)="deletingAddressId.set(null)"
+/>
