@@ -1,0 +1,33 @@
+<section class="product-section" [class.product-section--soft]="softBackground()" [attr.aria-labelledby]="title()">
+  <div class="product-section__inner">
+    <div class="product-section__heading">
+      <div>
+        <h2 [id]="title()">{{ title() }}</h2>
+        <p>{{ subtitle() }}</p>
+      </div>
+      <a routerLink="/products">Xem tất cả →</a>
+    </div>
+
+    @if (loading()) {
+      <div class="product-grid">
+        @for (item of [1, 2, 3, 4]; track item) {
+          <div class="product-skeleton"></div>
+        }
+      </div>
+    } @else if (error()) {
+      <p class="product-state">{{ error() }}</p>
+    } @else if (products().length === 0) {
+      <p class="product-state">Chưa có sản phẩm phù hợp để hiển thị.</p>
+    } @else {
+      <div class="product-grid">
+        @for (product of products(); track product.id) {
+          <app-product-card
+            [product]="product"
+            [compact]="compactCards()"
+            (addToCart)="addToCart.emit($event)"
+          />
+        }
+      </div>
+    }
+  </div>
+</section>

@@ -1,0 +1,139 @@
+.site-footer {
+  background: #f7f3ea;
+  color: #3b2a1e;
+  padding: 64px 0 28px;
+}
+
+.site-footer__inner {
+  display: grid;
+  grid-template-columns: 1.2fr 0.8fr 0.9fr 1.25fr;
+  gap: 36px;
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+}
+
+.site-footer section {
+  display: grid;
+  align-content: start;
+  gap: 11px;
+}
+
+.site-footer h2 {
+  margin: 0 0 4px;
+  color: #3b2a1e;
+  font-size: 1rem;
+  font-weight: 950;
+}
+
+.site-footer a,
+.site-footer p {
+  margin: 0;
+  color: #6f625a;
+  font-size: 0.95rem;
+  line-height: 1.65;
+  text-decoration: none;
+}
+
+.site-footer a:hover {
+  color: #6b4a20;
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #3b2a1e;
+  font-size: 1.32rem;
+  font-weight: 950;
+}
+
+.brand__mark {
+  display: grid;
+  width: 40px;
+  height: 40px;
+  place-items: center;
+  border-radius: 50%;
+  background: #f4c542;
+  color: #3b2a1e;
+}
+
+.footer-brand p {
+  max-width: 280px;
+}
+
+.socials {
+  display: flex;
+  gap: 10px;
+}
+
+.socials a {
+  display: grid;
+  width: 36px;
+  height: 36px;
+  place-items: center;
+  border-radius: 50%;
+  background: #ffffff;
+  color: #3b2a1e;
+  font-size: 0.82rem;
+  font-weight: 950;
+}
+
+.store-map {
+  display: grid;
+  width: min(1200px, calc(100% - 40px));
+  min-height: 220px;
+  margin: 44px auto 24px;
+  place-items: center;
+  overflow: hidden;
+  border: 1px solid #e8e0d2;
+  border-radius: 12px;
+  background:
+    linear-gradient(90deg, rgba(244, 197, 66, 0.28) 1px, transparent 1px),
+    linear-gradient(rgba(244, 197, 66, 0.2) 1px, transparent 1px),
+    #fbf8f1;
+  background-size: 42px 42px;
+}
+
+.store-map div {
+  display: grid;
+  gap: 4px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(59, 42, 30, 0.1);
+  text-align: center;
+}
+
+.store-map strong {
+  font-size: 1.1rem;
+}
+
+.store-map span {
+  color: #6f625a;
+}
+
+.copyright {
+  width: min(1200px, calc(100% - 40px));
+  margin: 0 auto;
+  color: #7a6a5d;
+  font-size: 0.9rem;
+  text-align: center;
+}
+
+@media (max-width: 920px) {
+  .site-footer__inner {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 560px) {
+  .site-footer__inner {
+    grid-template-columns: 1fr;
+    width: min(100% - 24px, 1200px);
+  }
+
+  .store-map,
+  .copyright {
+    width: min(100% - 24px, 1200px);
+  }
+}

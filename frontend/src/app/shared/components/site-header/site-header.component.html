@@ -1,0 +1,75 @@
+<header class="site-header">
+  <div class="site-header__inner">
+    <a class="brand" routerLink="/" aria-label="WeBee Bakery">
+      <span class="brand__mark" aria-hidden="true">
+        <svg viewBox="0 0 40 40" focusable="false">
+          <path d="M20 5c6 0 10 4 10 10 0 4-2 7-5 9l4 8H11l4-8c-3-2-5-5-5-9 0-6 4-10 10-10Z" />
+          <path d="M14 16h12M16 22h8" />
+        </svg>
+      </span>
+      <span>WeBee</span>
+    </a>
+
+    <button class="menu-button" type="button" aria-label="Mở menu" (click)="toggleMenu()">
+      <span></span><span></span><span></span>
+    </button>
+
+    <nav class="site-nav" [class.site-nav--open]="isMenuOpen()" aria-label="Điều hướng chính">
+      <a routerLink="/" routerLinkActive="site-nav__link--active" [routerLinkActiveOptions]="{ exact: true }" class="site-nav__link">Trang chủ</a>
+      <a routerLink="/products" routerLinkActive="site-nav__link--active" class="site-nav__link">Sản phẩm</a>
+      <a routerLink="/custom-cake" routerLinkActive="site-nav__link--active" class="site-nav__link">Tùy chỉnh bánh</a>
+      <a routerLink="/blog" routerLinkActive="site-nav__link--active" class="site-nav__link">Blog</a>
+      <a routerLink="/membership" routerLinkActive="site-nav__link--active" class="site-nav__link">Thành viên</a>
+    </nav>
+
+    <div class="site-actions">
+      <a class="icon-button" routerLink="/products" [queryParams]="{ q: '' }" aria-label="Tìm kiếm sản phẩm">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+        </svg>
+      </a>
+
+      <button class="icon-button icon-button--cart" type="button" (click)="openCart()" aria-label="Mở giỏ hàng">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M6.5 7h12l-1.2 8.2a2 2 0 0 1-2 1.8H9.1a2 2 0 0 1-2-1.7L5.8 4H3"/>
+          <circle cx="9" cy="21" r="1"/><circle cx="17" cy="21" r="1"/>
+        </svg>
+        @if ((cartQuantity$ | async) || 0; as qty) {
+          @if (qty > 0) {
+            <span class="cart-badge">{{ qty }}</span>
+          }
+        }
+      </button>
+
+      @if (authService.currentUser$ | async; as user) {
+        <div class="account-menu">
+          <button class="account-trigger" type="button" (click)="toggleAccountMenu()" aria-label="Menu tài khoản">
+            @if (user.avatarUrl) {
+              <img [src]="user.avatarUrl" [alt]="user.fullName" class="account-avatar" />
+            } @else {
+              <span class="account-initials">{{ user.fullName.charAt(0).toUpperCase() }}</span>
+            }
+          </button>
+          @if (isAccountMenuOpen()) {
+            <div class="account-dropdown" role="menu">
+              <div class="account-dropdown__user">
+                <strong>{{ user.fullName }}</strong>
+                <small>{{ user.email }}</small>
+              </div>
+              <a class="account-dropdown__item" routerLink="/account" (click)="isAccountMenuOpen.set(false)" role="menuitem">Tài khoản</a>
+              <a class="account-dropdown__item" routerLink="/account/orders" (click)="isAccountMenuOpen.set(false)" role="menuitem">Đơn hàng</a>
+              @if (user.role === 'admin') {
+                <a class="account-dropdown__item" routerLink="/admin" (click)="isAccountMenuOpen.set(false)" role="menuitem">Quản trị</a>
+              }
+              <button class="account-dropdown__item account-dropdown__item--danger" type="button" (click)="logout()" role="menuitem">Đăng xuất</button>
+            </div>
+          }
+        </div>
+      } @else {
+        <a class="login-button" routerLink="/login">Đăng nhập</a>
+      }
+    </div>
+  </div>
+</header>
+
+<app-cart-drawer [open]="isCartOpen()" (closed)="closeCart()" />

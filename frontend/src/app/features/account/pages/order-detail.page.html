@@ -1,0 +1,104 @@
+<div class="account-form-page">
+  <div class="page-header">
+    <a class="back-link" routerLink="/account/orders">← Đơn hàng</a>
+    @if (order(); as o) {
+      <h1>Đơn hàng #{{ o.orderId.slice(-8).toUpperCase() }}</h1>
+      <span class="order-status-badge" [class]="'order-status-badge--' + o.orderStatus">
+        {{ STATUS_LABELS[o.orderStatus] ?? o.orderStatus }}
+      </span>
+    } @else {
+      <h1>Đơn hàng</h1>
+    }
+  </div>
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (order(); as o) {
+    <!-- Items -->
+    <section class="form-section">
+      <h2 class="form-section__title">Sản phẩm</h2>
+      @for (item of o.items; track item.orderItemId) {
+        <div class="order-item-row">
+          <div class="order-item-row__info">
+            <span class="order-item-row__name">{{ item.productName }}</span>
+            @if (item.options.length > 0) {
+              <span class="order-item-row__options">{{ item.options.map(x => x.name).join(', ') }}</span>
+            }
+          </div>
+          <span class="order-item-row__qty">× {{ item.quantity }}</span>
+          <span class="order-item-row__price">{{ item.itemTotal | currencyVnd }}</span>
+        </div>
+      }
+    </section>
+
+    <!-- Summary -->
+    <section class="form-section">
+      <h2 class="form-section__title">Tóm tắt</h2>
+      <div class="totals">
+        <div class="total-row"><span>Tạm tính</span><span>{{ o.subtotal | currencyVnd }}</span></div>
+        @if (o.discountAmount > 0) {
+          <div class="total-row text-success"><span>Giảm giá</span><span>−{{ o.discountAmount | currencyVnd }}</span></div>
+        }
+        <div class="total-row"><span>Phí vận chuyển</span><span class="text-success">Miễn phí</span></div>
+        <div class="total-row total-row--total"><strong>Tổng</strong><strong class="text-primary">{{ o.totalAmount | currencyVnd }}</strong></div>
+      </div>
+    </section>
+
+    <!-- Delivery info -->
+    <section class="form-section">
+      <h2 class="form-section__title">Thông tin giao hàng</h2>
+      <p><strong>Người nhận:</strong> {{ o.recipientName }} · {{ o.phone }}</p>
+      @if (o.deliveryAddress) { <p><strong>Địa chỉ:</strong> {{ o.deliveryAddress }}</p> }
+      <p><strong>Ngày nhận:</strong> {{ o.deliveryDate }} · {{ o.deliveryTimeSlot }}</p>
+    </section>
+
+    <!-- Actions -->
+    @if (o.orderStatus === 'pending') {
+      <div style="display:flex;justify-content:flex-end">
+        <button class="btn-danger" (click)="cancelOrder()" [disabled]="cancelling()">
+          @if (cancelling()) { Đang hủy… } @else { Hủy đơn hàng }
+        </button>
+      </div>
+    }
+
+    <!-- Review form (delivered only) -->
+    @if (o.orderStatus === 'delivered' && !reviewSubmitted()) {
+      <section class="form-section">
+        <h2 class="form-section__title">Đánh giá đơn hàng</h2>
+        @if (o.items.length > 0) {
+          <div class="field">
+            <label class="field__label">Chọn sản phẩm để đánh giá</label>
+            <select class="field__input" (change)="selectedOrderItemId.set($any($event.target).value)">
+              <option value="">-- Chọn sản phẩm --</option>
+              @for (item of o.items; track item.orderItemId) {
+                <option [value]="item.orderItemId">{{ item.productName }}</option>
+              }
+            </select>
+          </div>
+          @if (selectedOrderItemId()) {
+            <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" novalidate>
+              <div class="field">
+                <label class="field__label">Đánh giá *</label>
+                <div class="star-select">
+                  @for (star of [1,2,3,4,5]; track star) {
+                    <button type="button" class="star-btn" [class.star-btn--active]="reviewForm.value.rating! >= star" (click)="reviewForm.controls.rating.setValue(star)">★</button>
+                  }
+                </div>
+              </div>
+              <div class="field">
+                <label class="field__label" for="reviewComment">Nhận xét</label>
+                <textarea id="reviewComment" class="field__input field__input--textarea" formControlName="comment" placeholder="Chia sẻ trải nghiệm của bạn…"></textarea>
+              </div>
+              <button type="submit" class="btn-save" [disabled]="submittingReview()">
+                @if (submittingReview()) { <app-loading-spinner /> } @else { Gửi đánh giá }
+              </button>
+            </form>
+          }
+        }
+      </section>
+    }
+    @if (reviewSubmitted()) {
+      <div class="review-success">✅ Cảm ơn đánh giá của bạn!</div>
+    }
+  }
+</div>

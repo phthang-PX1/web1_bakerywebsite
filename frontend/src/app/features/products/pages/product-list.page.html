@@ -1,0 +1,101 @@
+<div class="product-list-page">
+  <div class="product-list-page__inner">
+    <!-- Sidebar filters -->
+    <aside class="filters">
+      <h2 class="filters__title">Lọc sản phẩm</h2>
+
+      <div class="filters__group">
+        <h3 class="filters__group-title">Danh mục</h3>
+        <ul class="filters__list">
+          <li>
+            <button
+              class="filters__item"
+              [class.filters__item--active]="selectedCategory() === ''"
+              (click)="onCategoryChange('')"
+            >Tất cả</button>
+          </li>
+          @for (cat of categories(); track cat.categoryId) {
+            <li>
+              <button
+                class="filters__item"
+                [class.filters__item--active]="selectedCategory() === cat.slug"
+                (click)="onCategoryChange(cat.slug)"
+              >{{ cat.name }}</button>
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="filters__group">
+        <h3 class="filters__group-title">Khoảng giá</h3>
+        <div class="filters__price-range">
+          <input type="number" class="filters__price-input" placeholder="Từ" [value]="minPrice()" (input)="minPrice.set(+$any($event.target).value || undefined)" />
+          <span>—</span>
+          <input type="number" class="filters__price-input" placeholder="Đến" [value]="maxPrice()" (input)="maxPrice.set(+$any($event.target).value || undefined)" />
+        </div>
+        <button class="filters__apply-btn" (click)="onPageChange(1)">Áp dụng</button>
+      </div>
+    </aside>
+
+    <!-- Main content -->
+    <section class="product-grid-section">
+      <div class="product-grid-section__toolbar">
+        <div class="search-bar">
+          <svg class="search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+          </svg>
+          <input
+            type="search"
+            class="search-bar__input"
+            placeholder="Tìm kiếm bánh…"
+            [value]="searchQuery()"
+            (input)="onSearch($any($event.target).value)"
+            aria-label="Tìm kiếm sản phẩm"
+          />
+        </div>
+
+        <div class="toolbar__sort">
+          <label class="toolbar__sort-label" for="sort">Sắp xếp:</label>
+          <select id="sort" class="toolbar__sort-select" [value]="selectedSort()" (change)="onSortChange($any($event.target).value)">
+            @for (opt of sortOptions; track opt.value) {
+              <option [value]="opt.value">{{ opt.label }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      @if (totalItems() > 0) {
+        <p class="product-grid-section__count">{{ totalItems() }} sản phẩm</p>
+      }
+
+      @if (loading()) {
+        <app-loading-spinner />
+      } @else if (error()) {
+        <div class="state-error">
+          <p>{{ error() }}</p>
+          <button class="btn-retry" (click)="onPageChange(currentPage())">Thử lại</button>
+        </div>
+      } @else if (products().length === 0) {
+        <div class="state-empty">
+          <p>🍰 Không tìm thấy sản phẩm phù hợp.</p>
+          <button class="btn-retry" (click)="onCategoryChange('')">Xem tất cả sản phẩm</button>
+        </div>
+      } @else {
+        <div class="product-grid">
+          @for (product of products(); track product.productId) {
+            <app-product-card
+              [product]="toProductCard(product)"
+              (addToCart)="addToCart($event)"
+            />
+          }
+        </div>
+
+        <app-pagination
+          [currentPage]="currentPage()"
+          [totalPages]="totalPages()"
+          (pageChange)="onPageChange($event)"
+        />
+      }
+    </section>
+  </div>
+</div>

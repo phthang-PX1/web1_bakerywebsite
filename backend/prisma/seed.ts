@@ -13,7 +13,7 @@ import {
 } from "@prisma/client";
 
 const prisma = new PrismaClient();
-const documentDir = path.resolve(process.cwd(), "document");
+const documentDir = path.resolve(__dirname, "../../document/backend");
 const operationalNow = new Date("2026-06-27T10:00:00.000+07:00");
 
 type CsvRow = Record<string, string>;
