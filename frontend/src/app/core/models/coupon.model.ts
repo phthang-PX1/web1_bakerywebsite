@@ -11,15 +11,20 @@ export interface Coupon {
   readonly expiresAt: string | null;
 }
 
+/** Snake_case body as required by POST /api/coupons/validate schema */
 export interface ValidateCouponRequest {
   code: string;
-  orderTotal: number;
+  order_value: number;
 }
 
 export interface ValidateCouponResponse {
-  readonly couponId: string;
+  readonly valid: boolean;
   readonly code: string;
-  readonly discountType: DiscountType;
-  readonly discountValue: number;
+  readonly couponId?: string;
+  readonly discountType?: DiscountType;
+  readonly discountValue?: number;
   readonly discountAmount: number;
+  readonly orderValue: number;
+  readonly finalAmount: number;
+  readonly reason?: string;
 }

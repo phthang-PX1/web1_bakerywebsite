@@ -62,7 +62,11 @@ export const productImageParamsSchema = z.object({
 
 export const productListQuerySchema = z
   .object({
-    category: optionalSlugSchema,
+    category: z.preprocess((value) => {
+      if (value === "" || value === undefined) return undefined;
+      if (Array.isArray(value)) return value;
+      return [value];
+    }, z.array(slugSchema).optional()),
     search: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.string().trim().min(1).max(100).optional()
@@ -89,7 +93,7 @@ export const productListQuerySchema = z
     }
   )
   .transform((value) => ({
-    category: value.category,
+    categories: value.category,
     search: value.search,
     minPrice: value.min_price,
     maxPrice: value.max_price,

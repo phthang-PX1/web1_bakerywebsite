@@ -16,7 +16,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
         <div class="auth-success">
           ✅ Tài khoản đã được kích hoạt thành công!
         </div>
-        <a class="btn btn--primary" routerLink="/login">Đăng nhập ngay</a>
+        <a class="btn btn--primary" routerLink="/auth/login">Đăng nhập ngay</a>
       } @else {
         <p class="auth-card__error">{{ error() }}</p>
         <a class="auth-link" routerLink="/register">Quay lại đăng ký</a>
@@ -34,7 +34,7 @@ export class ActivatePage implements OnInit {
   readonly error = signal('');
 
   ngOnInit(): void {
-    const token = this.route.snapshot.queryParamMap.get('token');
+    const token = this.route.snapshot.paramMap.get('token');
     if (!token) {
       this.loading.set(false);
       this.error.set('Liên kết kích hoạt không hợp lệ.');

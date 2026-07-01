@@ -25,7 +25,12 @@ export const routes: Routes = [
         loadComponent: () => import('./features/checkout/pages/checkout.page').then((m) => m.CheckoutPage),
       },
       {
+        path: 'checkout/success',
+        loadComponent: () => import('./features/checkout/pages/checkout-success.page').then((m) => m.CheckoutSuccessPage),
+      },
+      {
         path: 'orders/:orderId/track',
+        canActivate: [authGuard],
         loadComponent: () => import('./features/checkout/pages/order-tracking.page').then((m) => m.OrderTrackingPage),
       },
       {
@@ -50,7 +55,7 @@ export const routes: Routes = [
 
   // Auth routes — minimal header, no footer
   {
-    path: '',
+    path: 'auth',
     loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then((m) => m.AuthLayoutComponent),
     children: [
       {
@@ -62,19 +67,19 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/pages/register.page').then((m) => m.RegisterPage),
       },
       {
-        path: 'auth/activate',
+        path: 'activate/:token',
         loadComponent: () => import('./features/auth/pages/activate.page').then((m) => m.ActivatePage),
       },
       {
-        path: 'auth/forgot-password',
+        path: 'forgot-password',
         loadComponent: () => import('./features/auth/pages/forgot-password.page').then((m) => m.ForgotPasswordPage),
       },
       {
-        path: 'auth/reset-password',
+        path: 'reset-password/:token',
         loadComponent: () => import('./features/auth/pages/reset-password.page').then((m) => m.ResetPasswordPage),
       },
       {
-        path: 'auth/google/callback',
+        path: 'google/callback',
         loadComponent: () => import('./features/auth/pages/google-callback.page').then((m) => m.GoogleCallbackPage),
       },
     ],

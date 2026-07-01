@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
@@ -42,7 +42,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                   <tr>
                     <td>
                       <img
-                        [src]="product.thumbnailUrl ?? '/assets/images/product-placeholder.webp'"
+                        [src]="product.thumbnailUrl ?? '/assets/images/product-placeholder.svg'"
                         [alt]="product.name"
                         class="product-thumb"
                         appImgFallback
@@ -115,9 +115,9 @@ export class AdminProductsListPage implements OnInit {
     this.loading.set(true);
     this.adminApi.getProducts({ page, limit: 20 }).subscribe({
       next: (res) => {
-        this.products.set([...res.data]);
+        this.products.set([...res.items]);
         this.currentPage.set(page);
-        this.totalPages.set(res.totalPages ?? Math.ceil(res.total / res.limit));
+        this.totalPages.set(res.pagination.totalPages);
         this.loading.set(false);
       },
       error: () => { this.loading.set(false); this.toastService.error('Tải danh sách sản phẩm thất bại.'); },

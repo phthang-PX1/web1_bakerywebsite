@@ -1,26 +1,57 @@
-<section class="membership" aria-labelledby="membership-title">
-  <div class="membership__intro">
-    <h2 id="membership-title">Bạn là thành viên?</h2>
-    <p>Đăng nhập để xem ưu đãi và tích điểm.</p>
-    <a routerLink="/auth/login">Đăng nhập / Đăng ký</a>
-  </div>
+<section class="membership">
+  <div class="membership__inner">
+    <!-- Left: membership promo -->
+    <div class="membership__promo">
+      <div class="membership__promo-shell">
+        <div class="membership__promo-core">
+          <span class="membership__eyebrow">Chương trình thành viên</span>
+          <h2 class="membership__heading">Tích điểm,<br>nhận ưu đãi<br><em>không giới hạn</em></h2>
+          <p class="membership__body">
+            Mỗi đơn hàng tích lũy điểm thưởng. Nâng hạng để nhận chiết khấu, bánh tặng và ưu đãi sinh nhật đặc biệt từ WeBee.
+          </p>
+          <div class="membership__tiers">
+            <div class="tier-pill tier-pill--bronze">🥉 Đồng</div>
+            <div class="tier-pill tier-pill--silver">🥈 Bạc</div>
+            <div class="tier-pill tier-pill--gold">🥇 Vàng</div>
+            <div class="tier-pill tier-pill--diamond">💎 Kim cương</div>
+          </div>
+          <a class="membership__cta" routerLink="/auth/login">
+            Đăng nhập & Tích điểm
+            <span class="cta-icon" aria-hidden="true">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <path d="M5 12h14M12 5l7 7-7 7"/>
+              </svg>
+            </span>
+          </a>
+        </div>
+      </div>
+    </div>
 
-  <div class="faq-card">
-    <h3>Quyền lợi thành viên</h3>
-    <p>Nâng hạng để nhận nhiều ưu đãi hơn.</p>
-
-    <div class="faq-list">
-      @for (faq of faqs(); track faq.id) {
-        <article class="faq-item">
-          <button type="button" (click)="toggle(faq.id)" [attr.aria-expanded]="openId() === faq.id">
-            <span>{{ faq.question }}</span>
-            <strong aria-hidden="true">{{ openId() === faq.id ? '−' : '+' }}</strong>
-          </button>
-          @if (openId() === faq.id) {
-            <p>{{ faq.answer }}</p>
-          }
-        </article>
-      }
+    <!-- Right: FAQ -->
+    <div class="faq">
+      <div class="faq__header">
+        <h3 class="faq__title">Câu hỏi thường gặp</h3>
+        <p class="faq__subtitle">Tất cả những gì bạn cần biết về WeBee</p>
+      </div>
+      <div class="faq__list">
+        @for (faq of faqs(); track faq.id) {
+          <div class="faq__item" [class.faq__item--open]="openId() === faq.id">
+            <button type="button" class="faq__trigger" (click)="toggle(faq.id)">
+              <span class="faq__question">{{ faq.question }}</span>
+              <span class="faq__icon" aria-hidden="true">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                  <path d="M6 9l6 6 6-6"/>
+                </svg>
+              </span>
+            </button>
+            @if (openId() === faq.id) {
+              <div class="faq__answer">
+                <p>{{ faq.answer }}</p>
+              </div>
+            }
+          </div>
+        }
+      </div>
     </div>
   </div>
 </section>

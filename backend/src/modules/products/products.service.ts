@@ -169,6 +169,20 @@ const productListSelect = {
       name: true,
       slug: true
     }
+  },
+  optionGroups: {
+    where: { isRequired: true },
+    select: { groupId: true },
+    take: 1
+  },
+  _count: {
+    select: {
+      orderItems: {
+        where: {
+          review: { isVisible: true }
+        }
+      }
+    }
   }
 };
 
@@ -195,10 +209,10 @@ export const getProducts = async (query: ProductListQuery) => {
     category: { isActive: true }
   };
 
-  if (query.category) {
+  if (query.categories && query.categories.length > 0) {
     where.category = {
       isActive: true,
-      slug: query.category
+      slug: { in: query.categories }
     };
   }
 
@@ -217,7 +231,7 @@ export const getProducts = async (query: ProductListQuery) => {
   }
 
   const skip = (query.page - 1) * query.limit;
-  const [total, items] = await prisma.$transaction([
+  const [total, rawItems] = await prisma.$transaction([
     prisma.product.count({ where }),
     prisma.product.findMany({
       where,
@@ -227,6 +241,21 @@ export const getProducts = async (query: ProductListQuery) => {
       take: query.limit
     })
   ]);
+
+  const items = rawItems.map((p) => ({
+    productId: p.productId,
+    name: p.name,
+    slug: p.slug,
+    description: p.description,
+    basePrice: Number(p.basePrice),
+    thumbnailUrl: p.thumbnailUrl,
+    avgRating: Number(p.avgRating),
+    reviewCount: p._count.orderItems,
+    isCustomizable: p.isCustomizable,
+    hasRequiredOptions: p.optionGroups.length > 0,
+    createdAt: p.createdAt,
+    category: p.category
+  }));
 
   return {
     items,
@@ -253,7 +282,18 @@ export const getProductBySlug = async (slug: string) => {
     throw new AppError(404, "Product not found");
   }
 
-  return product;
+  return {
+    ...product,
+    basePrice: Number(product.basePrice),
+    avgRating: Number(product.avgRating),
+    optionGroups: product.optionGroups.map((g) => ({
+      ...g,
+      items: g.items.map((i) => ({
+        ...i,
+        extraPrice: Number(i.extraPrice),
+      })),
+    })),
+  };
 };
 
 export const getProductReviews = async (

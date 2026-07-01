@@ -1,7 +1,7 @@
 export type ProductSort = "newest" | "price_asc" | "price_desc" | "rating_desc";
 
 export type ProductListQuery = {
-  category?: string;
+  categories?: string[];
   search?: string;
   minPrice?: number;
   maxPrice?: number;

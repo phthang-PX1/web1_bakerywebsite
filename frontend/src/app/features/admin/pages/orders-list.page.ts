@@ -58,7 +58,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
                     <td>#{{ order.orderId.slice(-8).toUpperCase() }}</td>
                     <td>{{ order.recipientName }}</td>
                     <td>{{ order.totalAmount | currencyVnd }}</td>
-                    <td>{{ order.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản' }}</td>
+                    <td>{{ order.paymentMethod === 'cash' ? 'COD' : 'Chuyển khoản' }}</td>
                     <td><span class="status-chip status-chip--{{ order.orderStatus }}">{{ statusLabel(order.orderStatus) }}</span></td>
                     <td>{{ order.createdAt.slice(0, 10) }}</td>
                     <td><a [routerLink]="['/admin/orders', order.orderId]" class="btn-sm btn-sm--primary">Xem</a></td>
@@ -106,9 +106,9 @@ export class AdminOrdersListPage implements OnInit {
       status: this.selectedStatus as OrderStatus || undefined,
     }).subscribe({
       next: (res) => {
-        this.orders.set([...res.data]);
+        this.orders.set([...res.items]);
         this.currentPage.set(page);
-        this.totalPages.set(res.totalPages ?? Math.ceil(res.total / res.limit));
+        this.totalPages.set(res.pagination.totalPages);
         this.loading.set(false);
       },
       error: () => { this.loading.set(false); this.toastService.error('Tải đơn hàng thất bại.'); },

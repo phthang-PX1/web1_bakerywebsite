@@ -2,8 +2,8 @@ import type { MembershipTier } from './user.model';
 
 export type PointTransactionType = 'earn' | 'redeem' | 'expire' | 'bonus';
 
-export interface PointTransaction {
-  readonly transactionId: string;
+export interface LoyaltyLog {
+  readonly logId: string;
   readonly points: number;
   readonly type: PointTransactionType;
   readonly description: string;
@@ -15,7 +15,6 @@ export interface LoyaltyInfo {
   readonly currentTier: MembershipTier;
   readonly nextTier: MembershipTier | null;
   readonly pointsToNextTier: number | null;
-  readonly transactions: PointTransaction[];
 }
 
 export interface TierBenefit {

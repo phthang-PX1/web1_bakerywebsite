@@ -2,18 +2,16 @@ import { Component, OnInit, OnDestroy, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { OrdersApi } from '../../../core/api/orders.api';
-import { UsersApi } from '../../../core/api/users.api';
 import { AuthService } from '../../../core/services/auth.service';
 import type { Order } from '../../../core/models/order.model';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 import { CART_POLLING_INTERVAL_MS } from '../../../core/constants/app.constants';
 
 @Component({
   selector: 'app-order-tracking-page',
   standalone: true,
-  imports: [RouterLink, CurrencyVndPipe, LoadingSpinnerComponent, ImgFallbackDirective],
+  imports: [RouterLink, CurrencyVndPipe, LoadingSpinnerComponent],
   templateUrl: './order-tracking.page.html',
   styleUrl: './order-tracking.page.scss',
 })
@@ -21,7 +19,6 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly ordersApi = inject(OrdersApi);
-  private readonly usersApi = inject(UsersApi);
   private readonly authService = inject(AuthService);
 
   readonly order = signal<Order | null>(null);
@@ -42,7 +39,7 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
   cancelOrder(): void {
     const o = this.order();
     if (!o) return;
-    this.usersApi.cancelOrder(o.orderId).subscribe({
+    this.ordersApi.cancelOrder(o.orderId).subscribe({
       next: (updated) => {
         this.order.set(updated);
         if (this.pollingTimer) clearInterval(this.pollingTimer);
@@ -51,14 +48,14 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
   }
 
   private loadOrder(orderId: string): void {
-    this.ordersApi.getOrder(orderId).subscribe({
+    this.ordersApi.getMyOrder(orderId).subscribe({
       next: (o) => { this.order.set(o); this.loading.set(false); this.handleStatus(o); },
       error: () => { this.loading.set(false); this.error.set('Không tìm thấy đơn hàng.'); },
     });
   }
 
   private pollOrder(orderId: string): void {
-    this.ordersApi.getOrder(orderId).subscribe({
+    this.ordersApi.getMyOrder(orderId).subscribe({
       next: (o) => { this.order.set(o); this.handleStatus(o); },
     });
   }

@@ -1,23 +1,44 @@
-<article class="product-card" [class.product-card--compact]="compact()">
-  <a class="product-card__media" [routerLink]="['/products', product().slug]" [attr.aria-label]="product().name">
-    <img [src]="product().imageUrl" [alt]="product().name" loading="lazy" />
-    @if (product().badge) {
-      <span class="product-card__badge">{{ product().badge }}</span>
-    }
+﻿<article class="product-card" [class.product-card--compact]="compact()">
+  <!-- Image shell — Double-Bezel -->
+  <a class="product-card__shell" [routerLink]="['/products', product().slug]" [attr.aria-label]="product().name" tabindex="-1">
+    <div class="product-card__media">
+      <img [src]="product().imageUrl ?? '/assets/images/product-placeholder.svg'"
+           [alt]="product().name"
+           loading="lazy" />
+      @if (product().badge) {
+        <span class="product-card__badge">{{ product().badge }}</span>
+      }
+      <div class="product-card__overlay" aria-hidden="true"></div>
+    </div>
   </a>
 
   <div class="product-card__body">
     <a class="product-card__name" [routerLink]="['/products', product().slug]">{{ product().name }}</a>
+
     <div class="product-card__rating" aria-label="Đánh giá sản phẩm">
-      <span aria-hidden="true">★</span>
+      <span class="product-card__stars" aria-hidden="true">★</span>
       <strong>{{ product().rating.toFixed(1) }}</strong>
-      <span>({{ product().reviewCount }})</span>
+      <span class="product-card__review-count">({{ product().reviewCount }})</span>
     </div>
-    <div class="product-card__price">{{ product().price | currencyVnd }}</div>
+
+    <div class="product-card__price-row">
+      <span class="product-card__price">{{ product().price | currencyVnd }}</span>
+      @if (needsDetail()) {
+        <a class="product-card__customize-btn"
+           [routerLink]="['/products', product().slug]"
+           aria-label="Tùy chỉnh sản phẩm"
+           title="Tùy chỉnh">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="15" height="15" aria-hidden="true">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+        </a>
+      }
+    </div>
   </div>
 
-  <button class="product-card__button" type="button" (click)="onAddToCart()">
-    <span aria-hidden="true">+</span>
-    Thêm vào giỏ
+  <button class="product-card__btn" type="button" [disabled]="adding()" (click)="onAddToCart()">
+    <img src="/assets/icons/product-themvaogio.png" alt="" class="product-card__btn-icon" />
+    {{ adding() ? 'Đang thêm...' : 'Thêm vào giỏ' }}
   </button>
 </article>

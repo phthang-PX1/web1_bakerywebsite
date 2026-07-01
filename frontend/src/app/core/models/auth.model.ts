@@ -1,5 +1,7 @@
+import type { User } from './user.model';
+
 export interface LoginRequest {
-  identifier: string; // email or phone
+  email: string;
   password: string;
 }
 
@@ -14,11 +16,14 @@ export interface AuthTokens {
   refreshToken: string;
 }
 
+export interface AuthResponse extends AuthTokens {
+  user: User;
+}
+
 export interface ForgotPasswordRequest {
   email: string;
 }
 
 export interface ResetPasswordRequest {
-  token: string;
   newPassword: string;
 }

@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { AUTH_STORAGE_KEYS } from '../constants/app.constants';
 import type { User } from '../models/user.model';
-import type { AuthTokens, LoginRequest, RegisterRequest } from '../models/auth.model';
+import type { AuthResponse, AuthTokens, LoginRequest, RegisterRequest } from '../models/auth.model';
 import { AuthApi } from '../api/auth.api';
 import { UsersApi } from '../api/users.api';
 
@@ -33,11 +33,11 @@ export class AuthService {
     return this.currentUser$.value?.role === 'admin';
   }
 
-  login(body: LoginRequest): Observable<AuthTokens> {
+  login(body: LoginRequest): Observable<AuthResponse> {
     return this.authApi.login(body).pipe(
-      tap((tokens) => {
-        this.storeTokens(tokens);
-        this.loadCurrentUser();
+      tap((response) => {
+        this.storeTokens(response);
+        this.currentUser$.next(response.user);
       })
     );
   }

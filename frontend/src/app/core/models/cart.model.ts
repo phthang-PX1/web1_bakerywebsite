@@ -1,5 +1,7 @@
 export interface CartItemOption {
   readonly itemId: string;
+  readonly groupId: string;
+  readonly groupName: string;
   readonly name: string;
   readonly extraPrice: number;
 }
