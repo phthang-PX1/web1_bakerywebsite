@@ -1,11 +1,11 @@
-import { Directive, ElementRef, HostListener, input } from '@angular/core';
+﻿import { Directive, ElementRef, HostListener, input } from '@angular/core';
 
 @Directive({
   selector: 'img[appImgFallback]',
   standalone: true,
 })
 export class ImgFallbackDirective {
-  readonly appImgFallback = input<string>('/assets/images/product-placeholder.webp');
+  readonly appImgFallback = input<string>('/assets/images/product-placeholder.svg');
 
   constructor(private el: ElementRef<HTMLImageElement>) {}
 

@@ -36,8 +36,10 @@ export const createOrderBodySchema = z
     coupon_code: optionalTrimmedString(50).transform((value) =>
       value?.toUpperCase()
     ),
-    payment_method: z.enum(["transfer"]).default("transfer"),
-    note: optionalTrimmedString(1000)
+    payment_method: z.enum(["transfer", "cash"]).default("transfer"),
+    note: optionalTrimmedString(1000),
+    card_type: z.enum(["none", "on_cake", "small_card", "premium_card"]).default("none"),
+    card_message: optionalTrimmedString(300)
   })
   .refine(
     (value) =>
@@ -57,7 +59,9 @@ export const createOrderBodySchema = z
     deliveryTimeSlot: value.delivery_time_slot,
     couponCode: value.coupon_code,
     paymentMethod: value.payment_method,
-    note: value.note
+    note: value.note,
+    cardType: value.card_type,
+    cardMessage: value.card_message
   }));
 
 export const paymentWebhookBodySchema = z

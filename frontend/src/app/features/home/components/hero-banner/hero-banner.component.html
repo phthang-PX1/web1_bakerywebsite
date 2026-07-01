@@ -1,27 +1,70 @@
-<section class="hero" aria-labelledby="home-hero-title">
+<section class="hero">
   <div class="hero__copy">
-    <p class="hero__eyebrow">WeBee Bakery</p>
-    <h1 id="home-hero-title">Ưu Đãi Thành Viên WeBee</h1>
-    <p class="hero__description">
-      Giảm ngay 10% cho tất cả đơn hàng khi bạn đăng ký tài khoản thành viên.
+    <p class="hero__eyebrow">
+      <span class="hero__eyebrow-dot"></span>
+      Thương hiệu bánh ngọt Việt Nam
     </p>
+
+    <h1 class="hero__heading">
+      Bộ Sưu Tập<br>
+      <em>Bánh Lạnh</em> Cao Cấp
+    </h1>
+
+    <p class="hero__description">
+      Khám phá hương vị thanh mát từ dòng bánh lạnh đặc chế của WeBee.
+      Nguyên liệu tươi, công thức độc quyền, giao tận nơi mỗi ngày.
+    </p>
+
     <div class="hero__actions">
-      <a class="primary-button" routerLink="/auth/register">Đăng ký ngay</a>
-      <a class="secondary-link" routerLink="/products">Xem bánh hôm nay</a>
+      <a class="hero__cta-primary" routerLink="/products">
+        Khám phá ngay
+        <span class="cta-icon" aria-hidden="true">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path d="M5 12h14M12 5l7 7-7 7"/>
+          </svg>
+        </span>
+      </a>
+      <a class="hero__cta-secondary" routerLink="/custom-cake">
+        Tùy chỉnh bánh của bạn
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
+    </div>
+
+    <div class="hero__stats">
+      <div class="hero__stat">
+        <span class="hero__stat-number">500+</span>
+        <span class="hero__stat-label">Đơn mỗi tuần</span>
+      </div>
+      <div class="hero__stat-divider" aria-hidden="true"></div>
+      <div class="hero__stat">
+        <span class="hero__stat-number">4.9★</span>
+        <span class="hero__stat-label">Đánh giá khách hàng</span>
+      </div>
+      <div class="hero__stat-divider" aria-hidden="true"></div>
+      <div class="hero__stat">
+        <span class="hero__stat-number">30+</span>
+        <span class="hero__stat-label">Hương vị độc quyền</span>
+      </div>
     </div>
   </div>
 
   <div class="hero__visual">
-    <img [src]="heroImageUrl" alt="Hộp bánh WeBee trong không gian ấm áp" />
-    <div class="hero__note">
-      <strong>10%</strong>
-      <span>ưu đãi thành viên mới</span>
+    <div class="hero__orb" aria-hidden="true"></div>
+    <div class="hero__frame-outer">
+      <div class="hero__frame-inner">
+        <img [src]="heroImageUrl" alt="Bánh lạnh WeBee cao cấp" />
+      </div>
     </div>
-  </div>
-
-  <div class="hero__dots" aria-hidden="true">
-    <span></span>
-    <span></span>
-    <span></span>
+    <div class="hero__float-tag">
+      <div class="hero__float-icon">
+        <img src="/assets/icons/product-themvaogio.png" alt="" />
+      </div>
+      <div class="hero__float-text">
+        <strong>Mới ra mắt</strong>
+        <span>Bộ sưu tập hè 2025</span>
+      </div>
+    </div>
   </div>
 </section>

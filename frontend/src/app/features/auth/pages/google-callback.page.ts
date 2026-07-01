@@ -26,7 +26,7 @@ export class GoogleCallbackPage implements OnInit {
 
     if (error || !accessToken || !refreshToken) {
       this.toastService.error('Đăng nhập Google thất bại. Vui lòng thử lại.');
-      this.router.navigate(['/login']);
+      this.router.navigate(['/auth/login']);
       return;
     }
 

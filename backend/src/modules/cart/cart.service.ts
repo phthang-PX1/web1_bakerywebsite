@@ -240,7 +240,12 @@ const buildCartItemResponse = (
       basePrice: toMoney(product.basePrice),
       thumbnailUrl: product.thumbnailUrl
     },
+    productId: product.productId,
+    name: product.name,
+    slug: product.slug,
+    thumbnailUrl: product.thumbnailUrl,
     quantity: item.quantity,
+    optionItemIds: item.optionItemIds,
     options,
     unitPrice,
     itemTotal,

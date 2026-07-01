@@ -317,13 +317,18 @@ const sendOrderNotification = async (data: {
   recipientName: string;
   orderId: string;
   totalAmount: number;
-  paymentQrUrl: string;
-  transferContent: string;
+  paymentQrUrl: string | null;
+  transferContent: string | null;
 }) => {
   const activationUrl = data.activationUserId
     ? getActivationUrl(data.activationUserId)
     : undefined;
-  const message = `WeBee order ${data.orderId} total ${data.totalAmount}. Transfer content: ${data.transferContent}. QR: ${data.paymentQrUrl}`;
+
+  const isCash = !data.transferContent;
+  const paymentInfo = isCash
+    ? "Thanh toán khi nhận hàng (COD)"
+    : `Transfer content: ${data.transferContent}. QR: ${data.paymentQrUrl}`;
+  const message = `WeBee order ${data.orderId} total ${data.totalAmount}. ${paymentInfo}`;
 
   if (data.email) {
     await emailTransporter.sendMail({
@@ -335,8 +340,11 @@ const sendOrderNotification = async (data: {
         <p>Hi ${data.recipientName},</p>
         <p>Your WeBee order has been created.</p>
         <p>Total: <strong>${data.totalAmount}</strong></p>
-        <p>Transfer content: <strong>${data.transferContent}</strong></p>
-        <p><img src="${data.paymentQrUrl}" alt="Payment QR" /></p>
+        ${isCash
+          ? `<p>Phương thức thanh toán: <strong>Thanh toán khi nhận hàng (COD)</strong></p>`
+          : `<p>Transfer content: <strong>${data.transferContent}</strong></p>
+             <p><img src="${data.paymentQrUrl}" alt="Payment QR" /></p>`
+        }
         ${activationUrl ? `<p>Activate your account: <a href="${activationUrl}">${activationUrl}</a></p>` : ""}
       `
     });
@@ -422,6 +430,8 @@ export const createOrder = async (
         paymentStatus: "pending",
         orderStatus: "pending",
         note: input.note,
+        cardType: input.cardType,
+        cardMessage: input.cardMessage,
         items: {
           create: buildOrderItems(cart.items)
         }
@@ -433,8 +443,11 @@ export const createOrder = async (
 
   await clearCart(cartIdentity);
 
-  const paymentQrUrl = getStaticQrUrl();
-  const transferContent = getTransferContent(createdOrder.order.orderId);
+  const isTransfer = input.paymentMethod === "transfer";
+  const paymentQrUrl = isTransfer ? getStaticQrUrl() : null;
+  const transferContent = isTransfer
+    ? getTransferContent(createdOrder.order.orderId)
+    : null;
 
   try {
     await sendOrderNotification({

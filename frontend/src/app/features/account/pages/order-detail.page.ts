@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 
-import { UsersApi } from '../../../core/api/users.api';
+import { OrdersApi } from '../../../core/api/orders.api';
 import { ReviewsApi } from '../../../core/api/reviews.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Order } from '../../../core/models/order.model';
@@ -18,7 +18,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 })
 export class AccountOrderDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
-  private readonly usersApi = inject(UsersApi);
+  private readonly ordersApi = inject(OrdersApi);
   private readonly reviewsApi = inject(ReviewsApi);
   private readonly toastService = inject(ToastService);
 
@@ -41,7 +41,7 @@ export class AccountOrderDetailPage implements OnInit {
 
   ngOnInit(): void {
     const orderId = this.route.snapshot.paramMap.get('orderId')!;
-    this.usersApi.getOrder(orderId).subscribe({
+    this.ordersApi.getMyOrder(orderId).subscribe({
       next: (o) => { this.order.set(o); this.loading.set(false); },
       error: () => this.loading.set(false),
     });
@@ -51,7 +51,7 @@ export class AccountOrderDetailPage implements OnInit {
     const o = this.order();
     if (!o) return;
     this.cancelling.set(true);
-    this.usersApi.cancelOrder(o.orderId).subscribe({
+    this.ordersApi.cancelOrder(o.orderId).subscribe({
       next: (updated) => { this.order.set(updated); this.cancelling.set(false); this.toastService.success('Đơn hàng đã được hủy.'); },
       error: () => { this.cancelling.set(false); this.toastService.error('Hủy đơn thất bại.'); },
     });

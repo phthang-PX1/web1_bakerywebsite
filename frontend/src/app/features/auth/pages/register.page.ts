@@ -55,7 +55,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       }
 
       <p class="auth-card__footer">
-        Đã có tài khoản? <a class="auth-link" routerLink="/login">Đăng nhập</a>
+        Đã có tài khoản? <a class="auth-link" routerLink="/auth/login">Đăng nhập</a>
       </p>
     </div>
   `,

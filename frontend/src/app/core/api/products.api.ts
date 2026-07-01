@@ -34,7 +34,11 @@ export class ProductsApi {
   private buildProductParams(params: ProductListParams): HttpParams {
     let httpParams = new HttpParams();
 
-    if (params.category) httpParams = httpParams.set('category', params.category);
+    if (params.categories && params.categories.length > 0) {
+      params.categories.forEach(slug => {
+        httpParams = httpParams.append('category', slug);
+      });
+    }
     if (params.search) httpParams = httpParams.set('search', params.search);
     if (params.minPrice !== undefined) httpParams = httpParams.set('min_price', String(params.minPrice));
     if (params.maxPrice !== undefined) httpParams = httpParams.set('max_price', String(params.maxPrice));

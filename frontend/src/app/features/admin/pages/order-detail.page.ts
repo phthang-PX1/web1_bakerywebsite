@@ -55,7 +55,7 @@ const STATUS_FLOW: OrderStatus[] = ['pending', 'confirmed', 'processing', 'deliv
           <div class="info-card">
             <p class="info-card__title">Thanh toán</p>
             <dl>
-              <div class="info-card__row"><dt>Phương thức:</dt><dd>{{ o.paymentMethod === 'cod' ? 'COD' : 'Chuyển khoản' }}</dd></div>
+              <div class="info-card__row"><dt>Phương thức:</dt><dd>{{ o.paymentMethod === 'cash' ? 'COD' : 'Chuyển khoản' }}</dd></div>
               <div class="info-card__row"><dt>Trạng thái TT:</dt><dd>{{ o.paymentStatus }}</dd></div>
               <div class="info-card__row"><dt>Tổng tiền:</dt><dd>{{ o.totalAmount | currencyVnd }}</dd></div>
               @if (o.discountAmount && o.discountAmount > 0) {

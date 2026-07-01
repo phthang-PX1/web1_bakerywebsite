@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+﻿import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 
@@ -66,7 +66,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
               <label>Ảnh sản phẩm</label>
               <div style="display:flex;align-items:center;gap:16px;margin-bottom:12px">
                 <img
-                  [src]="currentProduct()!.thumbnailUrl ?? '/assets/images/product-placeholder.webp'"
+                  [src]="currentProduct()!.thumbnailUrl ?? '/assets/images/product-placeholder.svg'"
                   alt="thumbnail"
                   style="width:80px;height:80px;border-radius:8px;object-fit:cover;border:1px solid #f3f4f6"
                   appImgFallback

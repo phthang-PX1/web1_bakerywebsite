@@ -1,101 +1,121 @@
 <div class="product-list-page">
+  <div class="page-header">
+    <div class="page-header__inner">
+      <h1 class="page-header__title">Menu Bánh</h1>
+    </div>
+  </div>
   <div class="product-list-page__inner">
-    <!-- Sidebar filters -->
-    <aside class="filters">
-      <h2 class="filters__title">Lọc sản phẩm</h2>
 
-      <div class="filters__group">
-        <h3 class="filters__group-title">Danh mục</h3>
-        <ul class="filters__list">
-          <li>
-            <button
-              class="filters__item"
-              [class.filters__item--active]="selectedCategory() === ''"
-              (click)="onCategoryChange('')"
-            >Tất cả</button>
+    <!-- Filters sidebar -->
+    <aside class="sidebar">
+      <h2 class="sidebar__title">Bộ lọc</h2>
+
+      <!-- Price range slider -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__section-title">Lọc theo giá trị</h3>
+        <div class="price-slider-wrap">
+          <div class="price-track-wrap"
+            [style.--min-pct]="minPct() + '%'"
+            [style.--max-pct]="maxPct() + '%'">
+            <input
+              type="range"
+              class="price-slider price-slider--min"
+              min="0"
+              [max]="MAX_PRICE"
+              step="10000"
+              [value]="minPriceSlider()"
+              (input)="onMinPriceSlider($any($event.target).value)"
+            />
+            <input
+              type="range"
+              class="price-slider price-slider--max"
+              min="0"
+              [max]="MAX_PRICE"
+              step="10000"
+              [value]="maxPriceSlider()"
+              (input)="onMaxPriceSlider($any($event.target).value)"
+            />
+          </div>
+          <div class="price-slider-labels">
+            <span>{{ formatPrice(minPriceSlider()) }}</span>
+            <span>{{ formatPrice(maxPriceSlider()) }}</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Category checkboxes -->
+      <div class="sidebar__section">
+        <h3 class="sidebar__section-title">Danh mục sản phẩm</h3>
+        <ul class="category-list">
+          <li class="category-item">
+            <label class="category-label category-label--all">
+              <input
+                type="checkbox"
+                class="category-checkbox"
+                [checked]="selectedCategories().size === 0"
+                (click)="clearCategories()"
+              />
+              <span>Tất cả sản phẩm</span>
+            </label>
           </li>
           @for (cat of categories(); track cat.categoryId) {
-            <li>
-              <button
-                class="filters__item"
-                [class.filters__item--active]="selectedCategory() === cat.slug"
-                (click)="onCategoryChange(cat.slug)"
-              >{{ cat.name }}</button>
+            <li class="category-item">
+              <label class="category-label">
+                <input
+                  type="checkbox"
+                  class="category-checkbox"
+                  [checked]="isCategorySelected(cat.slug)"
+                  (click)="onCategoryToggle(cat.slug)"
+                />
+                <span>{{ cat.name }}</span>
+              </label>
             </li>
           }
         </ul>
       </div>
-
-      <div class="filters__group">
-        <h3 class="filters__group-title">Khoảng giá</h3>
-        <div class="filters__price-range">
-          <input type="number" class="filters__price-input" placeholder="Từ" [value]="minPrice()" (input)="minPrice.set(+$any($event.target).value || undefined)" />
-          <span>—</span>
-          <input type="number" class="filters__price-input" placeholder="Đến" [value]="maxPrice()" (input)="maxPrice.set(+$any($event.target).value || undefined)" />
-        </div>
-        <button class="filters__apply-btn" (click)="onPageChange(1)">Áp dụng</button>
-      </div>
     </aside>
 
     <!-- Main content -->
-    <section class="product-grid-section">
-      <div class="product-grid-section__toolbar">
-        <div class="search-bar">
-          <svg class="search-bar__icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-          <input
-            type="search"
-            class="search-bar__input"
-            placeholder="Tìm kiếm bánh…"
-            [value]="searchQuery()"
-            (input)="onSearch($any($event.target).value)"
-            aria-label="Tìm kiếm sản phẩm"
-          />
+    <main class="products-main">
+      <div class="products-toolbar">
+        <div class="search-input-wrap">
+          <input type="text" class="search-input" placeholder="Tìm kiếm bánh..."
+            [value]="searchQuery()" (input)="onSearch($any($event.target).value)" />
         </div>
-
-        <div class="toolbar__sort">
-          <label class="toolbar__sort-label" for="sort">Sắp xếp:</label>
-          <select id="sort" class="toolbar__sort-select" [value]="selectedSort()" (change)="onSortChange($any($event.target).value)">
-            @for (opt of sortOptions; track opt.value) {
-              <option [value]="opt.value">{{ opt.label }}</option>
-            }
-          </select>
-        </div>
+        <select class="sort-select" [value]="selectedSort()" (change)="onSortChange($any($event.target).value)">
+          @for (opt of sortOptions; track opt.value) {
+            <option [value]="opt.value">{{ opt.label }}</option>
+          }
+        </select>
       </div>
 
-      @if (totalItems() > 0) {
-        <p class="product-grid-section__count">{{ totalItems() }} sản phẩm</p>
-      }
-
       @if (loading()) {
-        <app-loading-spinner />
+        <div class="products-grid">
+          @for (i of [1,2,3,4,5,6,7,8,9]; track i) {
+            <div class="product-skeleton"></div>
+          }
+        </div>
       } @else if (error()) {
-        <div class="state-error">
+        <div class="error-state">
           <p>{{ error() }}</p>
-          <button class="btn-retry" (click)="onPageChange(currentPage())">Thử lại</button>
+          <button class="btn-retry" (click)="onPageChange(1)">Thử lại</button>
         </div>
       } @else if (products().length === 0) {
-        <div class="state-empty">
-          <p>🍰 Không tìm thấy sản phẩm phù hợp.</p>
-          <button class="btn-retry" (click)="onCategoryChange('')">Xem tất cả sản phẩm</button>
+        <div class="empty-state">
+          <p>Không tìm thấy sản phẩm phù hợp.</p>
+          <button class="btn-retry" (click)="clearFilters()">Xóa bộ lọc</button>
         </div>
       } @else {
-        <div class="product-grid">
+        <p class="results-count">{{ totalItems() }} sản phẩm</p>
+        <div class="products-grid">
           @for (product of products(); track product.productId) {
             <app-product-card
               [product]="toProductCard(product)"
-              (addToCart)="addToCart($event)"
             />
           }
         </div>
-
-        <app-pagination
-          [currentPage]="currentPage()"
-          [totalPages]="totalPages()"
-          (pageChange)="onPageChange($event)"
-        />
+        <app-pagination [currentPage]="currentPage()" [totalPages]="totalPages()" (pageChange)="onPageChange($event)" />
       }
-    </section>
+    </main>
   </div>
 </div>

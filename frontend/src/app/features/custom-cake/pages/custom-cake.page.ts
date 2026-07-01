@@ -1,4 +1,4 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { Router } from '@angular/router';
 
 import { ProductsApi } from '../../../core/api/products.api';
@@ -127,7 +127,7 @@ export class CustomCakePage implements OnInit {
     const opts = this.selectedOptions();
     const withImage = opts.find((o) => o.imageUrl);
     if (withImage) return withImage.imageUrl!;
-    return this.customProduct()?.thumbnailUrl ?? '/assets/images/product-placeholder.webp';
+    return this.customProduct()?.thumbnailUrl ?? '/assets/images/product-placeholder.svg';
   });
 
   readonly totalPrice = computed(() => {
@@ -146,7 +146,7 @@ export class CustomCakePage implements OnInit {
   ngOnInit(): void {
     this.productsApi.getProducts({ search: 'custom', limit: 10 }).subscribe({
       next: (res) => {
-        const custom = res.data.find((p) => p.isCustomizable) ?? res.data[0] ?? null;
+        const custom = res.items.find((p) => p.isCustomizable) ?? res.items[0] ?? null;
         if (!custom) { this.loading.set(false); return; }
         this.customProduct.set(custom);
         this.optionsApi.getProductOptions(custom.productId).subscribe({

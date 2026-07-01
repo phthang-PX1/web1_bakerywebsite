@@ -16,6 +16,8 @@ export type OrderCreateInput = {
   couponCode?: string;
   paymentMethod: PaymentMethod;
   note?: string;
+  cardType: string;
+  cardMessage?: string;
 };
 
 export type PaymentWebhookInput = {

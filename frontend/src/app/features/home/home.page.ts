@@ -6,10 +6,6 @@ import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
 import type { Category } from '../../core/models/category.model';
 import type { Product } from '../../core/models/product.model';
-import { CartService } from '../../core/services/cart.service';
-import { SiteFooterComponent } from '../../shared/components/site-footer/site-footer.component';
-import { SiteHeaderComponent } from '../../shared/components/site-header/site-header.component';
-import type { ProductCardViewModel } from '../../shared/components/product-card/product-card.component';
 import { CategoryShortcutsComponent } from './components/category-shortcuts/category-shortcuts.component';
 import { CustomCakeCtaComponent } from './components/custom-cake-cta/custom-cake-cta.component';
 import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
@@ -28,8 +24,6 @@ const SECTION_ERROR = 'Không thể tải dữ liệu lúc này. Vui lòng thử
     HeroBannerComponent,
     MembershipFaqComponent,
     ProductSectionComponent,
-    SiteFooterComponent,
-    SiteHeaderComponent
   ],
   templateUrl: './home.page.html',
   styleUrl: './home.page.scss'
@@ -37,7 +31,6 @@ const SECTION_ERROR = 'Không thể tải dữ liệu lúc này. Vui lòng thử
 export class HomePage {
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly productsApi = inject(ProductsApi);
-  private readonly cartService = inject(CartService);
   private readonly destroyRef = inject(DestroyRef);
 
   protected readonly categoriesState = signal<HomeSectionState<HomeCategoryItem>>({
@@ -63,17 +56,6 @@ export class HomePage {
     this.loadBestSellers();
   }
 
-  protected addToCart(product: ProductCardViewModel): void {
-    this.cartService
-      .addItem({
-        product_id: product.id,
-        quantity: 1,
-        option_item_ids: []
-      })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe();
-  }
-
   private loadCategories(): void {
     this.categoriesApi
       .getCategories()
@@ -97,7 +79,7 @@ export class HomePage {
     this.productsApi
       .getProducts({ sort: 'newest', limit: 4, page: 1 })
       .pipe(
-        map((response) => response.data.map((product) => this.mapProduct(product))),
+        map((response) => response.items.map((product) => this.mapProduct(product))),
         catchError(() => {
           this.newProductsState.update((state) => ({ ...state, error: SECTION_ERROR }));
           return of(null);
@@ -118,7 +100,7 @@ export class HomePage {
       .getProducts({ sort: 'rating_desc', limit: 4, page: 1 })
       .pipe(
         map((response) =>
-          response.data.map((product, index) => ({
+          response.items.map((product, index) => ({
             ...this.mapProduct(product),
             badge: index < 2 ? 'Phổ biến' : undefined
           }))
@@ -154,9 +136,11 @@ export class HomePage {
       name: product.name,
       imageUrl: product.thumbnailUrl ?? FEATURED_PRODUCT_FALLBACK[0].imageUrl,
       price: product.basePrice,
-      rating: product.avgRating > 0 ? product.avgRating : 4.8,
-      reviewCount: product.avgRating > 0 ? 24 : 0,
-      slug: product.slug
+      rating: product.avgRating,
+      reviewCount: product.reviewCount,
+      slug: product.slug,
+      isCustomizable: product.isCustomizable,
+      hasRequiredOptions: product.hasRequiredOptions
     };
   }
 }

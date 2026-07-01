@@ -1,8 +1,15 @@
 :root {
-  color: #3a2a22;
-  background: #fbf8f1;
+  --color-espresso:   #2b1a0f;
+  --color-caramel:    #c47a2b;
+  --color-honey:      #f5c842;
+  --color-cream:      #fdfbf5;
+  --color-warm-white: #ffffff;
+  --color-muted:      #7a6555;
+
+  color: #2b1a0f;
+  background: #fdfbf5;
   font-family:
-    Inter,
+    "Be Vietnam Pro",
     ui-sans-serif,
     system-ui,
     -apple-system,
@@ -23,7 +30,14 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: #fbf8f1;
+  background: #fdfbf5;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
 }
 
 button,

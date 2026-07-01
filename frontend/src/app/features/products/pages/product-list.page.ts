@@ -10,23 +10,23 @@ import type { Product, ProductSort } from '../../../core/models/product.model';
 import type { Category } from '../../../core/models/category.model';
 import { ProductCardComponent, type ProductCardViewModel } from '../../../shared/components/product-card/product-card.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { CartService } from '../../../core/services/cart.service';
-import { ToastService } from '../../../core/services/toast.service';
+
+const MAX_PRICE = 999999;
+
 @Component({
   selector: 'app-product-list-page',
   standalone: true,
-  imports: [FormsModule, ProductCardComponent, PaginationComponent, LoadingSpinnerComponent],
+  imports: [FormsModule, ProductCardComponent, PaginationComponent],
   templateUrl: './product-list.page.html',
   styleUrl: './product-list.page.scss',
 })
 export class ProductListPage implements OnInit {
   private readonly productsApi = inject(ProductsApi);
   private readonly categoriesApi = inject(CategoriesApi);
-  private readonly cartService = inject(CartService);
-  private readonly toastService = inject(ToastService);
-  private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
+
+  readonly MAX_PRICE = MAX_PRICE;
 
   readonly products = signal<Product[]>([]);
   readonly categories = signal<Category[]>([]);
@@ -37,12 +37,20 @@ export class ProductListPage implements OnInit {
 
   readonly currentPage = signal(1);
   readonly searchQuery = signal('');
-  readonly selectedCategory = signal('');
+  readonly selectedCategories = signal<Set<string>>(new Set());
   readonly selectedSort = signal<ProductSort>('newest');
-  readonly minPrice = signal<number | undefined>(undefined);
-  readonly maxPrice = signal<number | undefined>(undefined);
+
+  readonly minPriceSlider = signal(0);
+  readonly maxPriceSlider = signal(MAX_PRICE);
+
+  readonly minPrice = computed(() => this.minPriceSlider() > 0 ? this.minPriceSlider() : undefined);
+  readonly maxPrice = computed(() => this.maxPriceSlider() < MAX_PRICE ? this.maxPriceSlider() : undefined);
+  readonly minPct = computed(() => (this.minPriceSlider() / MAX_PRICE) * 100);
+  readonly maxPct = computed(() => (this.maxPriceSlider() / MAX_PRICE) * 100);
 
   private readonly searchInput$ = new Subject<string>();
+  // Tracks the last URL-sourced category key to avoid re-applying when sidebar is active
+  private _lastNavCategoryKey = '';
 
   readonly sortOptions: { value: ProductSort; label: string }[] = [
     { value: 'newest', label: 'Mới nhất' },
@@ -52,29 +60,65 @@ export class ProductListPage implements OnInit {
   ];
 
   constructor() {
-    this.searchInput$.pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed()).subscribe((q) => {
-      this.searchQuery.set(q);
-      this.currentPage.set(1);
-      this.loadProducts();
-    });
+    this.searchInput$
+      .pipe(debounceTime(400), distinctUntilChanged(), takeUntilDestroyed())
+      .subscribe((q) => {
+        this.searchQuery.set(q);
+        this.currentPage.set(1);
+        this.loadProducts();
+      });
+
+    // queryParamMap emits on every navigation (header dropdown → /products?category=xxx).
+    // We only apply URL categories when the key actually changed, never overwrite sidebar state.
+    this.route.queryParamMap
+      .pipe(takeUntilDestroyed())
+      .subscribe((params) => {
+        const cats = params.getAll('category');
+        const q = params.get('q') ?? '';
+        const navKey = [...cats].sort().join(',');
+
+        if (navKey !== this._lastNavCategoryKey) {
+          // A real navigation happened (header dropdown, direct URL)
+          this._lastNavCategoryKey = navKey;
+          this.selectedCategories.set(cats.length > 0 ? new Set(cats) : new Set());
+          this.searchQuery.set(q);
+          this.currentPage.set(1);
+          this.loadProducts();
+        }
+        // If navKey === _lastNavCategoryKey, this is a re-emit from Angular internals.
+        // Do nothing — sidebar state in selectedCategories is authoritative.
+      });
   }
 
   ngOnInit(): void {
     this.categoriesApi.getCategories().subscribe({ next: (cats) => this.categories.set([...cats]) });
-    const params = this.route.snapshot.queryParamMap;
-    this.selectedCategory.set(params.get('category') ?? '');
-    this.searchQuery.set(params.get('q') ?? '');
+  }
+
+  isCategorySelected(slug: string): boolean {
+    return this.selectedCategories().has(slug);
+  }
+
+  onCategoryToggle(slug: string): void {
+    const current = new Set(this.selectedCategories());
+    if (current.has(slug)) {
+      current.delete(slug);
+    } else {
+      current.add(slug);
+    }
+    this.selectedCategories.set(current);
+    console.log('[DEBUG] selectedCategories after toggle:', [...this.selectedCategories()]);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  clearCategories(): void {
+    this.selectedCategories.set(new Set());
+    this.currentPage.set(1);
     this.loadProducts();
   }
 
   onSearch(q: string): void {
     this.searchInput$.next(q);
-  }
-
-  onCategoryChange(slug: string): void {
-    this.selectedCategory.set(slug);
-    this.currentPage.set(1);
-    this.loadProducts();
   }
 
   onSortChange(sort: ProductSort): void {
@@ -88,11 +132,31 @@ export class ProductListPage implements OnInit {
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }
 
-  addToCart(product: ProductCardViewModel): void {
-    this.cartService.addItem({ product_id: product.id, quantity: 1, option_item_ids: [] }).subscribe({
-      next: () => this.toastService.success(`Đã thêm "${product.name}" vào giỏ hàng.`),
-      error: () => this.toastService.error('Không thể thêm vào giỏ hàng. Vui lòng thử lại.'),
-    });
+  onMinPriceSlider(val: string): void {
+    const v = Math.min(+val, this.maxPriceSlider() - 10000);
+    this.minPriceSlider.set(Math.max(0, v));
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  onMaxPriceSlider(val: string): void {
+    const v = Math.max(+val, this.minPriceSlider() + 10000);
+    this.maxPriceSlider.set(Math.min(MAX_PRICE, v));
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  clearFilters(): void {
+    this.selectedCategories.set(new Set());
+    this.minPriceSlider.set(0);
+    this.maxPriceSlider.set(MAX_PRICE);
+    this.currentPage.set(1);
+    this.loadProducts();
+  }
+
+  formatPrice(value: number): string {
+    if (value >= MAX_PRICE) return '999.999 đ';
+    return value.toLocaleString('vi-VN') + ' đ';
   }
 
   toProductCard(p: Product): ProductCardViewModel {
@@ -104,14 +168,18 @@ export class ProductListPage implements OnInit {
       rating: p.avgRating,
       reviewCount: p.reviewCount,
       slug: p.slug,
+      isCustomizable: p.isCustomizable,
+      hasRequiredOptions: p.hasRequiredOptions,
     };
   }
 
   private loadProducts(): void {
     this.loading.set(true);
     this.error.set('');
+    const cats = [...this.selectedCategories()];
+    console.log('[DEBUG] loadProducts called with cats:', cats);
     this.productsApi.getProducts({
-      category: this.selectedCategory() || undefined,
+      categories: cats.length > 0 ? cats : undefined,
       search: this.searchQuery() || undefined,
       sort: this.selectedSort(),
       page: this.currentPage(),
@@ -120,9 +188,9 @@ export class ProductListPage implements OnInit {
       maxPrice: this.maxPrice(),
     }).subscribe({
       next: (res) => {
-        this.products.set([...res.data]);
-        this.totalPages.set(res.totalPages);
-        this.totalItems.set(res.total);
+        this.products.set([...res.items]);
+        this.totalPages.set(res.pagination.totalPages);
+        this.totalItems.set(res.pagination.total);
         this.loading.set(false);
       },
       error: () => {

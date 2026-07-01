@@ -1,12 +1,12 @@
 import type { HomeCategoryItem, HomeFaqItem, HomeProductCard } from './home.models';
 
 export const HOME_CATEGORIES: readonly HomeCategoryItem[] = [
-  { id: 'gato', name: 'Bánh Gato', icon: 'cake', slug: 'banh-gato' },
-  { id: 'entremet', name: 'Bánh Entremet', icon: 'slice', slug: 'banh-entremet' },
-  { id: 'mousse', name: 'Bánh Mousse', icon: 'mousse', slug: 'banh-mousse' },
-  { id: 'tiramisu', name: 'Tiramisu', icon: 'cup', slug: 'tiramisu' },
-  { id: 'mini-cakes', name: 'Mini Cakes', icon: 'mini', slug: 'mini-cakes' },
-  { id: 'baked', name: 'Bánh Nướng', icon: 'bread', slug: 'banh-nuong' }
+  { id: 'gato', name: 'Bánh Gato', icon: '🎂', slug: 'banh-gato' },
+  { id: 'entremet', name: 'Bánh Entremet', icon: '🍰', slug: 'banh-entremet' },
+  { id: 'mousse', name: 'Bánh Mousse', icon: '🍨', slug: 'banh-mousse' },
+  { id: 'tiramisu', name: 'Tiramisu', icon: '☕', slug: 'tiramisu' },
+  { id: 'mini-cakes', name: 'Mini Cakes', icon: '🧁', slug: 'mini-cakes' },
+  { id: 'baked', name: 'Bánh Nướng', icon: '🍞', slug: 'banh-nuong' }
 ];
 
 export const FEATURED_PRODUCT_FALLBACK: readonly HomeProductCard[] = [

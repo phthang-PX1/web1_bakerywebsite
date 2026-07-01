@@ -4,6 +4,7 @@ import { Observable } from 'rxjs';
 
 import { environment } from '../../../environments/environment';
 import type {
+  AuthResponse,
   AuthTokens,
   ForgotPasswordRequest,
   LoginRequest,
@@ -21,11 +22,11 @@ export class AuthApi {
   }
 
   activate(token: string): Observable<{ message: string }> {
-    return this.http.get<{ message: string }>(`${this.base}/activate`, { params: { token } });
+    return this.http.post<{ message: string }>(`${this.base}/activate/${token}`, {});
   }
 
-  login(body: LoginRequest): Observable<AuthTokens> {
-    return this.http.post<AuthTokens>(`${this.base}/login`, body);
+  login(body: LoginRequest): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/login`, body);
   }
 
   refresh(refreshToken: string): Observable<AuthTokens> {

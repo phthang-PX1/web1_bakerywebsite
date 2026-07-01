@@ -6,13 +6,12 @@ import { AsyncPipe } from '@angular/common';
 import { UsersApi } from '../../../core/api/users.api';
 import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
-import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 
 @Component({
   selector: 'app-profile-page',
   standalone: true,
-  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, LoadingSpinnerComponent, ImgFallbackDirective],
+  imports: [AsyncPipe, ReactiveFormsModule, RouterLink, ImgFallbackDirective],
   templateUrl: './profile.page.html',
   styleUrl: './account-form.page.scss',
 })
@@ -31,7 +30,7 @@ export class ProfilePage implements OnInit {
   });
 
   readonly passwordForm = new FormGroup({
-    currentPassword: new FormControl('', [Validators.required]),
+    oldPassword: new FormControl('', [Validators.required]),
     newPassword: new FormControl('', [Validators.required, Validators.minLength(8)]),
   });
 
@@ -64,7 +63,7 @@ export class ProfilePage implements OnInit {
     if (this.passwordForm.invalid) return;
     this.savingPassword.set(true);
     this.usersApi.changePassword({
-      currentPassword: this.passwordForm.value.currentPassword!,
+      oldPassword: this.passwordForm.value.oldPassword!,
       newPassword: this.passwordForm.value.newPassword!,
     }).subscribe({
       next: () => {

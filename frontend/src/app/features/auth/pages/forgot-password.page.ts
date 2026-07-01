@@ -38,7 +38,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       }
 
       <p class="auth-card__footer">
-        <a class="auth-link" routerLink="/login">← Quay lại đăng nhập</a>
+        <a class="auth-link" routerLink="/auth/login">← Quay lại đăng nhập</a>
       </p>
     </div>
   `,

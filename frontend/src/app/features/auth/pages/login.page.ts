@@ -19,17 +19,17 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 
       <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
         <div class="field">
-          <label class="field__label" for="identifier">Email hoặc số điện thoại</label>
+          <label class="field__label" for="email">Email</label>
           <input
-            id="identifier"
-            type="text"
+            id="email"
+            type="email"
             class="field__input"
-            formControlName="identifier"
+            formControlName="email"
             placeholder="example@email.com"
             autocomplete="username"
           />
-          @if (form.controls.identifier.invalid && form.controls.identifier.touched) {
-            <p class="field__error">Vui lòng nhập email hoặc số điện thoại.</p>
+          @if (form.controls.email.invalid && form.controls.email.touched) {
+            <p class="field__error">Vui lòng nhập địa chỉ email hợp lệ.</p>
           }
         </div>
 
@@ -89,7 +89,7 @@ export class LoginPage {
   readonly googleUrl = this.authApi.googleRedirect();
 
   readonly form = new FormGroup({
-    identifier: new FormControl('', [Validators.required]),
+    email: new FormControl('', [Validators.required, Validators.email]),
     password: new FormControl('', [Validators.required]),
   });
 
@@ -100,8 +100,8 @@ export class LoginPage {
     this.loading.set(true);
     this.error.set('');
 
-    const { identifier, password } = this.form.value;
-    this.authService.login({ identifier: identifier!, password: password! }).subscribe({
+    const { email, password } = this.form.value;
+    this.authService.login({ email: email!, password: password! }).subscribe({
       next: () => {
         this.cartService.mergeGuestCart();
         const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
@@ -110,7 +110,8 @@ export class LoginPage {
       error: (err) => {
         this.loading.set(false);
         const status = err?.status;
-        if (status === 401) this.error.set('Email/số điện thoại hoặc mật khẩu không đúng.');
+        if (status === 401) this.error.set('Email hoặc mật khẩu không đúng.');
+        else if (status === 403) this.error.set('Tài khoản chưa được kích hoạt. Vui lòng kiểm tra email.');
         else this.error.set('Đăng nhập thất bại. Vui lòng thử lại.');
       },
     });

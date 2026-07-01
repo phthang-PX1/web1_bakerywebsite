@@ -50,7 +50,13 @@ export type CartOptionSnapshot = {
 export type CartItemResponse = {
   cartItemId: string;
   product: CartProductSnapshot;
+  // Flat fields mirrored at top level for frontend CartItem compatibility
+  productId: string;
+  name: string;
+  slug: string;
+  thumbnailUrl: string | null;
   quantity: number;
+  optionItemIds: string[];
   options: CartOptionSnapshot[];
   unitPrice: number;
   itemTotal: number;

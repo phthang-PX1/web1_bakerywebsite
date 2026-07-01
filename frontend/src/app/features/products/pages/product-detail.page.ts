@@ -1,9 +1,8 @@
-import { Component, OnInit, inject, signal, computed } from '@angular/core';
+﻿import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { AsyncPipe } from '@angular/common';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { ProductsApi } from '../../../core/api/products.api';
-import { OptionsApi } from '../../../core/api/options.api';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Product, OptionGroup, OptionItem } from '../../../core/models/product.model';
@@ -14,6 +13,7 @@ import { StarRatingComponent } from '../../../shared/components/star-rating/star
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 import { QuantityStepperComponent } from '../../../shared/components/quantity-stepper/quantity-stepper.component';
+import { ProductCardComponent, type ProductCardViewModel } from '../../../shared/components/product-card/product-card.component';
 
 interface SelectedOption {
   groupId: string;
@@ -23,26 +23,28 @@ interface SelectedOption {
 @Component({
   selector: 'app-product-detail-page',
   standalone: true,
-  imports: [RouterLink, SlicePipe, CurrencyVndPipe, StarRatingComponent, LoadingSpinnerComponent, ImgFallbackDirective, QuantityStepperComponent],
+  imports: [RouterLink, SlicePipe, CurrencyVndPipe, StarRatingComponent, LoadingSpinnerComponent, ImgFallbackDirective, QuantityStepperComponent, ProductCardComponent],
   templateUrl: './product-detail.page.html',
   styleUrl: './product-detail.page.scss',
 })
 export class ProductDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly productsApi = inject(ProductsApi);
-  private readonly optionsApi = inject(OptionsApi);
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly product = signal<Product | null>(null);
   readonly optionGroups = signal<OptionGroup[]>([]);
   readonly reviews = signal<Review[]>([]);
+  readonly relatedProducts = signal<ProductCardViewModel[]>([]);
   readonly loading = signal(true);
   readonly error = signal('');
   readonly selectedImageIndex = signal(0);
   readonly quantity = signal(1);
   readonly addingToCart = signal(false);
-
+  readonly activeTab = signal<'description' | 'reviews'>('description');
+  readonly showOptions = signal(false);
   readonly selectedOptions = signal<SelectedOption[]>([]);
 
   readonly totalPrice = computed(() => {
@@ -51,11 +53,11 @@ export class ProductDetailPage implements OnInit {
     const optionsExtra = this.selectedOptions().reduce((sum, sel) => {
       for (const group of this.optionGroups()) {
         const item = group.items.find((i) => i.itemId === sel.itemId);
-        if (item) return sum + item.extraPrice;
+        if (item) return sum + Number(item.extraPrice);
       }
       return sum;
     }, 0);
-    return (p.basePrice + optionsExtra) * this.quantity();
+    return (Number(p.basePrice) + optionsExtra) * this.quantity();
   });
 
   readonly canAddToCart = computed(() => {
@@ -64,28 +66,81 @@ export class ProductDetailPage implements OnInit {
     return groups.every((g) => !g.isRequired || selected.some((s) => s.groupId === g.groupId));
   });
 
+  readonly hasRequiredOptions = computed(() => this.optionGroups().some((g) => g.isRequired));
+  readonly requiredGroups = computed(() => this.optionGroups().filter((g) => g.isRequired));
+  readonly optionalGroups = computed(() => this.optionGroups().filter((g) => !g.isRequired));
+  readonly unselectedRequiredCount = computed(() =>
+    this.requiredGroups().filter((g) => !this.selectedOptions().some((s) => s.groupId === g.groupId)).length
+  );
+
   readonly selectedImages = computed(() => {
     const p = this.product();
     if (!p) return [];
-    return p.images?.length ? p.images.map((i) => i.imageUrl) : [p.thumbnailUrl ?? '/assets/images/product-placeholder.webp'];
+    const imageUrls = p.images?.map((i) => i.imageUrl) ?? [];
+    const thumb = p.thumbnailUrl;
+    if (thumb && !imageUrls.includes(thumb)) {
+      return [thumb, ...imageUrls];
+    }
+    return imageUrls.length ? imageUrls : ['/assets/images/product-placeholder.svg'];
   });
 
   ngOnInit(): void {
-    const slug = this.route.snapshot.paramMap.get('slug')!;
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
+      const slug = params.get('slug')!;
+      this.resetState();
+      this.loadProduct(slug);
+    });
+  }
+
+  private resetState(): void {
+    this.product.set(null);
+    this.optionGroups.set([]);
+    this.reviews.set([]);
+    this.relatedProducts.set([]);
+    this.loading.set(true);
+    this.error.set('');
+    this.selectedImageIndex.set(0);
+    this.quantity.set(1);
+    this.selectedOptions.set([]);
+    this.showOptions.set(false);
+    this.activeTab.set('description');
+  }
+
+  private loadProduct(slug: string): void {
     this.productsApi.getProduct(slug).subscribe({
       next: (product) => {
         this.product.set(product);
         this.loading.set(false);
-        if (product.isCustomizable) {
-          this.optionsApi.getProductOptions(product.productId).subscribe({
-            next: (groups) => this.optionGroups.set([...groups]),
+        // optionGroups are already included in the product detail response
+        if (product.optionGroups && product.optionGroups.length > 0) {
+          this.optionGroups.set(product.optionGroups as OptionGroup[]);
+        }
+        this.productsApi.getProductReviews(product.productId, { limit: 5 }).subscribe({
+          next: (res) => this.reviews.set([...res.items]),
+          error: () => {},
+        });
+        if (product.category?.slug) {
+          this.productsApi.getProducts({ categories: [product.category.slug], limit: 8 }).subscribe({
+            next: (res) => {
+              const related = res.items
+                .filter((p) => p.productId !== product.productId)
+                .slice(0, 4)
+                .map((p): ProductCardViewModel => ({
+                  id: p.productId,
+                  name: p.name,
+                  imageUrl: p.thumbnailUrl,
+                  price: p.basePrice,
+                  rating: p.avgRating,
+                  reviewCount: p.reviewCount,
+                  slug: p.slug,
+                  isCustomizable: p.isCustomizable,
+                  hasRequiredOptions: p.hasRequiredOptions,
+                }));
+              this.relatedProducts.set(related);
+            },
             error: () => {},
           });
         }
-        this.productsApi.getProductReviews(product.productId, { limit: 5 }).subscribe({
-          next: (res) => this.reviews.set([...res.data]),
-          error: () => {},
-        });
       },
       error: () => {
         this.loading.set(false);
@@ -96,6 +151,14 @@ export class ProductDetailPage implements OnInit {
 
   selectImage(index: number): void {
     this.selectedImageIndex.set(index);
+  }
+
+  setTab(tab: 'description' | 'reviews'): void {
+    this.activeTab.set(tab);
+  }
+
+  toggleOptions(): void {
+    this.showOptions.update((v) => !v);
   }
 
   toggleOption(group: OptionGroup, item: OptionItem): void {

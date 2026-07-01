@@ -2,7 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { SlicePipe } from '@angular/common';
 
-import { UsersApi } from '../../../core/api/users.api';
+import { OrdersApi } from '../../../core/api/orders.api';
 import type { Order } from '../../../core/models/order.model';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
@@ -50,7 +50,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   styleUrl: './account.page.scss',
 })
 export class OrderHistoryPage implements OnInit {
-  private readonly usersApi = inject(UsersApi);
+  private readonly ordersApi = inject(OrdersApi);
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly page = signal(1);
@@ -65,10 +65,10 @@ export class OrderHistoryPage implements OnInit {
 
   loadPage(p: number): void {
     this.loading.set(true);
-    this.usersApi.getOrders({ page: p, limit: 10 }).subscribe({
+    this.ordersApi.getMyOrders({ page: p, limit: 10 }).subscribe({
       next: (res) => {
-        this.orders.set([...res.data]);
-        this.totalPages.set(res.totalPages);
+        this.orders.set([...res.items]);
+        this.totalPages.set(res.pagination.totalPages);
         this.page.set(p);
         this.loading.set(false);
       },

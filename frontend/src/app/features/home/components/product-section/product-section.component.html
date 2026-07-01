@@ -1,30 +1,35 @@
-<section class="product-section" [class.product-section--soft]="softBackground()" [attr.aria-labelledby]="title()">
+<section class="product-section" [class.product-section--soft]="softBackground()">
   <div class="product-section__inner">
     <div class="product-section__heading">
-      <div>
-        <h2 [id]="title()">{{ title() }}</h2>
+      <div class="product-section__heading-text">
+        <span class="product-section__eyebrow">{{ softBackground() ? 'Phổ biến nhất' : 'Ra mắt mới' }}</span>
+        <h2>{{ title() }}</h2>
         <p>{{ subtitle() }}</p>
       </div>
-      <a routerLink="/products">Xem tất cả →</a>
+      <a class="product-section__view-all" routerLink="/products">
+        Xem tất cả
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <path d="M5 12h14M12 5l7 7-7 7"/>
+        </svg>
+      </a>
     </div>
 
     @if (loading()) {
       <div class="product-grid">
-        @for (item of [1, 2, 3, 4]; track item) {
+        @for (i of [1,2,3,4]; track i) {
           <div class="product-skeleton"></div>
         }
       </div>
     } @else if (error()) {
-      <p class="product-state">{{ error() }}</p>
-    } @else if (products().length === 0) {
-      <p class="product-state">Chưa có sản phẩm phù hợp để hiển thị.</p>
-    } @else {
+      <div class="product-state">
+        <p>{{ error() }}</p>
+      </div>
+    } @else if (products().length > 0) {
       <div class="product-grid">
         @for (product of products(); track product.id) {
           <app-product-card
             [product]="product"
             [compact]="compactCards()"
-            (addToCart)="addToCart.emit($event)"
           />
         }
       </div>

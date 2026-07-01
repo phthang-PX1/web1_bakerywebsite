@@ -9,5 +9,5 @@ export const authGuard: CanActivateFn = (route) => {
   if (authService.isLoggedIn()) return true;
 
   const redirectUrl = route.url.map((s) => s.path).join('/');
-  return router.createUrlTree(['/login'], { queryParams: { redirect: redirectUrl || undefined } });
+  return router.createUrlTree(['/auth/login'], { queryParams: { redirect: redirectUrl || undefined } });
 };

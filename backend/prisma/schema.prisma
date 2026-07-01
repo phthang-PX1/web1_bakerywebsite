@@ -237,6 +237,8 @@ model Order {
   paymentStatus       PaymentStatus   @default(pending) @map("payment_status")
   orderStatus         OrderStatus     @default(pending) @map("order_status")
   note                String?
+  cardType            String          @default("none") @map("card_type") @db.VarChar(30)
+  cardMessage         String?         @map("card_message") @db.VarChar(300)
   loyaltyPointsEarned Int             @default(0) @map("loyalty_points_earned")
   loyaltyPointsUsed   Int             @default(0) @map("loyalty_points_used")
   createdAt           DateTime        @default(now()) @map("created_at")

@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -11,9 +11,8 @@ import type {
   UpdateProfileRequest,
   User,
 } from '../models/user.model';
-import type { LoyaltyInfo } from '../models/loyalty.model';
-import type { PaginatedResponse } from '../models/pagination.model';
-import type { Order, OrderListParams } from '../models/order.model';
+import type { LoyaltyInfo, LoyaltyLog } from '../models/loyalty.model';
+import type { PaginatedResponse, PaginationParams } from '../models/pagination.model';
 
 @Injectable({ providedIn: 'root' })
 export class UsersApi {
@@ -25,7 +24,7 @@ export class UsersApi {
   }
 
   updateProfile(body: UpdateProfileRequest): Observable<User> {
-    return this.http.put<User>(`${this.base}/me`, body);
+    return this.http.patch<User>(`${this.base}/me`, body);
   }
 
   uploadAvatar(file: File): Observable<{ avatarUrl: string }> {
@@ -35,7 +34,7 @@ export class UsersApi {
   }
 
   changePassword(body: ChangePasswordRequest): Observable<{ message: string }> {
-    return this.http.put<{ message: string }>(`${this.base}/me/password`, body);
+    return this.http.patch<{ message: string }>(`${this.base}/me/password`, body);
   }
 
   getAddresses(): Observable<Address[]> {
@@ -47,7 +46,7 @@ export class UsersApi {
   }
 
   updateAddress(addressId: string, body: UpdateAddressRequest): Observable<Address> {
-    return this.http.put<Address>(`${this.base}/me/addresses/${addressId}`, body);
+    return this.http.patch<Address>(`${this.base}/me/addresses/${addressId}`, body);
   }
 
   deleteAddress(addressId: string): Observable<void> {
@@ -58,19 +57,10 @@ export class UsersApi {
     return this.http.get<LoyaltyInfo>(`${this.base}/me/loyalty`);
   }
 
-  getOrders(params?: OrderListParams): Observable<PaginatedResponse<Order>> {
-    const queryParams: Record<string, string> = {};
-    if (params?.page) queryParams['page'] = String(params.page);
-    if (params?.limit) queryParams['limit'] = String(params.limit);
-    if (params?.status) queryParams['status'] = params.status;
-    return this.http.get<PaginatedResponse<Order>>(`${this.base}/me/orders`, { params: queryParams });
-  }
-
-  getOrder(orderId: string): Observable<Order> {
-    return this.http.get<Order>(`${this.base}/me/orders/${orderId}`);
-  }
-
-  cancelOrder(orderId: string): Observable<Order> {
-    return this.http.patch<Order>(`${this.base}/me/orders/${orderId}/cancel`, {});
+  getLoyaltyLogs(params: PaginationParams = {}): Observable<PaginatedResponse<LoyaltyLog>> {
+    let httpParams = new HttpParams();
+    if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
+    if (params.limit !== undefined) httpParams = httpParams.set('limit', String(params.limit));
+    return this.http.get<PaginatedResponse<LoyaltyLog>>(`${this.base}/me/loyalty-logs`, { params: httpParams });
   }
 }

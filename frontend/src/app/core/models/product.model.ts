@@ -38,6 +38,7 @@ export interface Product {
   readonly basePrice: number;
   readonly thumbnailUrl: string | null;
   readonly isCustomizable: boolean;
+  readonly hasRequiredOptions: boolean;
   readonly avgRating: number;
   readonly reviewCount: number;
   readonly isActive: boolean;
@@ -49,7 +50,7 @@ export interface Product {
 }
 
 export interface ProductListParams {
-  readonly category?: string;
+  readonly categories?: readonly string[];
   readonly search?: string;
   readonly minPrice?: number;
   readonly maxPrice?: number;
@@ -59,9 +60,11 @@ export interface ProductListParams {
 }
 
 export interface ProductListResponse {
-  readonly data: readonly Product[];
-  readonly total: number;
-  readonly totalPages: number;
-  readonly page: number;
-  readonly limit: number;
+  readonly items: readonly Product[];
+  readonly pagination: {
+    readonly total: number;
+    readonly totalPages: number;
+    readonly page: number;
+    readonly limit: number;
+  };
 }

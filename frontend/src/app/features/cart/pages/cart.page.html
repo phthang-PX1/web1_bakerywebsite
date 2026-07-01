@@ -1,83 +1,221 @@
+@let cart = cartService.cart$ | async;
+
 <div class="cart-page">
   <div class="cart-page__inner">
-    <h1 class="cart-page__title">Giỏ hàng</h1>
 
-    @let cart = cartService.cart$ | async;
-    @if (cart && cart.items.length > 0) {
-      <div class="cart-layout">
-        <section class="cart-items">
-          @for (item of cart.items; track item.cartItemId) {
-            <article class="cart-item">
-              <img class="cart-item__img" [src]="item.thumbnailUrl ?? ''" appImgFallback [alt]="item.name" />
-              <div class="cart-item__info">
-                <a class="cart-item__name" [routerLink]="['/products', item.slug]">{{ item.name }}</a>
-                @if (item.options.length > 0) {
-                  <p class="cart-item__options">{{ item.options.map(o => o.name).join(', ') }}</p>
-                }
-                <p class="cart-item__unit-price">{{ item.unitPrice | currencyVnd }} / cái</p>
-              </div>
-              <div class="cart-item__controls">
-                <app-quantity-stepper [quantity]="item.quantity" (quantityChange)="updateQuantity(item.cartItemId, $event)" />
-                <strong class="cart-item__total">{{ item.itemTotal | currencyVnd }}</strong>
-              </div>
-              <button class="cart-item__remove" (click)="removingItemId.set(item.cartItemId)" aria-label="Xóa sản phẩm">✕</button>
-            </article>
-          }
+    <header class="cart-page__header">
+      <h1 class="cart-page__title">Giỏ hàng</h1>
+      @if (cart && cart.items.length > 0) {
+        <span class="cart-page__count">{{ cart.totalQuantity }} sản phẩm</span>
+      }
+    </header>
 
-          <div class="cart-items__footer">
-            <button class="btn-clear" (click)="confirmClearOpen.set(true)">Xóa tất cả</button>
-            <a class="btn-continue" routerLink="/products">← Tiếp tục mua</a>
-          </div>
-        </section>
-
-        <aside class="cart-summary">
-          <h2 class="cart-summary__title">Tóm tắt đơn hàng</h2>
-          <div class="cart-summary__row">
-            <span>Tạm tính ({{ cart.totalQuantity }} sản phẩm)</span>
-            <span>{{ cart.subtotal | currencyVnd }}</span>
-          </div>
-          <div class="cart-summary__row">
-            <span>Phí vận chuyển</span>
-            <span class="text-success">Miễn phí</span>
-          </div>
-          <div class="cart-summary__row cart-summary__row--total">
-            <strong>Tổng cộng</strong>
-            <strong class="cart-summary__total-price">{{ cart.subtotal | currencyVnd }}</strong>
-          </div>
-          <a class="btn-checkout" routerLink="/checkout">Thanh toán ngay →</a>
-        </aside>
-      </div>
-    } @else {
+    @if (!cart || cart.items.length === 0) {
       <div class="cart-empty">
-        <p class="cart-empty__icon">🛒</p>
-        <h2>Giỏ hàng của bạn đang trống</h2>
-        <p>Hãy khám phá các sản phẩm bánh ngon của chúng tôi!</p>
-        <a class="btn-shop" routerLink="/products">Mua sắm ngay</a>
+        <div class="cart-empty__art">
+          <svg width="80" height="80" viewBox="0 0 80 80" fill="none" aria-hidden="true">
+            <circle cx="40" cy="40" r="38" fill="#FFF5EE" stroke="#F5D9C2" stroke-width="2"/>
+            <path d="M24 28h4l5 20h14l4-14H30" stroke="#C96A2E" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+            <circle cx="34" cy="52" r="2.5" fill="#C96A2E"/>
+            <circle cx="46" cy="52" r="2.5" fill="#C96A2E"/>
+          </svg>
+        </div>
+        <h2 class="cart-empty__heading">Giỏ hàng của bạn đang trống</h2>
+        <p class="cart-empty__sub">Hãy thêm những chiếc bánh yêu thích vào giỏ hàng nhé!</p>
+        <a class="btn btn--primary" routerLink="/products">Khám phá sản phẩm</a>
+      </div>
+
+    } @else {
+      <div class="cart-layout">
+
+        <!-- Items column -->
+        <div class="cart-items">
+          <div class="cart-items__bar">
+            <label class="select-all">
+              <input
+                type="checkbox"
+                [checked]="allSelected()"
+                [indeterminate]="selectedCount() > 0 && !allSelected()"
+                (change)="toggleAll(cart.items)"
+              />
+              <span>Chọn tất cả</span>
+            </label>
+            <button class="btn-clear" type="button" (click)="confirmClearOpen.set(true)">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 011-1h4a1 1 0 011 1v2"/></svg>
+              Xóa tất cả
+            </button>
+          </div>
+
+          @for (item of cart.items; track item.cartItemId) {
+            <div class="cart-item" [class.cart-item--selected]="selectedIds().has(item.cartItemId)">
+
+              <label class="cart-item__checkbox" [attr.aria-label]="'Chọn ' + item.name">
+                <input
+                  type="checkbox"
+                  [checked]="selectedIds().has(item.cartItemId)"
+                  (change)="toggleItem(item.cartItemId)"
+                />
+              </label>
+
+              <a class="cart-item__img-wrap" [routerLink]="['/products', item.slug]">
+                <img class="cart-item__img"
+                  [src]="item.thumbnailUrl ?? '/assets/images/product-placeholder.svg'"
+                  [appImgFallback]="'/assets/images/product-placeholder.svg'"
+                  [alt]="item.name" />
+              </a>
+
+              <div class="cart-item__body">
+                <div class="cart-item__name-row">
+                  <a class="cart-item__name" [routerLink]="['/products', item.slug]">{{ item.name }}</a>
+                  @if (item.options.length > 0) {
+                    <a class="cart-item__edit-btn" [routerLink]="['/products', item.slug]" title="Chỉnh sửa tùy chọn">
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M11 4H4a2 2 0 00-2 2v14a2 2 0 002 2h14a2 2 0 002-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 013 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      Sửa
+                    </a>
+                  }
+                </div>
+
+                @if (item.options.length > 0) {
+                  <div class="cart-item__options">
+                    @for (opt of item.options; track opt.itemId) {
+                      <span class="cart-item__opt-tag">
+                        <span class="cart-item__opt-group">{{ opt.groupName }}:</span>
+                        {{ opt.name }}
+                        @if (opt.extraPrice > 0) {
+                          <span class="cart-item__opt-price">+{{ opt.extraPrice | currencyVnd }}</span>
+                        }
+                      </span>
+                    }
+                  </div>
+                }
+
+                <div class="cart-item__unit">{{ item.unitPrice | currencyVnd }}<span class="cart-item__unit-label">&thinsp;/&thinsp;cái</span></div>
+
+                <div class="cart-item__actions">
+                  <app-quantity-stepper
+                    [quantity]="item.quantity"
+                    (quantityChange)="updateQuantity(item.cartItemId, $event)" />
+                  <span class="cart-item__total">{{ item.itemTotal | currencyVnd }}</span>
+                </div>
+              </div>
+
+              <button class="cart-item__remove" type="button" (click)="removingItemId.set(item.cartItemId)" aria-label="Xóa sản phẩm">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
+
+              <app-confirm-dialog
+                [open]="removingItemId() === item.cartItemId"
+                title="Xóa sản phẩm"
+                [message]="'Bạn có muốn xóa ' + item.name + ' khỏi giỏ hàng?'"
+                confirmLabel="Xóa"
+                cancelLabel="Hủy"
+                (confirm)="removeItem(item.cartItemId)"
+                (cancel)="removingItemId.set(null)"
+              />
+            </div>
+          }
+        </div>
+
+        <!-- Summary column -->
+        <aside class="cart-summary">
+          @if (selectedCount() > 0) {
+            <!-- Selection mode -->
+            <div class="cart-summary__sel-header">
+              <div class="cart-summary__sel-badge">
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+                {{ selectedCount() }} sản phẩm được chọn
+              </div>
+            </div>
+
+            <div class="cart-summary__lines">
+              <div class="cart-summary__line">
+                <span>Tạm tính</span>
+                <span>{{ selectedSubtotal() | currencyVnd }}</span>
+              </div>
+              <div class="cart-summary__line">
+                <span>Phí vận chuyển</span>
+                <span class="cart-summary__free">Miễn phí</span>
+              </div>
+            </div>
+
+            <div class="cart-summary__divider"></div>
+
+            <div class="cart-summary__total">
+              <span>Tổng cộng</span>
+              <strong class="cart-summary__total-price">{{ selectedSubtotal() | currencyVnd }}</strong>
+            </div>
+
+            <button class="btn btn--primary btn--full" (click)="checkoutSelected()">
+              Đặt hàng ({{ selectedCount() }})
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </button>
+
+            <button class="btn btn--danger btn--full" type="button" (click)="confirmRemoveSelectedOpen.set(true)">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 01-2 2H8a2 2 0 01-2-2L5 6"/></svg>
+              Xóa {{ selectedCount() }} sản phẩm đã chọn
+            </button>
+
+            <button class="cart-summary__deselect" type="button" (click)="clearSelection()">
+              Bỏ chọn tất cả
+            </button>
+
+          } @else {
+            <!-- Full cart mode -->
+            <h2 class="cart-summary__title">Tóm tắt đơn hàng</h2>
+
+            <div class="cart-summary__lines">
+              <div class="cart-summary__line">
+                <span>Tạm tính ({{ cart.totalQuantity }} sản phẩm)</span>
+                <span>{{ cart.subtotal | currencyVnd }}</span>
+              </div>
+              <div class="cart-summary__line">
+                <span>Phí vận chuyển</span>
+                <span class="cart-summary__free">Miễn phí</span>
+              </div>
+            </div>
+
+            <div class="cart-summary__divider"></div>
+
+            <div class="cart-summary__total">
+              <span>Tổng cộng</span>
+              <strong class="cart-summary__total-price">{{ cart.subtotal | currencyVnd }}</strong>
+            </div>
+
+            <a class="btn btn--primary btn--full" routerLink="/checkout">
+              Đặt hàng ngay
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
+            </a>
+            <a class="cart-summary__continue" routerLink="/products">Tiếp tục mua sắm</a>
+
+            <div class="cart-summary__badge">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+              <span>Thanh toán an toàn &amp; bảo mật</span>
+            </div>
+          }
+        </aside>
       </div>
     }
   </div>
 </div>
 
-<!-- Confirm remove single item -->
-@if (removingItemId()) {
-  <app-confirm-dialog
-    [open]="true"
-    title="Xóa sản phẩm"
-    message="Bạn có muốn xóa sản phẩm này khỏi giỏ hàng?"
-    confirmLabel="Xóa"
-    cancelLabel="Hủy"
-    (confirm)="removeItem(removingItemId()!)"
-    (cancel)="removingItemId.set(null)"
-  />
-}
-
-<!-- Confirm clear all -->
+<!-- Confirm: clear all -->
 <app-confirm-dialog
   [open]="confirmClearOpen()"
-  title="Xóa tất cả"
+  title="Xóa giỏ hàng"
   message="Bạn có chắc muốn xóa toàn bộ giỏ hàng?"
   confirmLabel="Xóa tất cả"
   cancelLabel="Hủy"
   (confirm)="clearCart()"
   (cancel)="confirmClearOpen.set(false)"
+/>
+
+<!-- Confirm: remove selected -->
+<app-confirm-dialog
+  [open]="confirmRemoveSelectedOpen()"
+  title="Xóa sản phẩm đã chọn"
+  [message]="'Bạn có chắc muốn xóa ' + selectedCount() + ' sản phẩm đã chọn?'"
+  confirmLabel="Xóa"
+  cancelLabel="Hủy"
+  (confirm)="removeSelected()"
+  (cancel)="confirmRemoveSelectedOpen.set(false)"
 />

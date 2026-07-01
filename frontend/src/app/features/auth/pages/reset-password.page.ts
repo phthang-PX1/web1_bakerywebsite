@@ -14,7 +14,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 
       @if (success()) {
         <div class="auth-success">✅ Mật khẩu đã được đặt lại thành công!</div>
-        <a class="btn btn--primary btn--full" routerLink="/login">Đăng nhập ngay</a>
+        <a class="btn btn--primary btn--full" routerLink="/auth/login">Đăng nhập ngay</a>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <div class="field">
@@ -52,7 +52,7 @@ export class ResetPasswordPage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.token = this.route.snapshot.queryParamMap.get('token') ?? '';
+    this.token = this.route.snapshot.paramMap.get('token') ?? '';
     if (!this.token) this.error.set('Liên kết không hợp lệ hoặc đã hết hạn.');
   }
 
@@ -61,7 +61,7 @@ export class ResetPasswordPage implements OnInit {
     if (this.form.invalid || !this.token) return;
     this.loading.set(true);
     this.error.set('');
-    this.authApi.resetPassword(this.token, { token: this.token, newPassword: this.form.value.newPassword! }).subscribe({
+    this.authApi.resetPassword(this.token, { newPassword: this.form.value.newPassword! }).subscribe({
       next: () => { this.loading.set(false); this.success.set(true); },
       error: () => { this.loading.set(false); this.error.set('Đặt lại mật khẩu thất bại. Liên kết có thể đã hết hạn.'); },
     });

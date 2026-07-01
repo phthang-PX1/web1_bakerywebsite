@@ -1,51 +1,79 @@
 <footer class="site-footer">
   <div class="site-footer__inner">
-    <section class="footer-brand" aria-label="WeBee Bakery">
-      <a class="brand" routerLink="/">
-        <span class="brand__mark" aria-hidden="true">W</span>
-        <span>WeBee</span>
+    <!-- Brand -->
+    <div class="site-footer__brand">
+      <a routerLink="/" class="footer-logo">
+        <img src="/assets/webee-logo.png" alt="WeBee Bakery" class="footer-logo__img" />
+        <span class="footer-logo__text">WeBee</span>
       </a>
-      <p>Tiệm bánh thủ công ấm áp, tối giản và tinh tế cho những dịp đáng nhớ.</p>
-      <div class="socials" aria-label="Mạng xã hội">
-        <a href="https://facebook.com" aria-label="Facebook">f</a>
-        <a href="https://instagram.com" aria-label="Instagram">ig</a>
-        <a href="https://tiktok.com" aria-label="TikTok">tt</a>
+      <p class="footer-tagline">
+        Gói trọn ngọt ngào từ năm 2018. Được chế tác công phu với tình yêu và nguyên liệu hữu cơ để làm cho những buổi lễ của bạn không thể nào quên.
+      </p>
+      <div class="footer-social">
+        <a href="#" aria-label="Facebook" class="footer-social__link">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>
+        </a>
+        <a href="#" aria-label="Instagram" class="footer-social__link">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
+        </a>
+        <a href="#" aria-label="TikTok" class="footer-social__link">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 0 1-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 0 1-2.88 2.5 2.89 2.89 0 0 1-2.89-2.89 2.89 2.89 0 0 1 2.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 0 0-.79-.05 6.34 6.34 0 0 0-6.34 6.34 6.34 6.34 0 0 0 6.34 6.34 6.34 6.34 0 0 0 6.33-6.34V8.69a8.18 8.18 0 0 0 4.78 1.52V6.76a4.85 4.85 0 0 1-1.01-.07z"/></svg>
+        </a>
       </div>
-    </section>
+    </div>
 
-    <section>
-      <h2>Liên kết nhanh</h2>
+    <!-- Nav: Liên kết nhanh -->
+    <div class="footer-nav__group">
+      <h3>Liên kết nhanh</h3>
       <a routerLink="/">Trang chủ</a>
       <a routerLink="/products">Sản phẩm</a>
       <a routerLink="/custom-cake">Tùy chỉnh</a>
       <a routerLink="/blog">Blog</a>
-      <a routerLink="/membership">Thành viên</a>
-    </section>
+    </div>
 
-    <section>
-      <h2>Liên hệ</h2>
-      <p>012 456 789</p>
-      <p>info&#64;webee.com</p>
-      <p>123 Vườn Ngọt Ngào, TP. Hồ Chí Minh</p>
-    </section>
+    <!-- Contact -->
+    <div class="footer-nav__group">
+      <h3>Liên hệ</h3>
+      <a href="tel:0123456789" class="footer-contact__item">
+        <img src="/assets/icons/footer-call.png" alt="" class="footer-contact__icon" />
+        0123 456 789
+      </a>
+      <a href="mailto:info@webee.com" class="footer-contact__item">
+        <img src="/assets/icons/footer-mail.png" alt="" class="footer-contact__icon" />
+        info&#64;webee.com
+      </a>
+      <span class="footer-contact__item">
+        <img src="/assets/icons/footer-map.png" alt="" class="footer-contact__icon" />
+        123 Đường Ngọt Ngào,<br>TP. Hồ Chí Minh
+      </span>
+    </div>
 
-    <section>
-      <h2>Chính sách & Hướng dẫn</h2>
-      <a routerLink="/policies/support">Chính sách Hỗ trợ Khách hàng</a>
-      <a routerLink="/policies/loyalty">Chính sách Khách hàng thân thiết</a>
+    <!-- Policies -->
+    <div class="footer-nav__group">
+      <h3>Chính sách &amp; Hướng dẫn</h3>
+      <a routerLink="/policies/customer-support">Chính sách Hỗ trợ Khách hàng</a>
+      <a routerLink="/policies/loyalty">Chính sách Khách hàng Thân thiết</a>
       <a routerLink="/policies/privacy">Chính sách Bảo mật</a>
-      <a routerLink="/guides/products">Hướng dẫn Sản phẩm</a>
-      <a routerLink="/guides/payment">Hướng dẫn Đặt hàng & Thanh toán</a>
-      <a routerLink="/guides/delivery">Hướng dẫn Giao hàng</a>
-    </section>
-  </div>
-
-  <div class="store-map" aria-label="Bản đồ cửa hàng WeBee">
-    <div>
-      <strong>WeBee Bakery</strong>
-      <span>123 Vườn Ngọt Ngào, TP. Hồ Chí Minh</span>
+      <a routerLink="/policies/order-payment-guide">Hướng dẫn Đặt hàng &amp; Thanh toán</a>
+      <a routerLink="/policies/shipping-guide">Hướng dẫn Giao hàng</a>
     </div>
   </div>
 
-  <p class="copyright">© 2024 WeBee Bakery. Được làm thủ công với tình yêu.</p>
+  <!-- Map section -->
+  <div class="site-footer__map">
+    <iframe
+      src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d62722.75305937748!2d106.62975!3d10.82302!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31752886e3020f19%3A0x8a4fd0e8bce1f8a9!2zSMOUIENow40gTUlOSA!5e0!3m2!1svi!2s!4v1690000000000"
+      width="100%"
+      height="220"
+      style="border:0;"
+      allowfullscreen=""
+      loading="lazy"
+      referrerpolicy="no-referrer-when-downgrade"
+      title="Bản đồ WeBee Bakery"
+    ></iframe>
+  </div>
+
+  <div class="site-footer__bottom">
+    <p>© 2024 WeBee Bakery. À WeBee làm thủ công vì tình yêu.</p>
+  </div>
 </footer>

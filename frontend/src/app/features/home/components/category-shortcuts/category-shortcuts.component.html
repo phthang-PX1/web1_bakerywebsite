@@ -1,24 +1,36 @@
-<section class="categories" aria-labelledby="home-categories-title">
-  <div class="section-heading">
-    <h2 id="home-categories-title">Danh mục</h2>
+<section class="categories">
+  <div class="categories__header">
+    <div class="categories__title-block">
+      <span class="categories__eyebrow">Danh mục nổi bật</span>
+      <h2 class="categories__title">Tìm kiếm theo loại bánh</h2>
+    </div>
+    <a class="categories__view-all" routerLink="/products">
+      Tất cả sản phẩm
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <path d="M5 12h14M12 5l7 7-7 7"/>
+      </svg>
+    </a>
   </div>
 
   @if (loading()) {
-    <div class="state-grid" aria-live="polite">
-      @for (item of [1, 2, 3, 4, 5, 6]; track item) {
+    <div class="category-grid">
+      @for (i of [1,2,3,4,5,6]; track i) {
         <div class="category-skeleton"></div>
       }
     </div>
-  } @else if (error()) {
-    <p class="section-state">{{ error() }}</p>
-  } @else if (categories().length === 0) {
-    <p class="section-state">Chưa có danh mục đang hiển thị.</p>
-  } @else {
+  } @else if (!error() && categories().length > 0) {
     <div class="category-grid">
-      @for (category of categories(); track category.id) {
-        <a class="category-item" [routerLink]="['/products']" [queryParams]="{ category: category.slug }">
-          <span class="category-item__icon" [attr.data-icon]="category.icon" aria-hidden="true"></span>
-          <span>{{ category.name }}</span>
+      @for (cat of categories(); track cat.id) {
+        <a class="category-card"
+           [routerLink]="['/products']"
+           [queryParams]="{ category: cat.slug }">
+          <div class="category-card__shell">
+            <div class="category-card__core">
+              <span class="category-card__icon" aria-hidden="true">{{ cat.icon }}</span>
+            </div>
+          </div>
+          <span class="category-card__name">{{ cat.name }}</span>
+          <span class="category-card__arrow" aria-hidden="true">→</span>
         </a>
       }
     </div>

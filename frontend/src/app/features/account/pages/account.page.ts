@@ -3,7 +3,7 @@ import { AsyncPipe, SlicePipe } from '@angular/common';
 import { RouterLink } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
-import { UsersApi } from '../../../core/api/users.api';
+import { OrdersApi } from '../../../core/api/orders.api';
 import type { Order } from '../../../core/models/order.model';
 import { TierBadgeComponent } from '../../../shared/components/tier-badge/tier-badge.component';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
@@ -66,12 +66,12 @@ import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 })
 export class AccountPage implements OnInit {
   readonly authService = inject(AuthService);
-  private readonly usersApi = inject(UsersApi);
+  private readonly ordersApi = inject(OrdersApi);
   readonly recentOrders = signal<Order[]>([]);
 
   ngOnInit(): void {
-    this.usersApi.getOrders({ limit: 5 }).subscribe({
-      next: (res) => this.recentOrders.set([...res.data]),
+    this.ordersApi.getMyOrders({ limit: 5 }).subscribe({
+      next: (res) => this.recentOrders.set([...res.items]),
     });
   }
 }
