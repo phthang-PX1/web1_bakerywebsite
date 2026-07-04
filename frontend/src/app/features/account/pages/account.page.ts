@@ -33,10 +33,10 @@ import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
         </div>
 
         <div class="account-nav">
-          <a class="account-nav__item" routerLink="/account/profile">✏️ Hồ sơ</a>
-          <a class="account-nav__item" routerLink="/account/addresses">📍 Địa chỉ</a>
-          <a class="account-nav__item" routerLink="/account/orders">📦 Đơn hàng</a>
-          <a class="account-nav__item" routerLink="/account/loyalty">🌟 Điểm thưởng</a>
+          <a class="account-nav__item" routerLink="/account/profile">Hồ sơ</a>
+          <a class="account-nav__item" routerLink="/account/addresses">Địa chỉ</a>
+          <a class="account-nav__item" routerLink="/account/orders">Đơn hàng</a>
+          <a class="account-nav__item" routerLink="/account/loyalty">Điểm thưởng</a>
         </div>
 
         @if (recentOrders().length > 0) {

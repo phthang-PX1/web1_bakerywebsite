@@ -14,10 +14,11 @@ import { Component, computed, input } from '@angular/core';
     </div>
   `,
   styles: [`
+    @use "tokens" as t;
     .stars { display: flex; align-items: center; gap: 2px; }
-    .star { font-size: var(--star-size, 16px); color: #d1d5db; }
-    .star--full, .star--half { color: #f59e0b; }
-    .stars__count { font-size: 13px; color: #6b6b6b; margin-left: 4px; }
+    .star { font-size: var(--star-size, 16px); color: t.$border; }
+    .star--full, .star--half { color: t.$caramel; }
+    .stars__count { font-size: 13px; color: t.$muted; margin-left: 4px; font-variant-numeric: tabular-nums; }
   `],
 })
 export class StarRatingComponent {

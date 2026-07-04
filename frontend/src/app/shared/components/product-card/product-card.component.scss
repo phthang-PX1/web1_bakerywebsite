@@ -1,210 +1,152 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
 :host {
   display: block;
   height: 100%;
 }
 
 .product-card {
-  display: grid;
-  grid-template-rows: auto 1fr auto;
+  display: flex;
+  flex-direction: column;
   height: 100%;
-  border-radius: 22px;
-  border: 1px solid rgba(59, 42, 30, 0.07);
-  background: #ffffff;
-  overflow: hidden;
-  transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-              box-shadow 0.3s cubic-bezier(0.32, 0.72, 0, 1),
-              border-color 0.22s;
-
-  &:hover {
-    transform: translateY(-4px);
-    box-shadow: 0 24px 56px rgba(43, 26, 15, 0.13);
-    border-color: rgba(245, 200, 66, 0.35);
-  }
 }
 
-/* ── Image — Double-Bezel shell+core ── */
-.product-card__shell {
-  display: block;
-  padding: 8px 8px 0;
-  text-decoration: none;
-}
-
+// --- Media -----------------------------------------------------------------
 .product-card__media {
   position: relative;
-  border-radius: 16px;
+  display: block;
+  border: 1px solid t.$border;
   overflow: hidden;
-  background: #fdf9f1;
-  aspect-ratio: 4 / 3;
-  box-shadow: inset 0 1px 1px rgba(255,255,255,0.5);
 
   img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    display: block;
-    transition: transform 0.55s cubic-bezier(0.32, 0.72, 0, 1);
+    @include m.img-cover;
+    // Grids override --wb-card-ratio on featured (wider) cells so image
+    // heights stay aligned across a row; default is the portrait 4:5.
+    aspect-ratio: var(--wb-card-ratio, #{4 / 5});
+    transition: transform 0.5s ease;
   }
-}
 
-.product-card:hover .product-card__media img {
-  transform: scale(1.05);
-}
-
-.product-card__overlay {
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(to top, rgba(43, 26, 15, 0.12) 0%, transparent 50%);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.3s;
-}
-
-.product-card:hover .product-card__overlay {
-  opacity: 1;
+  &:hover img {
+    transform: scale(1.03);
+  }
 }
 
 .product-card__badge {
   position: absolute;
-  top: 10px;
-  left: 10px;
-  padding: 4px 10px;
-  border-radius: 999px;
-  background: #f5c842;
-  color: #2b1a0f;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.02em;
+  top: 0;
+  left: 0;
+  padding: 6px 12px;
+  background: t.$ink;
+  color: t.$accent;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: t.$tracking-wide;
+  text-transform: uppercase;
 }
 
-/* ── Body ── */
+// --- Body --------------------------------------------------------------------
 .product-card__body {
   display: flex;
   flex-direction: column;
-  gap: 7px;
-  padding: 14px 14px 10px;
+  flex: 1;
+  gap: t.$sp-2;
+  padding: t.$sp-4 2px t.$sp-2;
 }
 
 .product-card__name {
-  color: #2b1a0f;
-  font-size: 0.96rem;
-  font-weight: 800;
-  line-height: 1.35;
+  font-family: t.$font-display;
+  font-size: 1.15rem;
+  font-weight: 550;
+  line-height: 1.25;
+  color: t.$ink;
   text-decoration: none;
   display: -webkit-box;
-  -webkit-box-orient: vertical;
   -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
   overflow: hidden;
-  transition: color 0.18s;
 
-  &:hover { color: #c47a2b; }
+  &:hover {
+    font-style: italic;
+    color: t.$primary;
+  }
 }
 
 .product-card__rating {
   display: flex;
   align-items: center;
-  gap: 4px;
-  font-size: 0.83rem;
-  color: #7a6555;
+  gap: 5px;
+  font-size: t.$fs-micro;
+  color: t.$muted;
 
-  strong { font-weight: 700; color: #2b1a0f; }
+  strong {
+    font-weight: 600;
+    color: t.$ink;
+  }
 }
 
-.product-card__stars { color: #f5c842; }
+.product-card__stars {
+  color: t.$caramel;
+}
 
-.product-card__review-count { color: #9a8576; }
-
-/* Price row */
 .product-card__price-row {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 8px;
-  margin-top: 2px;
+  margin-top: auto;
+  padding-top: t.$sp-2;
+  @include m.hairline(top);
 }
 
 .product-card__price {
-  color: #c47a2b;
-  font-size: 1.05rem;
-  font-weight: 900;
-  letter-spacing: -0.01em;
+  font-family: t.$font-display;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: t.$ink;
+  font-variant-numeric: tabular-nums;
 }
 
 .product-card__customize-btn {
-  display: grid;
-  place-items: center;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  border: 1px solid rgba(196, 122, 43, 0.25);
-  background: rgba(245, 200, 66, 0.1);
-  color: #c47a2b;
-  text-decoration: none;
-  flex-shrink: 0;
-  transition: background 0.2s, border-color 0.2s, transform 0.22s cubic-bezier(0.32, 0.72, 0, 1);
-
-  svg { display: block; }
-
-  &:hover {
-    background: #c47a2b;
-    border-color: #c47a2b;
-    color: #fff;
-    transform: scale(1.1);
-  }
-}
-
-/* ── Add to cart button ── */
-.product-card__btn {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  margin: 0 10px 10px;
-  min-height: 44px;
-  padding: 0 16px;
-  border: 0;
-  border-radius: 999px;
-  background: #2b1a0f;
-  color: #fdfbf5;
-  cursor: pointer;
-  font: inherit;
-  font-size: 0.88rem;
-  font-weight: 800;
-  transition: background 0.22s cubic-bezier(0.32, 0.72, 0, 1),
-              transform 0.18s cubic-bezier(0.32, 0.72, 0, 1);
+  width: 32px;
+  height: 32px;
+  color: t.$muted;
 
-  &:hover:not(:disabled) {
-    background: #3f2710;
-    transform: translateY(-1px);
-  }
-
-  &:active:not(:disabled) {
-    transform: scale(0.98);
-  }
-
-  &:disabled {
-    opacity: 0.65;
-    cursor: not-allowed;
+  &:hover {
+    color: t.$primary;
   }
 }
 
-.product-card__btn-icon {
-  width: 16px;
-  height: 16px;
-  object-fit: contain;
-  filter: brightness(0) invert(1);
-  flex-shrink: 0;
+.product-card__btn {
+  @include m.btn-outline;
+  width: 100%;
+  margin-top: t.$sp-3;
+  padding: 11px 20px;
+  font-size: t.$fs-micro;
+
+  svg {
+    flex-shrink: 0;
+  }
 }
 
-/* ── Compact variant ── */
-.product-card--compact .product-card__media {
-  aspect-ratio: 1 / 0.78;
-}
+// --- Compact variant ----------------------------------------------------------
+.product-card--compact {
+  .product-card__body {
+    padding-top: t.$sp-3;
+    gap: 6px;
+  }
 
-.product-card--compact .product-card__name {
-  font-size: 0.9rem;
-}
+  .product-card__name {
+    font-size: 1.05rem;
+  }
 
-.product-card--compact .product-card__btn {
-  min-height: 40px;
-  font-size: 0.84rem;
+  .product-card__price {
+    font-size: 1.1rem;
+  }
+
+  .product-card__btn {
+    padding: 9px 16px;
+  }
 }

@@ -38,24 +38,22 @@ import { MAX_CART_QUANTITY } from '../../../core/constants/app.constants';
     </div>
   `,
   styles: [`
-    .stepper { display: flex; align-items: center; border: 1px solid #e5e7eb; border-radius: 8px; overflow: hidden; }
+    @use "tokens" as t;
+    .stepper { display: inline-flex; align-items: center; border: 1px solid t.$border; border-radius: t.$r-pill; background: t.$surface; }
     .stepper__btn {
-      width: 36px; height: 36px; border: none; background: #f9fafb;
-      cursor: pointer; font-size: 18px; color: #374151; transition: background 0.15s;
+      width: 34px; height: 34px; border: none; background: none;
+      cursor: pointer; font-size: 17px; color: t.$muted; transition: color 0.15s;
     }
-    .stepper__btn:hover:not(:disabled) { background: #F5E6D3; color: #C96A2E; }
-    .stepper__btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .stepper__value { min-width: 40px; text-align: center; font-size: 15px; font-weight: 600; }
-    .stepper__value--display {
-      cursor: text; user-select: none; border-radius: 4px;
-      transition: background 0.15s; padding: 0 4px;
-    }
+    .stepper__btn:hover:not(:disabled) { color: t.$primary; }
+    .stepper__btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .stepper__value { min-width: 36px; text-align: center; font-size: 14px; font-weight: 600; font-variant-numeric: tabular-nums; color: t.$ink; }
+    .stepper__value--display { cursor: text; user-select: none; padding: 0 4px; }
     .stepper__value--display:hover,
-    .stepper__value--display:focus { background: #F5E6D3; color: #C96A2E; outline: none; }
+    .stepper__value--display:focus { color: t.$primary; outline: none; }
     .stepper__value--input {
-      min-width: 40px; width: 48px; border: none; border-bottom: 2px solid #C96A2E;
-      background: transparent; text-align: center; font-size: 15px; font-weight: 600;
-      color: #1C1412; outline: none; padding: 0 2px; -moz-appearance: textfield;
+      min-width: 36px; width: 46px; border: none; border-bottom: 1px solid t.$primary;
+      background: transparent; text-align: center; font-size: 14px; font-weight: 600;
+      color: t.$ink; outline: none; padding: 0 2px; -moz-appearance: textfield;
     }
     .stepper__value--input::-webkit-inner-spin-button,
     .stepper__value--input::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }

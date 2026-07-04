@@ -11,6 +11,7 @@ import { NgClass } from '@angular/common';
     </div>
   `,
   styles: [`
+    @use "tokens" as t;
     .spinner-wrap {
       display: flex;
       justify-content: center;
@@ -20,19 +21,18 @@ import { NgClass } from '@angular/common';
     .spinner-wrap--fullpage {
       position: fixed;
       inset: 0;
-      background: rgba(255,255,255,0.8);
+      background: rgba(253, 251, 245, 0.85);
       z-index: 9000;
       padding: 0;
     }
     .spinner {
-      width: 40px;
-      height: 40px;
-      border: 3px solid #F5E6D3;
-      border-top-color: #C96A2E;
+      width: 36px;
+      height: 36px;
+      border: 2px solid t.$sand;
+      border-top-color: t.$primary;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
-    @keyframes spin { to { transform: rotate(360deg); } }
   `],
 })
 export class LoadingSpinnerComponent {

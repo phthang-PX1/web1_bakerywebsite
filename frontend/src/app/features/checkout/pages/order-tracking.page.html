@@ -17,7 +17,7 @@
       </div>
 
       <!-- Payment QR -->
-      @if (o.paymentStatus === 'unpaid') {
+      @if (o.paymentStatus === 'pending') {
         <div class="qr-section">
           @if (o.paymentQrUrl) {
             <img class="qr-code" [src]="o.paymentQrUrl" alt="QR thanh toán" />

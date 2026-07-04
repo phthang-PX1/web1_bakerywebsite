@@ -99,7 +99,7 @@ interface SelectedOption {
         </div>
       </div>
     } @else {
-      <div style="padding:48px;text-align:center;color:#6b6b6b">
+      <div class="configurator-empty">
         <p>Không tìm thấy sản phẩm bánh tùy chỉnh.</p>
       </div>
     }
@@ -144,9 +144,9 @@ export class CustomCakePage implements OnInit {
   });
 
   ngOnInit(): void {
-    this.productsApi.getProducts({ search: 'custom', limit: 10 }).subscribe({
+    this.productsApi.getProducts({ limit: 100 }).subscribe({
       next: (res) => {
-        const custom = res.items.find((p) => p.isCustomizable) ?? res.items[0] ?? null;
+        const custom = res.items.find((p) => p.isCustomizable) ?? null;
         if (!custom) { this.loading.set(false); return; }
         this.customProduct.set(custom);
         this.optionsApi.getProductOptions(custom.productId).subscribe({

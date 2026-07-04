@@ -4,33 +4,24 @@
       <span class="categories__eyebrow">Danh mục nổi bật</span>
       <h2 class="categories__title">Tìm kiếm theo loại bánh</h2>
     </div>
-    <a class="categories__view-all" routerLink="/products">
-      Tất cả sản phẩm
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-        <path d="M5 12h14M12 5l7 7-7 7"/>
-      </svg>
-    </a>
+    <a class="categories__view-all" routerLink="/products">Tất cả sản phẩm</a>
   </div>
 
   @if (loading()) {
-    <div class="category-grid">
+    <div class="category-index">
       @for (i of [1,2,3,4,5,6]; track i) {
         <div class="category-skeleton"></div>
       }
     </div>
   } @else if (!error() && categories().length > 0) {
-    <div class="category-grid">
-      @for (cat of categories(); track cat.id) {
-        <a class="category-card"
+    <div class="category-index">
+      @for (cat of categories(); track cat.id; let idx = $index) {
+        <a class="category-row"
            [routerLink]="['/products']"
            [queryParams]="{ category: cat.slug }">
-          <div class="category-card__shell">
-            <div class="category-card__core">
-              <span class="category-card__icon" aria-hidden="true">{{ cat.icon }}</span>
-            </div>
-          </div>
-          <span class="category-card__name">{{ cat.name }}</span>
-          <span class="category-card__arrow" aria-hidden="true">→</span>
+          <span class="category-row__num" aria-hidden="true">{{ (idx + 1) < 10 ? '0' + (idx + 1) : idx + 1 }}</span>
+          <span class="category-row__name">{{ cat.name }}</span>
+          <span class="category-row__arrow" aria-hidden="true">→</span>
         </a>
       }
     </div>

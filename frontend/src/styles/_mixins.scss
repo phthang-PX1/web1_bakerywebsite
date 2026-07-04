@@ -1,0 +1,189 @@
+// WeBee shared mixins. Usage: @use "mixins" as m;
+// Keep each mixin lean — output is duplicated per @include (8kB budget/file).
+@use "tokens" as t;
+@use "sass:map";
+
+$-breakpoints: (
+  sm: t.$bp-sm,
+  md: t.$bp-md,
+  lg: t.$bp-lg,
+  xl: t.$bp-xl,
+);
+
+// min-width query: @include m.mq(lg) { ... }
+@mixin mq($bp) {
+  @media (min-width: map.get($-breakpoints, $bp)) {
+    @content;
+  }
+}
+
+// max-width query (down to and including the breakpoint below)
+@mixin mq-down($bp) {
+  @media (max-width: (map.get($-breakpoints, $bp) - 1px)) {
+    @content;
+  }
+}
+
+@mixin container($width: t.$container) {
+  width: $width;
+  margin-inline: auto;
+}
+
+// ---------------------------------------------------------------------------
+// Buttons — one solid per view; everything else outline or text.
+// ---------------------------------------------------------------------------
+@mixin btn-base {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: t.$sp-2;
+  font-family: t.$font-body;
+  font-size: t.$fs-body-sm;
+  font-weight: 600;
+  line-height: 1;
+  cursor: pointer;
+  text-decoration: none;
+  border: none;
+  background: none;
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+
+  &:focus-visible {
+    outline: 2px solid t.$primary;
+    outline-offset: 3px;
+  }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+}
+
+@mixin btn-solid {
+  @include btn-base;
+  background: t.$ink;
+  color: t.$paper;
+  border-radius: t.$r-pill;
+  padding: 14px 28px;
+
+  &:hover:not(:disabled) {
+    background: t.$primary;
+  }
+}
+
+@mixin btn-outline {
+  @include btn-base;
+  border: 1px solid t.$ink;
+  color: t.$ink;
+  border-radius: t.$r-pill;
+  padding: 13px 26px;
+
+  &:hover:not(:disabled) {
+    background: t.$ink;
+    color: t.$paper;
+  }
+}
+
+// Editorial text link: uppercase tracked label + offset underline.
+@mixin btn-text {
+  @include btn-base;
+  font-size: t.$fs-eyebrow;
+  font-weight: 700;
+  letter-spacing: t.$tracking-wide;
+  text-transform: uppercase;
+  color: t.$ink;
+  padding: 4px 0;
+  text-decoration: underline;
+  text-underline-offset: 6px;
+  text-decoration-thickness: 1px;
+
+  &:hover:not(:disabled) {
+    color: t.$primary;
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Typography helpers
+// ---------------------------------------------------------------------------
+@mixin eyebrow($rule: false) {
+  font-size: t.$fs-eyebrow;
+  font-weight: 700;
+  letter-spacing: t.$tracking-wide;
+  text-transform: uppercase;
+  color: t.$caramel;
+
+  @if $rule {
+    display: inline-flex;
+    align-items: center;
+    gap: t.$sp-3;
+
+    &::before {
+      content: "";
+      width: 40px;
+      height: 1px;
+      background: t.$caramel;
+    }
+  }
+}
+
+@mixin display($level: 2) {
+  font-family: t.$font-display;
+  font-weight: 550;
+  line-height: 1.08;
+  letter-spacing: -0.01em;
+  color: t.$ink;
+
+  @if $level == 1 {
+    font-size: t.$fs-display-1;
+  } @else if $level == 2 {
+    font-size: t.$fs-display-2;
+  } @else {
+    font-size: t.$fs-h3;
+    line-height: 1.2;
+  }
+}
+
+@mixin hairline($side: top) {
+  border-#{$side}: 1px solid t.$border;
+}
+
+// ---------------------------------------------------------------------------
+// Forms
+// ---------------------------------------------------------------------------
+@mixin field {
+  width: 100%;
+  font-family: t.$font-body;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+  background: t.$surface;
+  border: 1px solid t.$border;
+  border-radius: t.$r-xs;
+  padding: 12px 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+
+  &::placeholder {
+    color: t.$muted;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: t.$primary;
+    box-shadow: 0 0 0 3px rgba(201, 106, 46, 0.12);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Imagery
+// ---------------------------------------------------------------------------
+@mixin img-cover($ratio: null) {
+  @if $ratio {
+    aspect-ratio: $ratio;
+  }
+  width: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+@mixin arch-media {
+  border-radius: t.$r-arch;
+  overflow: hidden;
+}

@@ -20,11 +20,14 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
     <app-toast />
   `,
   styles: [`
+    @use "tokens" as t;
     .cc-layout { display: flex; flex-direction: column; height: 100dvh; overflow: hidden; }
-    .cc-header { height: 60px; background: #fff; border-bottom: 1px solid #e5e7eb; display: flex; align-items: center; padding: 0 24px; gap: 16px; flex-shrink: 0; }
-    .cc-logo { font-weight: 900; color: #C96A2E; text-decoration: none; font-size: 18px; }
-    .cc-title { flex: 1; text-align: center; font-size: 16px; font-weight: 700; margin: 0; }
-    .cc-cart-link { font-size: 14px; color: #C96A2E; text-decoration: none; font-weight: 600; }
+    .cc-header { height: 60px; background: t.$paper; border-bottom: 1px solid t.$border; display: flex; align-items: center; padding: 0 24px; gap: 16px; flex-shrink: 0; }
+    .cc-logo { font-family: t.$font-display; font-style: italic; font-weight: 550; color: t.$ink; text-decoration: none; font-size: 20px; }
+    .cc-logo:hover { color: t.$primary; }
+    .cc-title { flex: 1; text-align: center; font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: t.$ink; margin: 0; }
+    .cc-cart-link { font-size: 12px; font-weight: 700; letter-spacing: 0.14em; text-transform: uppercase; color: t.$ink; text-decoration: underline; text-underline-offset: 5px; text-decoration-thickness: 1px; }
+    .cc-cart-link:hover { color: t.$primary; }
     .cc-main { flex: 1; overflow: hidden; }
   `],
 })

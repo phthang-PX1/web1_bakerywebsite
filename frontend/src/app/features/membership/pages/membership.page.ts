@@ -14,8 +14,8 @@ import { RouterLink } from '@angular/router';
         <div class="tier-grid">
           @for (tier of tiers; track tier.name) {
             <div class="tier-card" [style.borderColor]="tier.color">
-              <div class="tier-card__header" [style.background]="tier.color + '22'" [style.color]="tier.color">
-                {{ tier.icon }} {{ tier.name }}
+              <div class="tier-card__header" [style.color]="tier.color">
+                {{ tier.name }}
               </div>
               <div class="tier-card__body">
                 <p class="tier-card__desc">{{ tier.description }}</p>
@@ -41,23 +41,25 @@ import { RouterLink } from '@angular/router';
     </div>
   `,
   styles: [`
-    .membership-intro { font-size: 18px; color: #6b6b6b; margin-bottom: 40px; }
-    .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 20px; margin-bottom: 48px; }
-    .tier-card { border: 2px solid; border-radius: 12px; overflow: hidden; }
-    .tier-card__header { padding: 16px; font-size: 18px; font-weight: 700; text-align: center; }
-    .tier-card__body { padding: 16px; }
-    .tier-card__desc { font-size: 13px; color: #6b6b6b; margin: 0 0 12px; }
+    @use "tokens" as t;
+    @use "mixins" as m;
+    .membership-intro { font-size: t.$fs-body; color: t.$muted; margin-bottom: t.$sp-6; max-width: 60ch; }
+    .tier-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: t.$sp-4; margin-bottom: t.$sp-7; align-items: start; }
+    .tier-card { border: 1px solid t.$border; border-top: 3px solid; background: t.$surface; }
+    .tier-card__header {
+      font-family: t.$font-display; font-style: italic;
+      padding: t.$sp-4 t.$sp-4 0; font-size: 1.25rem; font-weight: 550;
+    }
+    .tier-card__body { padding: t.$sp-3 t.$sp-4 t.$sp-4; }
+    .tier-card__desc { font-size: t.$fs-micro; color: t.$muted; margin: 0 0 t.$sp-3; padding-bottom: t.$sp-3; border-bottom: 1px solid t.$border; }
     .tier-card__benefits { margin: 0; padding-left: 0; list-style: none; }
-    .tier-card__benefits li { font-size: 13px; padding: 4px 0; color: #374151; }
-    .membership-cta { background: #fff; border-radius: 16px; padding: 40px; text-align: center; border: 1px solid #f3f4f6; }
-    .membership-cta h2 { font-size: 24px; font-weight: 800; margin: 0 0 8px; }
-    .membership-cta p { color: #6b6b6b; margin: 0 0 24px; }
-    .membership-cta__btns { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-    .btn { padding: 12px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; text-decoration: none; border: 2px solid transparent; }
-    .btn--primary { background: #C96A2E; color: #fff; }
-    .btn--primary:hover { background: #7A3D18; }
-    .btn--outline { background: transparent; border-color: #C96A2E; color: #C96A2E; }
-    .btn--outline:hover { background: #FFF5EE; }
+    .tier-card__benefits li { font-size: t.$fs-micro; padding: 4px 0; color: t.$ink; }
+    .membership-cta { text-align: center; padding: t.$sp-7 0 t.$sp-4; border-top: 1px solid t.$border; }
+    .membership-cta h2 { font-family: t.$font-display; font-style: italic; font-size: t.$fs-h3; font-weight: 550; color: t.$ink; margin: 0 0 t.$sp-2; }
+    .membership-cta p { color: t.$muted; margin: 0 0 t.$sp-5; }
+    .membership-cta__btns { display: flex; gap: t.$sp-5; justify-content: center; align-items: center; flex-wrap: wrap; }
+    .btn--primary { @include m.btn-solid; }
+    .btn--outline { @include m.btn-text; }
   `],
   styleUrl: '../../blog/pages/content.page.scss',
 })

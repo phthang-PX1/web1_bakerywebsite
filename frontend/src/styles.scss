@@ -1,21 +1,24 @@
-:root {
-  --color-espresso:   #2b1a0f;
-  --color-caramel:    #c47a2b;
-  --color-honey:      #f5c842;
-  --color-cream:      #fdfbf5;
-  --color-warm-white: #ffffff;
-  --color-muted:      #7a6555;
+@use "styles/tokens" as t;
 
-  color: #2b1a0f;
-  background: #fdfbf5;
-  font-family:
-    "Be Vietnam Pro",
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+// Design tokens exposed as custom properties for inline [style] bindings
+// and any consumer outside the Sass pipeline. Sass code should prefer
+// `@use "tokens" as t;` directly.
+:root {
+  --wb-primary: #{t.$primary};
+  --wb-primary-dark: #{t.$primary-dark};
+  --wb-ink: #{t.$ink};
+  --wb-accent: #{t.$accent};
+  --wb-caramel: #{t.$caramel};
+  --wb-paper: #{t.$paper};
+  --wb-surface: #{t.$surface};
+  --wb-surface-warm: #{t.$surface-warm};
+  --wb-sand: #{t.$sand};
+  --wb-muted: #{t.$muted};
+  --wb-border: #{t.$border};
+
+  color: t.$ink;
+  background: t.$paper;
+  font-family: t.$font-body;
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -30,7 +33,7 @@ body {
   min-width: 320px;
   min-height: 100vh;
   margin: 0;
-  background: #fdfbf5;
+  background: t.$paper;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -49,4 +52,19 @@ select {
 
 img {
   max-width: 100%;
+}
+
+// Shared keyframes — defined once globally; components must not redeclare.
+@keyframes shimmer {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.35; }
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }

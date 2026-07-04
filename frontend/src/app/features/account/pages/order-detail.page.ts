@@ -36,7 +36,7 @@ export class AccountOrderDetailPage implements OnInit {
 
   readonly STATUS_LABELS: Record<string, string> = {
     pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang làm',
-    delivering: 'Đang giao', delivered: 'Đã giao', cancelled: 'Đã hủy',
+    ready: 'Sẵn sàng giao/nhận', delivered: 'Đã giao', cancelled: 'Đã hủy',
   };
 
   ngOnInit(): void {

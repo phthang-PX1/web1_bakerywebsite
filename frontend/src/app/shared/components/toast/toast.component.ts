@@ -18,6 +18,7 @@ import { ToastService } from '../../../core/services/toast.service';
     </div>
   `,
   styles: [`
+    @use "tokens" as t;
     .toast-container {
       position: fixed;
       bottom: 24px;
@@ -34,22 +35,24 @@ import { ToastService } from '../../../core/services/toast.service';
       align-items: flex-start;
       gap: 12px;
       padding: 14px 16px;
-      border-radius: 8px;
-      background: #fff;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      border-radius: t.$r-sm;
+      background: t.$surface;
+      border: 1px solid t.$border;
+      box-shadow: t.$shadow-lift;
       animation: slideIn 0.2s ease;
     }
     @keyframes slideIn {
       from { transform: translateX(100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-    .toast--success { border-left: 4px solid #22c55e; }
-    .toast--error   { border-left: 4px solid #ef4444; }
-    .toast--info    { border-left: 4px solid #3b82f6; }
-    .toast--warning { border-left: 4px solid #f59e0b; }
-    .toast__icon { font-size: 18px; flex-shrink: 0; }
-    .toast__message { flex: 1; margin: 0; font-size: 14px; color: #1a1a1a; line-height: 1.4; }
-    .toast__close { background: none; border: none; cursor: pointer; color: #6b6b6b; font-size: 16px; padding: 0; flex-shrink: 0; }
+    .toast--success { border-left: 3px solid t.$success; }
+    .toast--error   { border-left: 3px solid t.$danger; }
+    .toast--info    { border-left: 3px solid t.$info; }
+    .toast--warning { border-left: 3px solid t.$warning; }
+    .toast__icon { font-size: 16px; flex-shrink: 0; color: t.$muted; }
+    .toast__message { flex: 1; margin: 0; font-size: 14px; color: t.$ink; line-height: 1.4; }
+    .toast__close { background: none; border: none; cursor: pointer; color: t.$muted; font-size: 15px; padding: 0; flex-shrink: 0; }
+    .toast__close:hover { color: t.$ink; }
   `],
 })
 export class ToastComponent {

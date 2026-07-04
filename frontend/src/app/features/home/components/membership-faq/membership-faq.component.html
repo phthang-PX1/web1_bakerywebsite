@@ -2,29 +2,18 @@
   <div class="membership__inner">
     <!-- Left: membership promo -->
     <div class="membership__promo">
-      <div class="membership__promo-shell">
-        <div class="membership__promo-core">
-          <span class="membership__eyebrow">Chương trình thành viên</span>
-          <h2 class="membership__heading">Tích điểm,<br>nhận ưu đãi<br><em>không giới hạn</em></h2>
-          <p class="membership__body">
-            Mỗi đơn hàng tích lũy điểm thưởng. Nâng hạng để nhận chiết khấu, bánh tặng và ưu đãi sinh nhật đặc biệt từ WeBee.
-          </p>
-          <div class="membership__tiers">
-            <div class="tier-pill tier-pill--bronze">🥉 Đồng</div>
-            <div class="tier-pill tier-pill--silver">🥈 Bạc</div>
-            <div class="tier-pill tier-pill--gold">🥇 Vàng</div>
-            <div class="tier-pill tier-pill--diamond">💎 Kim cương</div>
-          </div>
-          <a class="membership__cta" routerLink="/auth/login">
-            Đăng nhập & Tích điểm
-            <span class="cta-icon" aria-hidden="true">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-                <path d="M5 12h14M12 5l7 7-7 7"/>
-              </svg>
-            </span>
-          </a>
-        </div>
+      <span class="membership__eyebrow">Chương trình thành viên</span>
+      <h2 class="membership__heading">Tích điểm,<br>nhận ưu đãi<br><em>không giới hạn</em></h2>
+      <p class="membership__body">
+        Mỗi đơn hàng tích lũy điểm thưởng. Nâng hạng để nhận chiết khấu, bánh tặng và ưu đãi sinh nhật đặc biệt từ WeBee.
+      </p>
+      <div class="membership__tiers" aria-label="Các hạng thành viên">
+        <span class="tier-label">Đồng</span>
+        <span class="tier-label">Bạc</span>
+        <span class="tier-label">Vàng</span>
+        <span class="tier-label">Kim cương</span>
       </div>
+      <a class="membership__cta" routerLink="/auth/login">Đăng nhập &amp; Tích điểm</a>
     </div>
 
     <!-- Right: FAQ -->
@@ -39,7 +28,7 @@
             <button type="button" class="faq__trigger" (click)="toggle(faq.id)">
               <span class="faq__question">{{ faq.question }}</span>
               <span class="faq__icon" aria-hidden="true">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M6 9l6 6 6-6"/>
                 </svg>
               </span>

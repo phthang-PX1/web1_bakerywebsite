@@ -1,15 +1,11 @@
-﻿<article class="product-card" [class.product-card--compact]="compact()">
-  <!-- Image shell — Double-Bezel -->
-  <a class="product-card__shell" [routerLink]="['/products', product().slug]" [attr.aria-label]="product().name" tabindex="-1">
-    <div class="product-card__media">
-      <img [src]="product().imageUrl ?? '/assets/images/product-placeholder.svg'"
-           [alt]="product().name"
-           loading="lazy" />
-      @if (product().badge) {
-        <span class="product-card__badge">{{ product().badge }}</span>
-      }
-      <div class="product-card__overlay" aria-hidden="true"></div>
-    </div>
+<article class="product-card" [class.product-card--compact]="compact()">
+  <a class="product-card__media" [routerLink]="['/products', product().slug]" [attr.aria-label]="product().name" tabindex="-1">
+    <img [src]="product().imageUrl ?? '/assets/images/product-placeholder.svg'"
+         [alt]="product().name"
+         loading="lazy" />
+    @if (product().badge) {
+      <span class="product-card__badge">{{ product().badge }}</span>
+    }
   </a>
 
   <div class="product-card__body">
@@ -35,10 +31,13 @@
         </a>
       }
     </div>
-  </div>
 
-  <button class="product-card__btn" type="button" [disabled]="adding()" (click)="onAddToCart()">
-    <img src="/assets/icons/product-themvaogio.png" alt="" class="product-card__btn-icon" />
-    {{ adding() ? 'Đang thêm...' : 'Thêm vào giỏ' }}
-  </button>
+    <button class="product-card__btn" type="button" [disabled]="adding()" (click)="onAddToCart()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" width="15" height="15" aria-hidden="true">
+        <path d="M6 7h12l1 13H5L6 7z"/>
+        <path d="M9 10V6a3 3 0 0 1 6 0v4"/>
+      </svg>
+      {{ adding() ? 'Đang thêm...' : 'Thêm vào giỏ' }}
+    </button>
+  </div>
 </article>
