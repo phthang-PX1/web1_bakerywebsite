@@ -3,6 +3,7 @@ import {
   addProductImages,
   createProduct,
   deleteProductImage,
+  getProductById,
   getProductBySlug,
   getProductReviews,
   getProducts,
@@ -45,6 +46,26 @@ export const getProductReviewsController: RequestHandler = async (req, res, next
       req.params.id,
       req.query as unknown as ProductReviewsQuery
     );
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminProductsController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await getProducts(req.query as unknown as ProductListQuery, {
+      includeInactive: true
+    });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminProductByIdController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await getProductById(req.params.id);
     res.status(200).json(result);
   } catch (error) {
     next(error);

@@ -190,7 +190,7 @@ export class AdminCouponsListPage implements OnInit {
   }
 
   toggleCoupon(coupon: Coupon): void {
-    this.adminApi.updateCoupon(coupon.couponId, { isActive: !coupon.isActive }).subscribe({
+    this.adminApi.toggleCouponStatus(coupon.couponId).subscribe({
       next: (updated) => {
         this.coupons.update((list) => list.map((c) => c.couponId === updated.couponId ? updated : c));
         this.toastService.success(`Đã ${updated.isActive ? 'bật' : 'tắt'} mã giảm giá.`);

@@ -61,7 +61,7 @@ export class ResetPasswordPage implements OnInit {
     if (this.form.invalid || !this.token) return;
     this.loading.set(true);
     this.error.set('');
-    this.authApi.resetPassword(this.token, { newPassword: this.form.value.newPassword! }).subscribe({
+    this.authApi.resetPassword(this.token, { password: this.form.value.newPassword! }).subscribe({
       next: () => { this.loading.set(false); this.success.set(true); },
       error: () => { this.loading.set(false); this.error.set('Đặt lại mật khẩu thất bại. Liên kết có thể đã hết hạn.'); },
     });

@@ -66,8 +66,9 @@ const formatOrderItem = (item: {
 }) => ({
   orderItemId: item.orderItemId,
   productId: item.productId,
-  productNameSnapshot: item.productNameSnapshot,
-  unitPriceSnapshot: toMoney(item.unitPriceSnapshot),
+  // Public DTO uses plain names; the *Snapshot suffix is a storage detail.
+  productName: item.productNameSnapshot,
+  unitPrice: toMoney(item.unitPriceSnapshot),
   quantity: item.quantity,
   isCustom: item.isCustom,
   customNote: item.customNote,
@@ -75,8 +76,8 @@ const formatOrderItem = (item: {
   options: item.options.map((option) => ({
     id: option.id,
     itemId: option.itemId,
-    optionNameSnapshot: option.optionNameSnapshot,
-    optionPriceSnapshot: toMoney(option.optionPriceSnapshot)
+    name: option.optionNameSnapshot,
+    extraPrice: toMoney(option.optionPriceSnapshot)
   }))
 });
 

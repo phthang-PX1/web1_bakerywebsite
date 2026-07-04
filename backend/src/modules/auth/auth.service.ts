@@ -258,7 +258,10 @@ export const refreshAccessToken = async (input: RefreshInput) => {
     accessToken: signAccessToken({
       userId: user.userId,
       role: user.role
-    })
+    }),
+    // Refresh token is not rotated; echo it back so clients can persist the
+    // full token pair without special-casing this endpoint.
+    refreshToken: input.refreshToken
   };
 };
 

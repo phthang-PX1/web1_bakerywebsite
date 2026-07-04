@@ -24,7 +24,7 @@ export class UsersApi {
   }
 
   updateProfile(body: UpdateProfileRequest): Observable<User> {
-    return this.http.patch<User>(`${this.base}/me`, body);
+    return this.http.put<User>(`${this.base}/me`, body);
   }
 
   uploadAvatar(file: File): Observable<{ avatarUrl: string }> {
@@ -34,7 +34,7 @@ export class UsersApi {
   }
 
   changePassword(body: ChangePasswordRequest): Observable<{ message: string }> {
-    return this.http.patch<{ message: string }>(`${this.base}/me/password`, body);
+    return this.http.put<{ message: string }>(`${this.base}/me/password`, body);
   }
 
   getAddresses(): Observable<Address[]> {
@@ -46,7 +46,7 @@ export class UsersApi {
   }
 
   updateAddress(addressId: string, body: UpdateAddressRequest): Observable<Address> {
-    return this.http.patch<Address>(`${this.base}/me/addresses/${addressId}`, body);
+    return this.http.put<Address>(`${this.base}/me/addresses/${addressId}`, body);
   }
 
   deleteAddress(addressId: string): Observable<void> {
@@ -61,6 +61,6 @@ export class UsersApi {
     let httpParams = new HttpParams();
     if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
     if (params.limit !== undefined) httpParams = httpParams.set('limit', String(params.limit));
-    return this.http.get<PaginatedResponse<LoyaltyLog>>(`${this.base}/me/loyalty-logs`, { params: httpParams });
+    return this.http.get<PaginatedResponse<LoyaltyLog>>(`${this.base}/me/loyalty/logs`, { params: httpParams });
   }
 }

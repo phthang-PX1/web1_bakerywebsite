@@ -13,7 +13,7 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: 'Chờ xác nhận',
   confirmed: 'Đã xác nhận',
   processing: 'Đang làm',
-  delivering: 'Đang giao',
+  ready: 'Sẵn sàng giao/nhận',
   delivered: 'Đã giao',
   cancelled: 'Đã hủy',
 };

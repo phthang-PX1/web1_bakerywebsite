@@ -55,7 +55,11 @@ export class AuthService {
 
   storeTokens(tokens: AuthTokens): void {
     localStorage.setItem(AUTH_STORAGE_KEYS.ACCESS_TOKEN, tokens.accessToken);
-    localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
+    // Guard against responses that omit the refresh token (e.g. access-only
+    // refreshes) so we never clobber a valid stored token with undefined.
+    if (tokens.refreshToken) {
+      localStorage.setItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN, tokens.refreshToken);
+    }
   }
 
   clearTokens(): void {

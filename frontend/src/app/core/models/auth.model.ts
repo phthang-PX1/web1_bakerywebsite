@@ -24,6 +24,7 @@ export interface ForgotPasswordRequest {
   email: string;
 }
 
+/** Field name must match backend resetPasswordBodySchema (`password`). */
 export interface ResetPasswordRequest {
-  newPassword: string;
+  password: string;
 }

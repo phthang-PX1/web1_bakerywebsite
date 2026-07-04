@@ -162,6 +162,7 @@ const productListSelect = {
   thumbnailUrl: true,
   avgRating: true,
   isCustomizable: true,
+  isActive: true,
   createdAt: true,
   category: {
     select: {
@@ -203,15 +204,19 @@ const assertCategoryExists = async (categoryId: string) => {
   }
 };
 
-export const getProducts = async (query: ProductListQuery) => {
+export const getProducts = async (
+  query: ProductListQuery,
+  options: { includeInactive?: boolean } = {}
+) => {
+  const activeFilter = options.includeInactive ? {} : { isActive: true };
   const where: Prisma.ProductWhereInput = {
-    isActive: true,
-    category: { isActive: true }
+    ...activeFilter,
+    category: options.includeInactive ? undefined : { isActive: true }
   };
 
   if (query.categories && query.categories.length > 0) {
     where.category = {
-      isActive: true,
+      ...(options.includeInactive ? {} : { isActive: true }),
       slug: { in: query.categories }
     };
   }
@@ -252,6 +257,7 @@ export const getProducts = async (query: ProductListQuery) => {
     avgRating: Number(p.avgRating),
     reviewCount: p._count.orderItems,
     isCustomizable: p.isCustomizable,
+    isActive: p.isActive,
     hasRequiredOptions: p.optionGroups.length > 0,
     createdAt: p.createdAt,
     category: p.category
@@ -268,6 +274,21 @@ export const getProducts = async (query: ProductListQuery) => {
   };
 };
 
+type ProductWithDetails = Prisma.ProductGetPayload<{ include: typeof productInclude }>;
+
+const formatProductDetail = (product: ProductWithDetails) => ({
+  ...product,
+  basePrice: Number(product.basePrice),
+  avgRating: Number(product.avgRating),
+  optionGroups: product.optionGroups.map((g) => ({
+    ...g,
+    items: g.items.map((i) => ({
+      ...i,
+      extraPrice: Number(i.extraPrice),
+    })),
+  })),
+});
+
 export const getProductBySlug = async (slug: string) => {
   const product = await prisma.product.findFirst({
     where: {
@@ -282,18 +303,21 @@ export const getProductBySlug = async (slug: string) => {
     throw new AppError(404, "Product not found");
   }
 
-  return {
-    ...product,
-    basePrice: Number(product.basePrice),
-    avgRating: Number(product.avgRating),
-    optionGroups: product.optionGroups.map((g) => ({
-      ...g,
-      items: g.items.map((i) => ({
-        ...i,
-        extraPrice: Number(i.extraPrice),
-      })),
-    })),
-  };
+  return formatProductDetail(product);
+};
+
+/** Admin lookup by id — returns inactive products too. */
+export const getProductById = async (productId: string) => {
+  const product = await prisma.product.findUnique({
+    where: { productId },
+    include: productInclude
+  });
+
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+
+  return formatProductDetail(product);
 };
 
 export const getProductReviews = async (

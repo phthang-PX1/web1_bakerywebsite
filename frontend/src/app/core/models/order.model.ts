@@ -1,5 +1,5 @@
-export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'delivering' | 'delivered' | 'cancelled';
-export type PaymentStatus = 'unpaid' | 'paid' | 'refunded';
+export type OrderStatus = 'pending' | 'confirmed' | 'processing' | 'ready' | 'delivered' | 'cancelled';
+export type PaymentStatus = 'pending' | 'paid' | 'failed';
 export type PaymentMethod = 'transfer' | 'cash';
 export type FulfillmentType = 'delivery' | 'pickup';
 

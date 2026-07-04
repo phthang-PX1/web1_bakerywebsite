@@ -130,7 +130,7 @@ export class AdminProductsListPage implements OnInit {
 
   toggleActive(product: Product): void {
     this.togglingId.set(product.productId);
-    this.adminApi.updateProduct(product.productId, { isActive: !product.isActive }).subscribe({
+    this.adminApi.toggleProductStatus(product.productId).subscribe({
       next: (updated) => {
         this.products.update((list) =>
           list.map((p) => p.productId === updated.productId ? updated : p)
