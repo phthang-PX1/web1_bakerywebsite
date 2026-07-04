@@ -105,7 +105,7 @@
           @if (optionalGroups().length > 0) {
             <button class="options-toggle" type="button" (click)="toggleOptions()">
               <span class="options-toggle__label">
-                {{ showOptions() ? 'Ẩn tuỳ chỉnh' : '✦ Thêm tuỳ chỉnh cho bánh' }}
+                {{ showOptions() ? 'Ẩn tuỳ chỉnh' : 'Thêm tuỳ chỉnh cho bánh' }}
               </span>
               <svg class="options-toggle__chevron" [class.options-toggle__chevron--open]="showOptions()"
                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
@@ -128,15 +128,13 @@
                           [disabled]="!item.isActive"
                           (click)="toggleOption(group, item)"
                         >
-                          <div class="option-circle__shell">
-                            <div class="option-circle__core">
-                              @if (item.imageUrl) {
-                                <img [src]="item.imageUrl" [alt]="item.name" />
-                              } @else {
-                                <span class="option-circle__fallback">{{ item.name[0] }}</span>
-                              }
-                            </div>
-                          </div>
+                          <span class="option-circle__media">
+                            @if (item.imageUrl) {
+                              <img [src]="item.imageUrl" [alt]="item.name" />
+                            } @else {
+                              <span class="option-circle__fallback">{{ item.name[0] }}</span>
+                            }
+                          </span>
                           <span class="option-circle__name">{{ item.name }}</span>
                           @if (item.extraPrice > 0) {
                             <span class="option-circle__price">+{{ item.extraPrice | currencyVnd }}</span>
@@ -208,7 +206,7 @@
             class="tab-btn"
             [class.tab-btn--active]="activeTab() === 'description'"
             (click)="setTab('description')"
-          >Mô tả món ơn</button>
+          >Mô tả món ăn</button>
           <button
             class="tab-btn"
             [class.tab-btn--active]="activeTab() === 'reviews'"

@@ -18,16 +18,16 @@ import { Component, input, output } from '@angular/core';
     }
   `,
   styles: [`
-    .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.4); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 16px; }
-    .dialog { background: #fff; border-radius: 12px; padding: 24px; max-width: 400px; width: 100%; box-shadow: 0 20px 60px rgba(0,0,0,0.15); }
-    .dialog__title { font-size: 18px; font-weight: 700; color: #1a1a1a; margin: 0 0 8px; }
-    .dialog__body { font-size: 14px; color: #6b6b6b; margin: 0 0 24px; line-height: 1.5; }
-    .dialog__actions { display: flex; gap: 12px; justify-content: flex-end; }
-    .btn { padding: 10px 20px; border-radius: 8px; border: none; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.15s; }
-    .btn--ghost { background: #f3f4f6; color: #374151; }
-    .btn--ghost:hover { background: #e5e7eb; }
-    .btn--danger { background: #ef4444; color: #fff; }
-    .btn--danger:hover { background: #dc2626; }
+    @use "tokens" as t;
+    @use "mixins" as m;
+    .overlay { position: fixed; inset: 0; background: rgba(43, 26, 15, 0.45); z-index: 9000; display: flex; align-items: center; justify-content: center; padding: 16px; }
+    .dialog { background: t.$surface; border: 1px solid t.$border; border-radius: t.$r-sm; padding: 28px; max-width: 400px; width: 100%; box-shadow: t.$shadow-lift; }
+    .dialog__title { font-family: t.$font-display; font-size: 22px; font-weight: 550; color: t.$ink; margin: 0 0 8px; }
+    .dialog__body { font-size: 14px; color: t.$muted; margin: 0 0 24px; line-height: 1.5; }
+    .dialog__actions { display: flex; gap: 20px; justify-content: flex-end; align-items: center; }
+    .btn--ghost { @include m.btn-text; }
+    .btn--danger { @include m.btn-solid; padding: 11px 22px; font-size: 13px; background: t.$danger; }
+    .btn--danger:hover:not(:disabled) { background: #b91c1c; }
   `],
 })
 export class ConfirmDialogComponent {

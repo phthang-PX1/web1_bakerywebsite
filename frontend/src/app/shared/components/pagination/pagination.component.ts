@@ -25,17 +25,24 @@ import { NgClass } from '@angular/common';
     }
   `,
   styles: [`
-    .pagination { display: flex; gap: 4px; justify-content: center; align-items: center; padding: 24px 0; }
+    @use "tokens" as t;
+    .pagination { display: flex; gap: 14px; justify-content: center; align-items: center; padding: 32px 0; }
     .pagination__btn {
-      min-width: 36px; height: 36px; padding: 0 8px;
-      border: 1px solid #e5e7eb; border-radius: 6px;
-      background: #fff; cursor: pointer; font-size: 14px; color: #1a1a1a;
-      transition: all 0.15s;
+      min-width: 30px; height: 34px; padding: 0 4px;
+      border: none; background: none; cursor: pointer;
+      font-family: t.$font-display; font-size: 16px; color: t.$muted;
+      transition: color 0.15s;
     }
-    .pagination__btn:hover:not(:disabled) { border-color: #C96A2E; color: #C96A2E; }
-    .pagination__btn--active { background: #C96A2E; color: #fff; border-color: #C96A2E; }
-    .pagination__btn:disabled { opacity: 0.4; cursor: not-allowed; }
-    .pagination__ellipsis { padding: 0 4px; color: #6b6b6b; }
+    .pagination__btn:hover:not(:disabled) { color: t.$primary; }
+    .pagination__btn--active {
+      color: t.$ink;
+      text-decoration: underline;
+      text-underline-offset: 6px;
+      text-decoration-thickness: 1px;
+      text-decoration-color: t.$caramel;
+    }
+    .pagination__btn:disabled { opacity: 0.35; cursor: not-allowed; }
+    .pagination__ellipsis { color: t.$muted; }
   `],
 })
 export class PaginationComponent {

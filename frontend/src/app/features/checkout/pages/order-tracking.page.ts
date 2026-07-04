@@ -64,7 +64,7 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
     pending: 'Chờ xác nhận',
     confirmed: 'Đã xác nhận',
     processing: 'Đang làm',
-    delivering: 'Đang giao',
+    ready: 'Sẵn sàng giao/nhận',
     delivered: 'Đã giao',
     cancelled: 'Đã hủy',
   };

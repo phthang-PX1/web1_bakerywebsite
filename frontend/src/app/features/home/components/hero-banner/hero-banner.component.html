@@ -1,9 +1,6 @@
 <section class="hero">
   <div class="hero__copy">
-    <p class="hero__eyebrow">
-      <span class="hero__eyebrow-dot"></span>
-      Thương hiệu bánh ngọt Việt Nam
-    </p>
+    <p class="hero__eyebrow">Thương hiệu bánh ngọt Việt Nam</p>
 
     <h1 class="hero__heading">
       Bộ Sưu Tập<br>
@@ -16,17 +13,10 @@
     </p>
 
     <div class="hero__actions">
-      <a class="hero__cta-primary" routerLink="/products">
-        Khám phá ngay
-        <span class="cta-icon" aria-hidden="true">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <path d="M5 12h14M12 5l7 7-7 7"/>
-          </svg>
-        </span>
-      </a>
+      <a class="hero__cta-primary" routerLink="/products">Khám phá ngay</a>
       <a class="hero__cta-secondary" routerLink="/custom-cake">
         Tùy chỉnh bánh của bạn
-        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
           <path d="M5 12h14M12 5l7 7-7 7"/>
         </svg>
       </a>
@@ -37,12 +27,10 @@
         <span class="hero__stat-number">500+</span>
         <span class="hero__stat-label">Đơn mỗi tuần</span>
       </div>
-      <div class="hero__stat-divider" aria-hidden="true"></div>
       <div class="hero__stat">
         <span class="hero__stat-number">4.9★</span>
         <span class="hero__stat-label">Đánh giá khách hàng</span>
       </div>
-      <div class="hero__stat-divider" aria-hidden="true"></div>
       <div class="hero__stat">
         <span class="hero__stat-number">30+</span>
         <span class="hero__stat-label">Hương vị độc quyền</span>
@@ -51,20 +39,9 @@
   </div>
 
   <div class="hero__visual">
-    <div class="hero__orb" aria-hidden="true"></div>
-    <div class="hero__frame-outer">
-      <div class="hero__frame-inner">
-        <img [src]="heroImageUrl" alt="Bánh lạnh WeBee cao cấp" />
-      </div>
+    <div class="hero__media">
+      <img [src]="heroImageUrl" alt="Bánh lạnh WeBee cao cấp" />
     </div>
-    <div class="hero__float-tag">
-      <div class="hero__float-icon">
-        <img src="/assets/icons/product-themvaogio.png" alt="" />
-      </div>
-      <div class="hero__float-text">
-        <strong>Mới ra mắt</strong>
-        <span>Bộ sưu tập hè 2025</span>
-      </div>
-    </div>
+    <p class="hero__caption">Mới ra mắt — Bộ sưu tập hè 2025</p>
   </div>
 </section>

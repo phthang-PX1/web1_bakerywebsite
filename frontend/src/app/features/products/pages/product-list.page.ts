@@ -49,8 +49,9 @@ export class ProductListPage implements OnInit {
   readonly maxPct = computed(() => (this.maxPriceSlider() / MAX_PRICE) * 100);
 
   private readonly searchInput$ = new Subject<string>();
-  // Tracks the last URL-sourced category key to avoid re-applying when sidebar is active
-  private _lastNavCategoryKey = '';
+  // Tracks the last URL-sourced category key to avoid re-applying when sidebar
+  // is active. Starts as null so the very first emission always triggers a load.
+  private _lastNavCategoryKey: string | null = null;
 
   readonly sortOptions: { value: ProductSort; label: string }[] = [
     { value: 'newest', label: 'Mới nhất' },
@@ -106,7 +107,6 @@ export class ProductListPage implements OnInit {
       current.add(slug);
     }
     this.selectedCategories.set(current);
-    console.log('[DEBUG] selectedCategories after toggle:', [...this.selectedCategories()]);
     this.currentPage.set(1);
     this.loadProducts();
   }
@@ -163,7 +163,7 @@ export class ProductListPage implements OnInit {
     return {
       id: p.productId,
       name: p.name,
-      imageUrl: p.thumbnailUrl ?? '/assets/images/product-placeholder.webp',
+      imageUrl: p.thumbnailUrl ?? '/assets/images/product-placeholder.svg',
       price: p.basePrice,
       rating: p.avgRating,
       reviewCount: p.reviewCount,
@@ -177,7 +177,6 @@ export class ProductListPage implements OnInit {
     this.loading.set(true);
     this.error.set('');
     const cats = [...this.selectedCategories()];
-    console.log('[DEBUG] loadProducts called with cats:', cats);
     this.productsApi.getProducts({
       categories: cats.length > 0 ? cats : undefined,
       search: this.searchQuery() || undefined,

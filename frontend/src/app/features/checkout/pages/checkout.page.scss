@@ -1,591 +1,471 @@
-$primary: #C96A2E;
-$primary-dark: #7A3D18;
-$primary-bg: #FFF5EE;
-$border: #e5e7eb;
-$text-main: #1a1a1a;
-$text-sub: #6b7280;
-$bg-page: #f5f0ea;
-$bg-card: #fff;
-$radius-card: 12px;
+@use "tokens" as t;
+@use "mixins" as m;
 
 .checkout-page {
-  background: $bg-page;
+  background: t.$paper;
   min-height: 100vh;
-  padding: 32px 0 60px;
 }
 
 .checkout-page__inner {
-  width: min(1160px, calc(100% - 40px));
-  margin: 0 auto;
+  @include m.container;
+  padding: t.$sp-7 0 t.$sp-8;
 }
 
 .checkout-page__title {
-  font-size: 28px;
-  font-weight: 800;
-  margin: 0 0 28px;
-  color: $text-main;
+  @include m.display(2);
+  margin: 0 0 t.$sp-6;
+  padding-bottom: t.$sp-4;
+  @include m.hairline(bottom);
 }
 
-/* ─── LAYOUT ─────────────────────────────────── */
 .checkout-layout {
   display: grid;
-  grid-template-columns: 1fr 360px;
-  gap: 24px;
+  grid-template-columns: 7fr 5fr;
+  gap: t.$sp-7;
   align-items: start;
+  counter-reset: checkout-section;
 }
 
-.checkout-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-/* ─── SECTION CARD ────────────────────────────── */
+// --- Numbered editorial sections -------------------------------------------
 .form-section {
-  background: $bg-card;
-  border-radius: $radius-card;
-  padding: 20px 24px;
-  border: 1px solid $border;
+  padding: t.$sp-5 0;
+  @include m.hairline(top);
+
+  &:first-child {
+    border-top: none;
+    padding-top: 0;
+  }
 }
 
 .form-section__title {
-  font-size: 11px;
+  display: flex;
+  align-items: baseline;
+  gap: t.$sp-3;
+  font-size: t.$fs-eyebrow;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: $text-sub;
-  margin: 0 0 16px;
+  letter-spacing: t.$tracking-wide;
   text-transform: uppercase;
+  color: t.$ink;
+  margin: 0 0 t.$sp-4;
+
+  &::before {
+    counter-increment: checkout-section;
+    content: counter(checkout-section, decimal-leading-zero);
+    font-family: t.$font-display;
+    font-size: 1.4rem;
+    font-weight: 500;
+    color: t.$caramel;
+    letter-spacing: 0;
+  }
 }
 
 .form-section--invoice {
-  padding: 16px 24px;
+  counter-increment: none;
+
+  .invoice-toggle {
+    display: flex;
+    align-items: center;
+    gap: t.$sp-2;
+    font-size: t.$fs-body-sm;
+    font-weight: 600;
+    color: t.$ink;
+    cursor: pointer;
+
+    input {
+      accent-color: t.$primary;
+      width: 16px;
+      height: 16px;
+    }
+  }
 }
 
-/* ─── FULFILLMENT ─────────────────────────────── */
-.fulfillment-selector {
+// --- Fulfillment / payment selectors: hairline rows -----------------------------
+.fulfillment-selector,
+.payment-selector {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 12px;
-  margin-bottom: 16px;
+  gap: t.$sp-3;
 }
 
-.fulfillment-btn {
+.fulfillment-btn,
+.payment-btn {
   display: flex;
   align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border: 2px solid $border;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
+  gap: t.$sp-2;
+  padding: 14px t.$sp-4;
+  border: 1px solid t.$border;
+  border-radius: t.$r-xs;
+  font-size: t.$fs-body-sm;
   font-weight: 600;
-  color: $text-sub;
-  transition: all 0.15s;
-  background: #fff;
+  color: t.$muted;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
 
-  svg { flex-shrink: 0; }
-
-  &--active {
-    border-color: $primary;
-    color: $primary;
-    background: $primary-bg;
+  &:hover {
+    border-color: t.$primary;
   }
 
-  &:hover:not(&--active) {
-    border-color: #d1d5db;
-    color: $text-main;
+  &--active {
+    border-color: t.$primary;
+    color: t.$ink;
+
+    svg {
+      stroke: t.$primary;
+    }
   }
 }
 
-/* ─── GIFT RECIPIENT ──────────────────────────── */
+.store-info-card {
+  margin-top: t.$sp-3;
+  padding: t.$sp-3 t.$sp-4;
+  background: t.$surface;
+  border: 1px solid t.$border;
+  border-radius: t.$r-xs;
+  display: flex;
+  flex-direction: column;
+  gap: t.$sp-2;
+}
+
+.store-info-card__row {
+  display: flex;
+  align-items: flex-start;
+  gap: t.$sp-2;
+  font-size: t.$fs-micro;
+  color: t.$muted;
+
+  svg {
+    flex-shrink: 0;
+    margin-top: 2px;
+    stroke: t.$caramel;
+  }
+
+  strong {
+    color: t.$ink;
+  }
+}
+
 .gift-recipient-toggle {
   display: flex;
   align-items: flex-start;
-  gap: 12px;
-  padding: 14px 16px;
-  background: #f9fafb;
-  border-radius: 8px;
-  border: 1px solid $border;
+  gap: t.$sp-2;
+  margin-top: t.$sp-4;
   cursor: pointer;
 
-  input[type="checkbox"] {
-    margin-top: 3px;
-    accent-color: $primary;
+  input {
+    accent-color: t.$primary;
     width: 16px;
     height: 16px;
-    flex-shrink: 0;
-    cursor: pointer;
-  }
-
-  &__text {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-
-  &__main {
-    font-size: 14px;
-    font-weight: 600;
-    color: $text-main;
-  }
-
-  &__sub {
-    font-size: 12px;
-    color: $text-sub;
+    margin-top: 2px;
   }
 }
 
-/* ─── FIELDS ──────────────────────────────────── */
-.field {
+.gift-recipient-toggle__text {
   display: flex;
   flex-direction: column;
 }
 
-.field__label {
-  font-size: 13px;
+.gift-recipient-toggle__main {
+  font-size: t.$fs-body-sm;
   font-weight: 600;
-  color: #374151;
+  color: t.$ink;
+}
+
+.gift-recipient-toggle__sub {
+  font-size: t.$fs-micro;
+  color: t.$muted;
+}
+
+// --- Fields ----------------------------------------------------------------------
+.field-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: t.$sp-3;
+}
+
+.field__label {
+  display: block;
+  font-size: t.$fs-eyebrow;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: t.$muted;
   margin-bottom: 6px;
 }
 
 .field__input {
-  padding: 10px 14px;
-  border: 1px solid $border;
-  border-radius: 8px;
-  font-size: 14px;
-  color: $text-main;
-  background: #fff;
-  transition: border-color 0.15s;
-  font-family: inherit;
-
-  &:focus {
-    outline: none;
-    border-color: $primary;
-    box-shadow: 0 0 0 3px rgba(201, 106, 46, 0.1);
-  }
-
-  &::placeholder { color: #9ca3af; }
+  @include m.field;
 }
 
 .field__select {
-  appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%236b7280' stroke-width='2'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E");
-  background-repeat: no-repeat;
-  background-position: right 12px center;
-  padding-right: 36px;
   cursor: pointer;
 }
 
 .field__textarea {
   resize: vertical;
-  min-height: 80px;
 }
 
 .field__error {
-  font-size: 12px;
-  color: #ef4444;
-  margin: 4px 0 0;
-}
-
-.field-row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
+  font-size: t.$fs-micro;
+  color: t.$primary-dark;
+  margin: 6px 0 0;
 }
 
 .address-selects {
   display: grid;
-  grid-template-columns: 1fr 1fr 1fr;
-  gap: 10px;
-  margin-top: 10px;
+  grid-template-columns: repeat(3, 1fr);
+  gap: t.$sp-3;
+  margin-top: t.$sp-3;
 }
 
-/* ─── DAY CHIPS ───────────────────────────────── */
-.day-chips {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
-.day-chip {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 2px;
-  padding: 10px 14px;
-  border: 2px solid $border;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-sub;
-  transition: all 0.15s;
-  min-width: 72px;
-
-  &--active {
-    border-color: $primary;
-    background: $primary-bg;
-    color: $primary;
-  }
-
-  &--icon {
-    flex-direction: row;
-    gap: 6px;
-    padding: 10px 16px;
-  }
-
-  &__label { font-size: 13px; font-weight: 600; }
-  &__sub { font-size: 11px; font-weight: 400; color: inherit; }
-
-  &:hover:not(&--active) {
-    border-color: #d1d5db;
-    color: $text-main;
-  }
-}
-
-/* ─── STORE INFO CARD (pickup) ────────────────── */
-.store-info-card {
-  background: $primary-bg;
-  border: 1px solid rgba(201, 106, 46, 0.25);
-  border-radius: 8px;
-  padding: 14px 16px;
-  margin-bottom: 14px;
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-
-  &__row {
-    display: flex;
-    align-items: flex-start;
-    gap: 8px;
-    font-size: 13px;
-    color: $text-main;
-    line-height: 1.5;
-
-    svg {
-      flex-shrink: 0;
-      margin-top: 2px;
-      color: $primary;
-    }
-  }
-}
-
-/* ─── PAYMENT ─────────────────────────────────── */
-.payment-selector {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 12px;
-}
-
-.payment-btn {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  padding: 12px 16px;
-  border: 2px solid $border;
-  border-radius: 8px;
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 600;
-  color: $text-sub;
-  transition: all 0.15s;
-  background: #fff;
-
-  svg { flex-shrink: 0; }
-
-  &--active {
-    border-color: $primary;
-    color: $primary;
-    background: $primary-bg;
-  }
-
-  &:hover:not(&--active) {
-    border-color: #d1d5db;
-    color: $text-main;
-  }
-}
-
-/* ─── TIME SLOTS ──────────────────────────────── */
+// --- Day / time chips ----------------------------------------------------------------
+.day-chips,
 .time-slots {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: t.$sp-2;
+}
+
+.day-chip,
+.time-slot-chip {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 9px 16px;
+  border: 1px solid t.$border;
+  border-radius: t.$r-pill;
+  background: none;
+  font-size: t.$fs-micro;
+  font-weight: 600;
+  color: t.$ink;
+  cursor: pointer;
+  transition: border-color 0.15s ease, color 0.15s ease;
+
+  &:hover {
+    border-color: t.$primary;
+  }
+
+  &--active {
+    border-color: t.$primary;
+    color: t.$primary;
+  }
+}
+
+.day-chip--icon {
+  flex-direction: row;
+  gap: 6px;
+}
+
+.day-chip__sub {
+  font-size: 10px;
+  font-weight: 500;
+  color: t.$muted;
 }
 
 .time-slot-chip {
-  padding: 8px 14px;
-  border: 2px solid $border;
-  border-radius: 8px;
-  background: #fff;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: $text-sub;
-  transition: all 0.15s;
-
-  &--active {
-    border-color: $primary;
-    background: $primary-bg;
-    color: $primary;
-  }
-
-  &:hover:not(&--active) {
-    border-color: #d1d5db;
-    color: $text-main;
-  }
+  flex-direction: row;
 }
 
-/* ─── PAYMENT HINT ────────────────────────────── */
-.payment-hint {
-  font-size: 12px;
-  color: $text-sub;
-  margin-top: 10px;
-  padding: 8px 12px;
-  background: #f9fafb;
-  border-radius: 6px;
-  line-height: 1.5;
-}
-
-/* ─── VOUCHER ─────────────────────────────────── */
+// --- Coupon --------------------------------------------------------------------------
 .coupon-row {
   display: flex;
-  gap: 10px;
+  gap: t.$sp-2;
+}
 
-  &__input { flex: 1; }
+.coupon-row__input {
+  flex: 1;
 }
 
 .btn-apply {
-  padding: 10px 18px;
-  background: $text-main;
-  color: #fff;
-  border: none;
-  border-radius: 8px;
-  font-size: 14px;
-  font-weight: 600;
-  cursor: pointer;
+  @include m.btn-outline;
+  padding: 11px 20px;
+  font-size: t.$fs-micro;
   white-space: nowrap;
-  transition: background 0.15s;
-
-  &:hover:not(:disabled) { background: #374151; }
-  &:disabled { opacity: 0.6; cursor: not-allowed; }
 }
 
 .coupon-applied {
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  padding: 10px 14px;
-  background: #f0fdf4;
-  border-radius: 8px;
-  font-size: 14px;
-  color: #15803d;
-
-  &__remove {
-    background: none;
-    border: none;
-    cursor: pointer;
-    color: $text-sub;
-    font-size: 16px;
-    padding: 0 4px;
-
-    &:hover { color: #ef4444; }
-  }
+  padding: t.$sp-3 t.$sp-4;
+  border: 1px solid t.$success;
+  border-radius: t.$r-xs;
+  font-size: t.$fs-body-sm;
+  font-weight: 600;
+  color: t.$success;
 }
 
-/* ─── INVOICE CHECKBOX ────────────────────────── */
-.invoice-toggle {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+.coupon-applied__remove {
+  border: none;
+  background: none;
   cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: $text-main;
+  color: t.$muted;
 
-  input[type="checkbox"] {
-    width: 16px;
-    height: 16px;
-    accent-color: $primary;
-    flex-shrink: 0;
-    cursor: pointer;
+  &:hover {
+    color: t.$danger;
   }
 }
 
-/* ─── ORDER SUMMARY ───────────────────────────── */
+.payment-hint {
+  margin: t.$sp-3 0 0;
+  font-size: t.$fs-micro;
+  font-style: italic;
+  font-family: t.$font-display;
+  color: t.$muted;
+}
+
+// --- Summary (receipt panel) ------------------------------------------------------------
 .checkout-summary {
-  background: $bg-card;
-  border-radius: $radius-card;
-  border: 1px solid $border;
-  padding: 20px 24px;
   position: sticky;
-  top: 90px;
+  top: 96px;
+  background: t.$surface;
+  border: 1px solid t.$border;
+  border-radius: t.$r-sm;
+  padding: t.$sp-5;
 }
 
 .summary-header {
   display: flex;
   align-items: baseline;
-  gap: 8px;
-  margin-bottom: 16px;
-  padding-bottom: 14px;
-  border-bottom: 1px solid $border;
+  gap: t.$sp-2;
+  margin-bottom: t.$sp-4;
+}
 
-  &__title {
-    font-size: 15px;
-    font-weight: 700;
-    color: $text-main;
-  }
+.summary-header__title {
+  font-family: t.$font-display;
+  font-size: 1.3rem;
+  font-weight: 550;
+  color: t.$ink;
+}
 
-  &__count {
-    font-size: 13px;
-    color: $text-sub;
-  }
+.summary-header__count {
+  font-size: t.$fs-micro;
+  color: t.$muted;
 }
 
 .summary-items {
   list-style: none;
+  margin: 0 0 t.$sp-4;
   padding: 0;
-  margin: 0 0 16px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
+  max-height: 280px;
+  overflow-y: auto;
 }
 
 .summary-item {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: t.$sp-3;
+  padding: t.$sp-2 0;
+  border-bottom: 1px solid t.$border;
+}
 
-  &__img {
-    width: 64px;
-    height: 64px;
-    object-fit: cover;
-    border-radius: 8px;
-    flex-shrink: 0;
-    background: #f3f4f6;
-  }
+.summary-item__img {
+  width: 44px;
+  height: 44px;
+  object-fit: cover;
+  border: 1px solid t.$border;
+  flex-shrink: 0;
+}
 
-  &__info {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-    min-width: 0;
-  }
+.summary-item__info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
 
-  &__name {
-    font-size: 13px;
-    font-weight: 600;
-    color: $text-main;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-  }
+.summary-item__name {
+  font-size: t.$fs-micro;
+  font-weight: 600;
+  color: t.$ink;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
 
-  &__qty {
-    font-size: 12px;
-    color: $text-sub;
-  }
+.summary-item__qty {
+  font-size: 11px;
+  color: t.$muted;
+}
 
-  &__price {
-    font-size: 14px;
-    font-weight: 600;
-    color: $text-main;
-    white-space: nowrap;
-  }
+.summary-item__price {
+  font-family: t.$font-display;
+  font-size: t.$fs-micro;
+  font-weight: 600;
+  color: t.$ink;
+  font-variant-numeric: tabular-nums;
 }
 
 .summary-rows {
-  border-top: 1px solid $border;
-  padding-top: 14px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  margin-bottom: 20px;
+  gap: t.$sp-2;
 }
 
 .summary-row {
   display: flex;
   justify-content: space-between;
-  font-size: 14px;
-  color: #374151;
+  font-size: t.$fs-body-sm;
+  color: t.$muted;
+  font-variant-numeric: tabular-nums;
 
   &--discount {
-    color: #16a34a;
+    color: t.$success;
   }
 
   &--total {
-    padding-top: 10px;
-    border-top: 1px solid $border;
-    margin-top: 4px;
-    font-size: 15px;
-    font-weight: 700;
-    color: $text-main;
+    margin-top: t.$sp-2;
+    padding-top: t.$sp-3;
+    @include m.hairline(top);
+    color: t.$ink;
+    align-items: baseline;
   }
 }
 
 .shipping-free {
-  color: #16a34a;
+  color: t.$success;
   font-weight: 600;
 }
 
 .summary-total-amount {
-  font-size: 20px;
-  font-weight: 800;
-  color: $primary;
+  font-family: t.$font-display;
+  font-size: 1.5rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+}
+
+.btn-order {
+  @include m.btn-solid;
+  width: 100%;
+  margin-top: t.$sp-4;
 }
 
 .summary-empty {
-  font-size: 14px;
-  color: $text-sub;
+  font-family: t.$font-display;
+  font-style: italic;
+  color: t.$muted;
   text-align: center;
-  padding: 24px 0;
+  margin: t.$sp-4 0;
 }
 
-/* ─── SUBMIT BUTTON ───────────────────────────── */
-.btn-order {
-  display: block;
-  width: 100%;
-  padding: 16px;
-  background: $primary;
-  color: #fff;
-  border: none;
-  border-radius: 10px;
-  font-size: 16px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.15s;
-  text-align: center;
-
-  &:hover:not(:disabled) { background: $primary-dark; }
-  &:disabled { opacity: 0.65; cursor: not-allowed; }
-}
-
-/* ─── RESPONSIVE ──────────────────────────────── */
-@media (max-width: 860px) {
+// --- Responsive -----------------------------------------------------------------------------
+@include m.mq-down(lg) {
   .checkout-layout {
     grid-template-columns: 1fr;
+    gap: t.$sp-5;
   }
 
   .checkout-summary {
     position: static;
     order: -1;
   }
-
-  .address-selects {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .day-chips {
-    flex-wrap: wrap;
-  }
 }
 
-@media (max-width: 480px) {
-  .field-row { grid-template-columns: 1fr; }
-  .address-selects { grid-template-columns: 1fr; }
-  .fulfillment-selector { grid-template-columns: 1fr; }
-  .payment-selector { grid-template-columns: 1fr; }
+@include m.mq-down(sm) {
+  .field-row,
+  .address-selects,
+  .fulfillment-selector,
+  .payment-selector {
+    grid-template-columns: 1fr;
+  }
 }

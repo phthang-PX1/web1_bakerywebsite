@@ -23,7 +23,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
         <app-loading-spinner />
       } @else if (orders().length === 0) {
         <div class="empty-state">
-          <p>📦 Bạn chưa có đơn hàng nào.</p>
+          <p>Bạn chưa có đơn hàng nào.</p>
           <a class="btn-save" routerLink="/products">Mua sắm ngay</a>
         </div>
       } @else {
@@ -58,7 +58,7 @@ export class OrderHistoryPage implements OnInit {
 
   readonly STATUS_LABELS: Record<string, string> = {
     pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang làm',
-    delivering: 'Đang giao', delivered: 'Đã giao', cancelled: 'Đã hủy',
+    ready: 'Sẵn sàng giao/nhận', delivered: 'Đã giao', cancelled: 'Đã hủy',
   };
 
   ngOnInit(): void { this.loadPage(1); }

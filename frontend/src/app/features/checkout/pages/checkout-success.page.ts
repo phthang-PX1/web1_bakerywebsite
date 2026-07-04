@@ -21,8 +21,7 @@ interface SuccessState {
         @if (state()) {
           <div class="success-card">
             <div class="success-header">
-              <span class="success-icon">🎉</span>
-              <h1 class="success-title">Đặt hàng thành công!</h1>
+              <h1 class="success-title">Cảm ơn bạn!</h1>
               <p class="success-subtitle">Cảm ơn {{ state()!.recipientName }}, đơn hàng của bạn đã được ghi nhận.</p>
               <p class="success-order-id">Mã đơn hàng: <strong>#{{ state()!.orderId.slice(-8).toUpperCase() }}</strong></p>
             </div>
@@ -47,7 +46,6 @@ interface SuccessState {
               </div>
             } @else {
               <div class="payment-section payment-section--cod">
-                <span class="cod-icon">💵</span>
                 <h2 class="payment-section__title">Thanh toán khi nhận hàng (COD)</h2>
                 <div class="transfer-amount">
                   <span>Số tiền thanh toán</span>
@@ -74,28 +72,43 @@ interface SuccessState {
     </div>
   `,
   styles: [`
-    .success-page { background: #FDFAF6; min-height: 100vh; padding: 60px 20px; display: flex; align-items: flex-start; justify-content: center; }
+    @use "tokens" as t;
+    @use "mixins" as m;
+
+    .success-page { background: t.$paper; min-height: 100vh; padding: 72px 20px; display: flex; align-items: flex-start; justify-content: center; }
     .success-page__inner { width: 100%; max-width: 560px; }
 
     .success-card {
-      background: #fff;
-      border-radius: 16px;
-      border: 1px solid #f3f4f6;
-      box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+      background: t.$surface;
+      border: 1px solid t.$border;
+      border-radius: t.$r-sm;
       overflow: hidden;
     }
 
     .success-header {
-      background: linear-gradient(135deg, #FFF5EE 0%, #FDFAF6 100%);
-      padding: 40px 32px 32px;
+      padding: 48px 32px 32px;
       text-align: center;
-      border-bottom: 1px solid #f3f4f6;
+      border-bottom: 1px solid t.$border;
     }
-    .success-icon { font-size: 56px; display: block; margin-bottom: 16px; }
-    .success-title { font-size: 26px; font-weight: 800; color: #1a1a1a; margin: 0 0 8px; }
-    .success-subtitle { font-size: 15px; color: #4b5563; margin: 0 0 12px; }
-    .success-order-id { font-size: 14px; color: #6b6b6b; margin: 0; }
-    .success-order-id strong { color: #C96A2E; }
+    .success-title {
+      font-family: t.$font-display;
+      font-style: italic;
+      font-size: t.$fs-display-2;
+      font-weight: 550;
+      color: t.$ink;
+      margin: 0 0 12px;
+    }
+    .success-subtitle { font-size: 15px; color: t.$muted; margin: 0 0 16px; }
+    .success-order-id {
+      display: inline-block;
+      font-size: 14px;
+      color: t.$muted;
+      margin: 0;
+      padding: 6px 16px;
+      border: 1px solid t.$border;
+      border-radius: t.$r-pill;
+    }
+    .success-order-id strong { color: t.$ink; font-variant-numeric: tabular-nums; }
 
     .payment-section {
       padding: 32px;
@@ -103,73 +116,96 @@ interface SuccessState {
       flex-direction: column;
       align-items: center;
       gap: 16px;
-      border-bottom: 1px solid #f3f4f6;
+      border-bottom: 1px solid t.$border;
     }
-    .payment-section__title { font-size: 17px; font-weight: 700; color: #1a1a1a; margin: 0; align-self: flex-start; }
+    .payment-section__title {
+      align-self: flex-start;
+      font-size: t.$fs-eyebrow;
+      font-weight: 700;
+      letter-spacing: t.$tracking-wide;
+      text-transform: uppercase;
+      color: t.$caramel;
+      margin: 0;
+    }
 
-    .qr-code { width: 200px; height: 200px; border-radius: 12px; border: 1px solid #e5e7eb; }
+    .qr-code { width: 200px; height: 200px; border: 1px solid t.$border; }
 
     .transfer-info { text-align: center; }
-    .transfer-info__label { font-size: 13px; color: #6b6b6b; margin: 0 0 6px; }
+    .transfer-info__label { font-size: 13px; color: t.$muted; margin: 0 0 6px; }
     .transfer-info__value {
       display: block;
-      font-size: 18px;
+      font-size: 17px;
       font-weight: 700;
-      color: #1a1a1a;
-      background: #f9fafb;
+      color: t.$ink;
+      background: t.$paper;
       padding: 10px 20px;
-      border-radius: 8px;
-      border: 1px dashed #d1d5db;
+      border: 1px dashed t.$caramel;
       letter-spacing: 0.5px;
+      font-variant-numeric: tabular-nums;
     }
 
     .transfer-amount {
       display: flex;
       justify-content: space-between;
-      align-items: center;
+      align-items: baseline;
       width: 100%;
-      padding: 14px 16px;
-      background: #FFF5EE;
-      border-radius: 10px;
-      font-size: 15px;
-      color: #4b5563;
+      padding: 14px 0;
+      border-top: 1px solid t.$border;
+      border-bottom: 1px solid t.$border;
+      font-size: 14px;
+      color: t.$muted;
     }
-    .transfer-amount strong { font-size: 20px; font-weight: 800; color: #C96A2E; }
+    .transfer-amount strong {
+      font-family: t.$font-display;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: t.$ink;
+      font-variant-numeric: tabular-nums;
+    }
 
-    .payment-note { font-size: 13px; color: #6b6b6b; text-align: center; margin: 0; padding: 0 16px; line-height: 1.5; }
+    .payment-note {
+      font-size: 13px;
+      font-style: italic;
+      font-family: t.$font-display;
+      color: t.$muted;
+      text-align: center;
+      margin: 0;
+      padding: 0 16px;
+      line-height: 1.6;
+    }
     .payment-section--cod { text-align: center; }
-    .cod-icon { font-size: 48px; display: block; }
 
     .success-actions {
       padding: 24px 32px;
       display: flex;
-      gap: 12px;
+      align-items: center;
+      justify-content: center;
+      gap: 24px;
     }
 
-    .btn {
-      flex: 1;
-      display: block;
-      padding: 13px 20px;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
+    .btn--primary { @include m.btn-solid; }
+    .btn--outline { @include m.btn-text; }
+
+    .no-order {
       text-align: center;
-      text-decoration: none;
-      border: none;
-      cursor: pointer;
-      transition: all 0.15s;
+      padding: 60px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 16px;
     }
-    .btn--primary { background: #C96A2E; color: #fff; }
-    .btn--primary:hover { background: #7A3D18; }
-    .btn--outline { background: transparent; border: 2px solid #C96A2E; color: #C96A2E; }
-    .btn--outline:hover { background: #FFF5EE; }
-
-    .no-order { text-align: center; padding: 60px 20px; color: #6b6b6b; display: flex; flex-direction: column; align-items: center; gap: 16px; }
+    .no-order p {
+      font-family: t.$font-display;
+      font-style: italic;
+      font-size: 1.2rem;
+      color: t.$muted;
+      margin: 0;
+    }
 
     @media (max-width: 480px) {
       .success-header { padding: 32px 20px 24px; }
       .payment-section { padding: 24px 20px; }
-      .success-actions { padding: 20px; flex-direction: column; }
+      .success-actions { padding: 20px; flex-direction: column; gap: 14px; }
     }
   `],
 })

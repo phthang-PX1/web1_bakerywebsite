@@ -1,0 +1,87 @@
+// WeBee design tokens — single source of truth for the client UI.
+// Pure Sass variables: importing this file emits zero CSS.
+// Usage: @use "tokens" as t;  (includePaths: src/styles)
+
+// ---------------------------------------------------------------------------
+// Color — unified brand palette (merges the legacy espresso/honey and
+// terracotta systems; every value already existed in the old UI).
+// ---------------------------------------------------------------------------
+$primary: #c96a2e; // terracotta — the single action color
+$primary-dark: #7a3d18; // hover / pressed
+$ink: #2b1a0f; // espresso — display text, dark bands
+$accent: #f5c842; // honey — badges & highlights only
+$caramel: #c47a2b; // eyebrows, rules, secondary accents
+
+$paper: #fdfbf5; // page background
+$surface: #fffbf7; // cards / panels
+$surface-warm: #fff5ee; // soft emphasis tint
+$sand: #f5e6d3; // soft full-bleed bands
+
+$muted: #7a6555; // secondary text
+$border: #ede8e2; // hairlines
+
+$success: #16a34a;
+$danger: #dc2626;
+$warning: #f59e0b;
+$info: #3b82f6;
+
+$cream-text: #e8ddd5; // body text on $ink bands
+
+// ---------------------------------------------------------------------------
+// Typography
+// ---------------------------------------------------------------------------
+$font-display: "Fraunces", Georgia, "Times New Roman", serif;
+$font-body: "Be Vietnam Pro", ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+
+$fs-display-1: clamp(2.75rem, 2rem + 4vw, 5rem);
+$fs-display-2: clamp(2rem, 1.5rem + 2.5vw, 3.25rem);
+$fs-h3: clamp(1.375rem, 1.2rem + 1vw, 1.75rem);
+$fs-body: 1rem;
+$fs-body-sm: 0.9375rem;
+$fs-micro: 0.8125rem;
+$fs-eyebrow: 0.75rem;
+
+$tracking-wide: 0.14em;
+
+// ---------------------------------------------------------------------------
+// Spacing & rhythm
+// ---------------------------------------------------------------------------
+$sp-1: 4px;
+$sp-2: 8px;
+$sp-3: 12px;
+$sp-4: 16px;
+$sp-5: 24px;
+$sp-6: 32px;
+$sp-7: 48px;
+$sp-8: 64px;
+$sp-9: 96px;
+$sp-10: 128px;
+
+$section-y: clamp(4rem, 8vw, 7.5rem);
+
+// ---------------------------------------------------------------------------
+// Radius — deliberately small scale; sharp corners are part of the look.
+// ---------------------------------------------------------------------------
+$r-0: 0; // editorial imagery
+$r-xs: 4px; // inputs
+$r-sm: 10px; // panels
+$r-pill: 999px; // buttons only
+$r-arch: 999px 999px 0 0; // signature arch frame
+
+// ---------------------------------------------------------------------------
+// Elevation — hairline-first; shadows are the exception.
+// ---------------------------------------------------------------------------
+$shadow-soft: 0 2px 12px rgba(43, 26, 15, 0.06);
+$shadow-lift: 0 16px 40px rgba(43, 26, 15, 0.12);
+
+// ---------------------------------------------------------------------------
+// Breakpoints & containers
+// ---------------------------------------------------------------------------
+$bp-sm: 480px;
+$bp-md: 768px;
+$bp-lg: 1024px;
+$bp-xl: 1280px;
+
+$container: min(1200px, 92vw);
+$container-wide: min(1400px, 94vw);
+$container-narrow: min(760px, 92vw);
