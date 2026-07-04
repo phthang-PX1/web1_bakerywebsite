@@ -12,12 +12,12 @@ const STATUS_LABELS: Record<OrderStatus, string> = {
   pending: 'Chờ xác nhận',
   confirmed: 'Đã xác nhận',
   processing: 'Đang làm',
-  delivering: 'Đang giao',
+  ready: 'Sẵn sàng giao/nhận',
   delivered: 'Đã giao',
   cancelled: 'Đã hủy',
 };
 
-const STATUS_FLOW: OrderStatus[] = ['pending', 'confirmed', 'processing', 'delivering', 'delivered', 'cancelled'];
+const STATUS_FLOW: OrderStatus[] = ['pending', 'confirmed', 'processing', 'ready', 'delivered', 'cancelled'];
 
 @Component({
   selector: 'app-admin-order-detail-page',

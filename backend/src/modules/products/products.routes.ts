@@ -7,6 +7,8 @@ import {
   addProductImagesController,
   createProductController,
   deleteProductImageController,
+  getAdminProductByIdController,
+  getAdminProductsController,
   getProductBySlugController,
   getProductReviewsController,
   getProductsController,
@@ -183,6 +185,64 @@ publicRouter.get(
  *       201:
  *         description: Product created
  */
+/**
+ * @swagger
+ * /admin/products:
+ *   get:
+ *     summary: Get all products including inactive ones
+ *     tags: [Admin Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: query
+ *         name: page
+ *         schema:
+ *           type: integer
+ *           default: 1
+ *       - in: query
+ *         name: limit
+ *         schema:
+ *           type: integer
+ *           default: 20
+ *     responses:
+ *       200:
+ *         description: Paginated products
+ */
+adminRouter.get(
+  "/",
+  ...adminAccess,
+  validate({ query: productListQuerySchema }),
+  getAdminProductsController
+);
+
+/**
+ * @swagger
+ * /admin/products/{id}:
+ *   get:
+ *     summary: Get a product by id including inactive ones
+ *     tags: [Admin Products]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Product detail
+ *       404:
+ *         description: Product not found
+ */
+adminRouter.get(
+  "/:id",
+  ...adminAccess,
+  validate({ params: productIdParamsSchema }),
+  getAdminProductByIdController
+);
+
 adminRouter.post(
   "/",
   ...adminAccess,

@@ -3,7 +3,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule } from '@angular/forms';
 
 import { AdminApi } from '../../../core/api/admin.api';
+import { CategoriesApi } from '../../../core/api/categories.api';
 import { ToastService } from '../../../core/services/toast.service';
+import type { Category } from '../../../core/models/category.model';
 import type { Product } from '../../../core/models/product.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
@@ -45,21 +47,38 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
               }
             </div>
             <div class="form-group">
-              <label>Danh mục (ID)</label>
-              <input formControlName="categoryId" class="form-input" placeholder="category-id" />
+              <label for="categoryId">Danh mục *</label>
+              <select formControlName="categoryId" id="categoryId" class="form-input">
+                <option value="" disabled>— Chọn danh mục —</option>
+                @for (c of categories(); track c.categoryId) {
+                  <option [value]="c.categoryId">{{ c.name }}</option>
+                }
+              </select>
+              @if (form.get('categoryId')?.invalid && form.get('categoryId')?.touched) {
+                <p class="form-error">Vui lòng chọn danh mục.</p>
+              }
             </div>
           </div>
 
           <div class="form-row">
-            <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
-              <input type="checkbox" formControlName="isActive" id="isActive" style="width:16px;height:16px" />
-              <label for="isActive" style="margin:0;cursor:pointer">Đang bán</label>
-            </div>
+            @if (isEdit()) {
+              <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
+                <input type="checkbox" formControlName="isActive" id="isActive" style="width:16px;height:16px" />
+                <label for="isActive" style="margin:0;cursor:pointer">Đang bán</label>
+              </div>
+            }
             <div class="form-group" style="display:flex;align-items:center;gap:10px;padding-top:24px">
               <input type="checkbox" formControlName="isCustomizable" id="isCustomizable" style="width:16px;height:16px" />
               <label for="isCustomizable" style="margin:0;cursor:pointer">Cho phép tùy chỉnh</label>
             </div>
           </div>
+
+          @if (!isEdit()) {
+            <div class="form-group">
+              <label>Ảnh đại diện</label>
+              <input type="file" accept="image/*" (change)="onThumbnailSelect($event)" style="font-size:13px" />
+            </div>
+          }
 
           @if (isEdit() && currentProduct()) {
             <div class="form-group">
@@ -72,7 +91,8 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                   appImgFallback
                 />
                 <div>
-                  <input type="file" accept="image/*" (change)="onFileSelect($event)" style="font-size:13px" />
+                  <input type="file" accept="image/*" multiple (change)="onGalleryFilesSelect($event)" style="font-size:13px" />
+                  <p style="font-size:12px;color:#6b6b6b;margin:4px 0 0">Thêm tối đa 10 ảnh vào thư viện sản phẩm.</p>
                   @if (uploadingImage()) {
                     <p style="font-size:12px;color:#C96A2E;margin:4px 0 0">Đang tải ảnh…</p>
                   }
@@ -97,6 +117,7 @@ export class AdminProductFormPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly adminApi = inject(AdminApi);
+  private readonly categoriesApi = inject(CategoriesApi);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
 
@@ -105,19 +126,26 @@ export class AdminProductFormPage implements OnInit {
   readonly saving = signal(false);
   readonly uploadingImage = signal(false);
   readonly currentProduct = signal<Product | null>(null);
+  readonly categories = signal<readonly Category[]>([]);
 
   private productId = '';
+  private thumbnailFile: File | null = null;
 
   readonly form = this.fb.group({
     name: ['', Validators.required],
     description: [''],
     basePrice: [0, [Validators.required, Validators.min(0)]],
-    categoryId: [''],
+    categoryId: ['', Validators.required],
     isActive: [true],
     isCustomizable: [false],
   });
 
   ngOnInit(): void {
+    this.categoriesApi.getCategories().subscribe({
+      next: (categories) => this.categories.set(categories),
+      error: () => this.toastService.error('Tải danh mục thất bại.'),
+    });
+
     const id = this.route.snapshot.paramMap.get('id');
     if (id) {
       this.isEdit.set(true);
@@ -163,21 +191,40 @@ export class AdminProductFormPage implements OnInit {
         error: () => { this.saving.set(false); this.toastService.error('Cập nhật thất bại.'); },
       });
     } else {
-      // TODO_BACKEND: POST /admin/products create endpoint
-      this.toastService.info('Tính năng tạo sản phẩm đang được phát triển.');
-      this.saving.set(false);
+      this.adminApi.createProduct(
+        {
+          categoryId: v.categoryId!,
+          name: v.name!,
+          description: v.description || undefined,
+          basePrice: v.basePrice ?? 0,
+          isCustomizable: v.isCustomizable ?? undefined,
+        },
+        this.thumbnailFile ?? undefined,
+      ).subscribe({
+        next: () => { this.saving.set(false); this.toastService.success('Tạo sản phẩm thành công.'); this.router.navigate(['/admin/products']); },
+        error: (err) => {
+          this.saving.set(false);
+          this.toastService.error(err?.status === 409 ? 'Tên sản phẩm đã tồn tại.' : 'Tạo sản phẩm thất bại.');
+        },
+      });
     }
   }
 
-  onFileSelect(event: Event): void {
-    const file = (event.target as HTMLInputElement).files?.[0];
-    if (!file || !this.productId) return;
+  onThumbnailSelect(event: Event): void {
+    this.thumbnailFile = (event.target as HTMLInputElement).files?.[0] ?? null;
+  }
+
+  onGalleryFilesSelect(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const files = Array.from(input.files ?? []);
+    if (!files.length || !this.productId) return;
     this.uploadingImage.set(true);
-    this.adminApi.uploadProductImage(this.productId, file).subscribe({
-      next: (res) => {
-        this.currentProduct.update((p) => p ? { ...p, thumbnailUrl: res.imageUrl } : p);
+    this.adminApi.uploadProductImages(this.productId, files).subscribe({
+      next: (images) => {
+        this.currentProduct.update((p) => (p ? { ...p, images } : p));
         this.uploadingImage.set(false);
-        this.toastService.success('Tải ảnh thành công.');
+        input.value = '';
+        this.toastService.success(`Đã thêm ${files.length} ảnh.`);
       },
       error: () => { this.uploadingImage.set(false); this.toastService.error('Tải ảnh thất bại.'); },
     });

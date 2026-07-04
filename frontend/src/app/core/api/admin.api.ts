@@ -5,7 +5,7 @@ import { Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
 import type { PaginatedResponse } from '../models/pagination.model';
 import type { Order, OrderStatus } from '../models/order.model';
-import type { Product } from '../models/product.model';
+import type { Product, ProductImage } from '../models/product.model';
 import type { Coupon } from '../models/coupon.model';
 
 export interface AdminOverview {
@@ -13,6 +13,14 @@ export interface AdminOverview {
   totalOrders: number;
   totalUsers: number;
   recentOrders: Order[];
+}
+
+export interface AdminProductCreateRequest {
+  categoryId: string;
+  name: string;
+  description?: string;
+  basePrice: number;
+  isCustomizable?: boolean;
 }
 
 export interface AdminProductUpdateRequest {
@@ -60,14 +68,33 @@ export class AdminApi {
     return this.http.get<Product>(`${this.base}/products/${productId}`);
   }
 
-  updateProduct(productId: string, body: AdminProductUpdateRequest): Observable<Product> {
-    return this.http.patch<Product>(`${this.base}/products/${productId}`, body);
+  /** Multipart create; backend accepts an optional `thumbnail` file field. */
+  createProduct(body: AdminProductCreateRequest, thumbnail?: File): Observable<Product> {
+    const form = new FormData();
+    form.append('categoryId', body.categoryId);
+    form.append('name', body.name);
+    form.append('basePrice', String(body.basePrice));
+    if (body.description) form.append('description', body.description);
+    if (body.isCustomizable !== undefined) form.append('isCustomizable', String(body.isCustomizable));
+    if (thumbnail) form.append('thumbnail', thumbnail);
+    return this.http.post<Product>(`${this.base}/products`, form);
   }
 
-  uploadProductImage(productId: string, file: File): Observable<{ imageUrl: string }> {
+  updateProduct(productId: string, body: AdminProductUpdateRequest): Observable<Product> {
+    return this.http.put<Product>(`${this.base}/products/${productId}`, body);
+  }
+
+  toggleProductStatus(productId: string): Observable<Product> {
+    return this.http.patch<Product>(`${this.base}/products/${productId}/status`, {});
+  }
+
+  /** Backend expects field name `images` (up to 10 files) and returns the full image list. */
+  uploadProductImages(productId: string, files: File[]): Observable<ProductImage[]> {
     const form = new FormData();
-    form.append('image', file);
-    return this.http.post<{ imageUrl: string }>(`${this.base}/products/${productId}/images`, form);
+    for (const file of files) {
+      form.append('images', file);
+    }
+    return this.http.post<ProductImage[]>(`${this.base}/products/${productId}/images`, form);
   }
 
   getOrders(params?: AdminOrderListParams): Observable<PaginatedResponse<Order>> {
@@ -95,6 +122,10 @@ export class AdminApi {
   }
 
   updateCoupon(couponId: string, body: Partial<AdminCouponRequest>): Observable<Coupon> {
-    return this.http.patch<Coupon>(`${this.base}/coupons/${couponId}`, body);
+    return this.http.put<Coupon>(`${this.base}/coupons/${couponId}`, body);
+  }
+
+  toggleCouponStatus(couponId: string): Observable<Coupon> {
+    return this.http.patch<Coupon>(`${this.base}/coupons/${couponId}/status`, {});
   }
 }
