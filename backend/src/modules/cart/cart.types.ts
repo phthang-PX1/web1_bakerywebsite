@@ -54,6 +54,7 @@ export type CartItemResponse = {
   productId: string;
   name: string;
   slug: string;
+  categorySlug: string;
   thumbnailUrl: string | null;
   quantity: number;
   optionItemIds: string[];

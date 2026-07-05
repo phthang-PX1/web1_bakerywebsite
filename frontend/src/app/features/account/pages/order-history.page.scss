@@ -1,0 +1,189 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
+.account-page {
+  @include m.container(t.$container);
+  margin-block: t.$sp-7 t.$sp-8;
+}
+
+// --- Shared account heading + tabs ----------------------------------------
+.account-heading {
+  margin-bottom: t.$sp-6;
+
+  h1 {
+    @include m.display(2);
+    margin: 0 0 t.$sp-2;
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+}
+
+.account-heading__meta {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-2;
+  flex-wrap: wrap;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border-radius: t.$r-pill;
+    padding: 4px 12px;
+    background: t.$accent;
+    color: t.$ink;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.account-tabs {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-6;
+  margin-bottom: t.$sp-6;
+  border-bottom: 1px solid color-mix(in srgb, t.$caramel 40%, t.$border);
+}
+
+.account-tabs__item {
+  position: relative;
+  padding: 0 0 t.$sp-4;
+  color: t.$muted;
+  font-size: t.$fs-body-sm;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover,
+  &--active {
+    color: t.$caramel;
+  }
+
+  &--active::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: t.$caramel;
+  }
+}
+
+// --- Order cards ----------------------------------------------------------
+.order-cards {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: t.$sp-4;
+}
+
+.order-card {
+  display: flex;
+  flex-direction: column;
+  gap: t.$sp-3;
+  padding: t.$sp-5;
+  background: t.$surface;
+  border: 1px solid rgba(237, 232, 226, 0.82);
+  border-radius: t.$r-sm;
+  box-shadow: t.$shadow-soft;
+  text-decoration: none;
+  color: t.$ink;
+  transition: transform 0.18s ease, box-shadow 0.18s ease, border-color 0.18s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: t.$shadow-lift;
+    border-color: t.$caramel;
+
+    .order-card__cta { color: t.$primary; }
+  }
+}
+
+.order-card__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-3;
+}
+
+.order-card__id {
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-card__badge {
+  padding: 3px 12px;
+  border-radius: t.$r-pill;
+  font-size: t.$fs-micro;
+  font-weight: 700;
+  border: 1px solid currentColor;
+  white-space: nowrap;
+
+  &--pending { color: t.$warning; }
+  &--confirmed { color: t.$info; }
+  &--processing { color: t.$caramel; }
+  &--ready,
+  &--delivered { color: t.$success; }
+  &--cancelled { color: t.$danger; }
+}
+
+.order-card__body {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-3;
+  padding-top: t.$sp-3;
+  border-top: 1px solid t.$border;
+}
+
+.order-card__date {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: t.$fs-body-sm;
+  color: t.$muted;
+
+  svg { color: t.$caramel; }
+}
+
+.order-card__amount {
+  font-family: t.$font-display;
+  font-weight: 600;
+  color: t.$primary;
+  font-variant-numeric: tabular-nums;
+}
+
+.order-card__cta {
+  font-size: t.$fs-micro;
+  font-weight: 700;
+  color: t.$muted;
+  transition: color 0.18s ease;
+}
+
+// --- Empty state ----------------------------------------------------------
+.orders-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: t.$sp-3;
+  padding: t.$sp-8 0;
+  color: t.$muted;
+  text-align: center;
+
+  svg { color: t.$border; }
+
+  p { margin: 0; }
+}
+
+.orders-empty__cta {
+  @include m.btn-solid;
+  margin-top: t.$sp-2;
+  background: t.$accent;
+  color: t.$ink;
+
+  &:hover { background: t.$primary; color: t.$paper; }
+}

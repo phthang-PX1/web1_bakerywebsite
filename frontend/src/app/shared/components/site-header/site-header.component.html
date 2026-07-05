@@ -43,37 +43,33 @@
       <a routerLink="/custom-cake" routerLinkActive="site-nav__link--active" class="site-nav__link">Tùy chỉnh bánh</a>
       <a routerLink="/blog" routerLinkActive="site-nav__link--active" class="site-nav__link">Blog</a>
       <a routerLink="/membership" routerLinkActive="site-nav__link--active" class="site-nav__link">Thành viên</a>
+      <a [routerLink]="rewardsLink" [queryParams]="rewardsQueryParams" routerLinkActive="site-nav__link--active" class="site-nav__link">Đổi thưởng</a>
     </nav>
 
     <div class="site-actions">
       <!-- Search -->
-      <div class="search-wrap" [class.search-wrap--open]="isSearchOpen()">
+      <div class="search-wrap">
         <form class="search-form" (ngSubmit)="submitSearch()">
+          <button class="search-form__submit" type="submit" aria-label="Tìm kiếm">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
+            </svg>
+          </button>
           <input
             #searchInput
             class="search-form__input"
-            [attr.tabindex]="isSearchOpen() ? 0 : -1"
             type="search"
             placeholder="Tìm kiếm bánh..."
             [ngModel]="searchQuery"
             (ngModelChange)="onSearchInput($event)"
+            (focus)="onSearchFocus()"
             name="q"
             autocomplete="off"
-            (keydown.escape)="closeSearch()"
+            (keydown.escape)="closeSuggestions()"
           />
         </form>
-        <button
-          class="icon-button search-toggle"
-          type="button"
-          (click)="onSearchToggle()"
-          aria-label="Tìm kiếm"
-        >
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <circle cx="11" cy="11" r="7"/><path d="m21 21-4.35-4.35"/>
-          </svg>
-        </button>
 
-        @if (isSearchOpen() && (searchQuery.trim().length >= 2 || suggestionsLoading())) {
+        @if (suggestionsVisible() && (searchQuery.trim().length >= 2 || suggestionsLoading())) {
           <div class="search-suggestions" role="listbox" aria-label="Gợi ý tìm kiếm">
             @if (suggestionsLoading()) {
               <div class="search-suggestions__state">Đang tìm...</div>

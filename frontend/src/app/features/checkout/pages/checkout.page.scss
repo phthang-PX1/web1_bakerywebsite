@@ -116,6 +116,48 @@
   }
 }
 
+.fulfillment-btn__icon,
+.payment-btn__icon {
+  font-size: 1.15rem;
+  line-height: 1;
+}
+
+.payment-btn {
+  align-items: flex-start;
+
+  > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+  }
+
+  strong {
+    color: t.$ink;
+  }
+
+  small {
+    font-size: t.$fs-micro;
+    font-weight: 500;
+    color: t.$muted;
+  }
+}
+
+.checkout-note,
+.checkout-login-hint,
+.coupon-hint {
+  margin: 0 0 t.$sp-3;
+  font-size: t.$fs-body-sm;
+  color: t.$muted;
+}
+
+.checkout-login-hint,
+.coupon-hint {
+  margin-top: t.$sp-3;
+  font-size: t.$fs-micro;
+  font-style: italic;
+  font-family: t.$font-display;
+}
+
 .store-info-card {
   margin-top: t.$sp-3;
   padding: t.$sp-3 t.$sp-4;
@@ -176,6 +218,10 @@
   color: t.$muted;
 }
 
+.recipient-fields {
+  margin-top: t.$sp-3;
+}
+
 // --- Fields ----------------------------------------------------------------------
 .field-row {
   display: grid;
@@ -215,6 +261,11 @@
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: t.$sp-3;
+  margin-top: t.$sp-3;
+}
+
+.custom-date-field,
+.time-slots {
   margin-top: t.$sp-3;
 }
 

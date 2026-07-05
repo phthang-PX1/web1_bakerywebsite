@@ -2,10 +2,15 @@
 @use "mixins" as m;
 
 .configurator {
+  width: min(1760px, calc(100vw - 128px));
+  margin-inline: auto;
   display: grid;
   grid-template-columns: 1fr 1fr;
   height: 100%;
+  min-height: 0;
+  padding: t.$sp-5 0;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
 .configurator__preview {
@@ -17,13 +22,13 @@
   padding: t.$sp-6;
   gap: t.$sp-5;
   border-right: 1px solid t.$border;
-  position: sticky;
-  top: 0;
-  height: calc(100dvh - 60px);
+  height: 100%;
+  min-height: 0;
+  box-sizing: border-box;
 }
 
 .preview-image {
-  width: 340px;
+  width: clamp(260px, 24vw, 420px);
   max-width: 100%;
   aspect-ratio: 4 / 5;
   @include m.arch-media;
@@ -83,13 +88,15 @@
 
 // --- Options column -------------------------------------------------------
 .configurator__options {
-  overflow-y: auto;
-  padding: t.$sp-6;
+  padding: t.$sp-5 t.$sp-6;
   display: flex;
   flex-direction: column;
-  gap: t.$sp-5;
-  height: calc(100dvh - 60px);
+  gap: t.$sp-4;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
   background: t.$paper;
+  box-sizing: border-box;
 }
 
 .configurator__title {
@@ -160,7 +167,7 @@
   gap: t.$sp-3;
   align-items: center;
   margin-top: auto;
-  padding-top: t.$sp-4;
+  padding-top: t.$sp-3;
   @include m.hairline(top);
 }
 
@@ -193,23 +200,37 @@
   }
 }
 
+.loading-page {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 // --- Responsive ---------------------------------------------------------------
 @include m.mq-down(md) {
   .configurator {
     grid-template-columns: 1fr;
+    width: min(100% - t.$sp-4, 760px);
     height: auto;
-    overflow: visible;
+    min-height: 100%;
+    overflow: auto;
+    padding: t.$sp-4 0;
   }
 
   .configurator__preview {
-    position: static;
     height: auto;
+    min-height: 0;
     border-right: none;
     border-bottom: 1px solid t.$border;
+    padding: t.$sp-5;
   }
 
   .configurator__options {
     height: auto;
+    min-height: 0;
+    overflow: visible;
+    padding: t.$sp-5;
   }
 
   .preview-image {

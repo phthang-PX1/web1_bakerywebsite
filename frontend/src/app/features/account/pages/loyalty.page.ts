@@ -1,9 +1,8 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { AsyncPipe, SlicePipe } from '@angular/common';
+import { SlicePipe } from '@angular/common';
 
 import { UsersApi } from '../../../core/api/users.api';
-import { AuthService } from '../../../core/services/auth.service';
 import type { LoyaltyInfo, LoyaltyLog } from '../../../core/models/loyalty.model';
 import { TierBadgeComponent } from '../../../shared/components/tier-badge/tier-badge.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -12,7 +11,7 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 @Component({
   selector: 'app-loyalty-page',
   standalone: true,
-  imports: [RouterLink, AsyncPipe, SlicePipe, TierBadgeComponent, LoadingSpinnerComponent, PaginationComponent],
+  imports: [RouterLink, SlicePipe, TierBadgeComponent, LoadingSpinnerComponent, PaginationComponent],
   template: `
     <div class="account-form-page">
       <div class="page-header">
@@ -25,23 +24,12 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
       } @else if (loyaltyInfo(); as info) {
         <section class="form-section">
           <div class="loyalty-summary">
-            @if (authService.currentUser$ | async; as user) {
-              <app-tier-badge [tier]="user.membershipTier" />
-            }
+            <app-tier-badge [tier]="info.membershipTier" />
             <div class="loyalty-points">
-              <span class="loyalty-points__value">{{ info.currentPoints }}</span>
+              <span class="loyalty-points__value">{{ info.loyaltyPoints }}</span>
               <span class="loyalty-points__label">điểm tích lũy</span>
             </div>
           </div>
-
-          @if (info.nextTier) {
-            <div class="tier-progress">
-              <p>Còn <strong>{{ info.pointsToNextTier }}</strong> điểm để lên hạng <strong>{{ info.nextTier }}</strong></p>
-              <div class="progress-bar">
-                <div class="progress-bar__fill" [style.width.%]="progressPercent(info)"></div>
-              </div>
-            </div>
-          }
         </section>
 
         @if (logs().length > 0) {
@@ -70,7 +58,6 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
 })
 export class LoyaltyPage implements OnInit {
   private readonly usersApi = inject(UsersApi);
-  readonly authService = inject(AuthService);
   readonly loyaltyInfo = signal<LoyaltyInfo | null>(null);
   readonly logs = signal<LoyaltyLog[]>([]);
   readonly loading = signal(true);
@@ -95,9 +82,4 @@ export class LoyaltyPage implements OnInit {
     });
   }
 
-  progressPercent(info: LoyaltyInfo): number {
-    if (!info.pointsToNextTier) return 100;
-    const total = info.currentPoints + info.pointsToNextTier;
-    return Math.round((info.currentPoints / total) * 100);
-  }
 }

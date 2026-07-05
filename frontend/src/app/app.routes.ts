@@ -1,9 +1,8 @@
 import { Routes } from '@angular/router';
-import { authGuard } from './core/guards/auth.guard';
 import { adminGuard } from './core/guards/admin.guard';
+import { authGuard } from './core/guards/auth.guard';
 
 export const routes: Routes = [
-  // Public + member routes inside MainLayout (header + footer)
   {
     path: '',
     loadComponent: () => import('./layouts/main-layout/main-layout.component').then((m) => m.MainLayoutComponent),
@@ -26,12 +25,14 @@ export const routes: Routes = [
       },
       {
         path: 'checkout/success',
-        loadComponent: () => import('./features/checkout/pages/checkout-success.page').then((m) => m.CheckoutSuccessPage),
+        loadComponent: () =>
+          import('./features/checkout/pages/checkout-success.page').then((m) => m.CheckoutSuccessPage),
       },
       {
         path: 'orders/:orderId/track',
         canActivate: [authGuard],
-        loadComponent: () => import('./features/checkout/pages/order-tracking.page').then((m) => m.OrderTrackingPage),
+        loadComponent: () =>
+          import('./features/checkout/pages/order-tracking.page').then((m) => m.OrderTrackingPage),
       },
       {
         path: 'account',
@@ -50,10 +51,14 @@ export const routes: Routes = [
         path: 'membership',
         loadComponent: () => import('./features/membership/pages/membership.page').then((m) => m.MembershipPage),
       },
+      {
+        path: 'rewards',
+        canActivate: [authGuard],
+        loadComponent: () => import('./features/rewards/pages/rewards.page').then((m) => m.RewardsPage),
+      },
     ],
   },
 
-  // Auth routes — minimal header, no footer
   {
     path: 'auth',
     loadComponent: () => import('./layouts/auth-layout/auth-layout.component').then((m) => m.AuthLayoutComponent),
@@ -89,7 +94,6 @@ export const routes: Routes = [
     ],
   },
 
-  // Custom cake — split layout, no footer
   {
     path: 'custom-cake',
     loadComponent: () =>
@@ -102,12 +106,10 @@ export const routes: Routes = [
     ],
   },
 
-  // Admin routes — sidebar layout, admin guard
   {
     path: 'admin',
     canActivate: [adminGuard],
-    loadComponent: () =>
-      import('./layouts/admin-layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
+    loadComponent: () => import('./layouts/admin-layout/admin-layout.component').then((m) => m.AdminLayoutComponent),
     children: [
       {
         path: '',

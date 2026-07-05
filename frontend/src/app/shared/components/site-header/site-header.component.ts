@@ -34,7 +34,7 @@ export class SiteHeaderComponent {
   protected readonly isMenuOpen = signal(false);
   protected readonly isCartOpen = signal(false);
   protected readonly isAccountMenuOpen = signal(false);
-  protected readonly isSearchOpen = signal(false);
+  protected readonly suggestionsVisible = signal(false);
   protected readonly isProductsDropdownOpen = signal(false);
   protected readonly isMobileProductsOpen = signal(false);
   protected readonly categories = signal<readonly Category[]>([]);
@@ -43,6 +43,15 @@ export class SiteHeaderComponent {
   protected searchQuery = '';
   protected readonly cartQuantity$ = this.cartService.cart$.pipe(map((cart) => cart.totalQuantity));
   private readonly searchInput$ = new Subject<string>();
+
+  /** "Đổi thưởng" dẫn thẳng tới trang đăng nhập khi chưa có phiên; đã đăng nhập thì vào trang đổi thưởng. */
+  protected get rewardsLink(): string {
+    return this.authService.isLoggedIn() ? '/rewards' : '/auth/login';
+  }
+
+  protected get rewardsQueryParams(): { redirect: string } | null {
+    return this.authService.isLoggedIn() ? null : { redirect: '/rewards' };
+  }
 
   constructor() {
     this.categoriesApi.getCategories()
@@ -81,40 +90,22 @@ export class SiteHeaderComponent {
   protected toggleAccountMenu(): void { this.isAccountMenuOpen.update((v) => !v); }
   protected logout(): void { this.authService.logout(); this.isAccountMenuOpen.set(false); }
 
-  protected openSearch(): void {
-    this.isSearchOpen.set(true);
-    // focus sau khi CSS transition bắt đầu expand
-    setTimeout(() => this.searchInputRef?.nativeElement?.focus(), 30);
+  protected onSearchFocus(): void {
+    this.suggestionsVisible.set(true);
   }
 
-  protected closeSearch(): void {
-    this.isSearchOpen.set(false);
-    this.searchQuery = '';
-    this.searchSuggestions.set([]);
-    this.suggestionsLoading.set(false);
+  protected closeSuggestions(): void {
+    this.suggestionsVisible.set(false);
   }
 
   protected onSearchInput(value: string): void {
     this.searchQuery = value;
+    this.suggestionsVisible.set(true);
     if (value.trim().length < 2) {
       this.searchSuggestions.set([]);
       this.suggestionsLoading.set(false);
     }
     this.searchInput$.next(value);
-  }
-
-  protected onSearchToggle(): void {
-    if (!this.isSearchOpen()) {
-      this.openSearch();
-      return;
-    }
-
-    if (!this.searchQuery.trim()) {
-      this.closeSearch();
-      return;
-    }
-
-    this.submitSearch();
   }
 
   protected submitSearch(): void {
@@ -123,12 +114,15 @@ export class SiteHeaderComponent {
       return;
     }
 
-    this.closeSearch();
+    this.suggestionsVisible.set(false);
+    this.searchInputRef?.nativeElement?.blur();
     this.router.navigate(['/products'], { queryParams: { q } });
   }
 
   protected selectSuggestion(product: Product): void {
-    this.closeSearch();
+    this.suggestionsVisible.set(false);
+    this.searchQuery = '';
+    this.searchSuggestions.set([]);
     this.router.navigate(['/products', product.slug]);
   }
 }

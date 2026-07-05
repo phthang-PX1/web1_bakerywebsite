@@ -22,6 +22,7 @@ type ProductWithOptions = {
   slug: string;
   basePrice: Prisma.Decimal;
   thumbnailUrl: string | null;
+  category: { slug: string };
   optionGroups: {
     groupId: string;
     name: string;
@@ -132,6 +133,7 @@ const getActiveProducts = async (productIds: string[]) => {
       slug: true,
       basePrice: true,
       thumbnailUrl: true,
+      category: { select: { slug: true } },
       optionGroups: {
         orderBy: { sortOrder: "asc" },
         select: {
@@ -243,6 +245,7 @@ const buildCartItemResponse = (
     productId: product.productId,
     name: product.name,
     slug: product.slug,
+    categorySlug: product.category.slug,
     thumbnailUrl: product.thumbnailUrl,
     quantity: item.quantity,
     optionItemIds: item.optionItemIds,

@@ -6,6 +6,8 @@ import type {
 } from "@prisma/client";
 
 export type OrderCreateInput = {
+  buyerName: string;
+  buyerPhone: string;
   recipientName: string;
   email?: string;
   phone: string;

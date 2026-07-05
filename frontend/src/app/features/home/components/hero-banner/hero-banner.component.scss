@@ -91,7 +91,7 @@
   border: 1px solid t.$border;
 
   img {
-    @include m.img-cover(4 / 5);
+    @include m.img-cover(0.8);
   }
 }
 

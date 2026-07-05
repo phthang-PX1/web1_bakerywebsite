@@ -3,6 +3,12 @@ export type PaymentStatus = 'pending' | 'paid' | 'failed';
 export type PaymentMethod = 'transfer' | 'cash';
 export type FulfillmentType = 'delivery' | 'pickup';
 
+export interface OrderItemReview {
+  readonly reviewId: string;
+  readonly rating: number;
+  readonly comment: string | null;
+}
+
 export interface OrderItem {
   readonly orderItemId: string;
   readonly productId: string;
@@ -11,11 +17,15 @@ export interface OrderItem {
   readonly unitPrice: number;
   readonly itemTotal: number;
   readonly options: { name: string; extraPrice: number }[];
+  /** Present on order-detail responses: the existing review for this line, or null. */
+  readonly review?: OrderItemReview | null;
 }
 
 export interface Order {
   readonly orderId: string;
   readonly userId: string | null;
+  readonly buyerName: string | null;
+  readonly buyerPhone: string | null;
   readonly orderStatus: OrderStatus;
   readonly paymentStatus: PaymentStatus;
   readonly paymentMethod: PaymentMethod;
@@ -40,6 +50,8 @@ export interface Order {
 
 /** Snake_case body as required by POST /api/orders schema */
 export interface CreateOrderRequest {
+  buyer_name: string;
+  buyer_phone: string;
   recipient_name: string;
   email?: string;
   phone: string;

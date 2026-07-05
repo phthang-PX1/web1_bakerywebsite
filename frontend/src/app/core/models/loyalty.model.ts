@@ -10,11 +10,10 @@ export interface LoyaltyLog {
   readonly createdAt: string;
 }
 
+/** Shape of GET /users/me/loyalty (see backend users.service getLoyaltySummary). */
 export interface LoyaltyInfo {
-  readonly currentPoints: number;
-  readonly currentTier: MembershipTier;
-  readonly nextTier: MembershipTier | null;
-  readonly pointsToNextTier: number | null;
+  readonly loyaltyPoints: number;
+  readonly membershipTier: MembershipTier;
 }
 
 export interface TierBenefit {

@@ -3,7 +3,7 @@
 
 .categories {
   @include m.container;
-  padding: t.$sp-5 0 t.$section-y;
+  padding: t.$sp-3 0 clamp(2.25rem, 4.5vw, 4rem);
 }
 
 .categories__header {
@@ -115,6 +115,10 @@
 
   .category-grid {
     grid-template-columns: repeat(2, 1fr);
+  }
+
+  .categories {
+    padding-bottom: t.$sp-6;
   }
 
   .category-tile__media {

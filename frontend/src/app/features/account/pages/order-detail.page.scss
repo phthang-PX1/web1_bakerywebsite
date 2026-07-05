@@ -1,0 +1,492 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
+.account-page {
+  @include m.container(t.$container);
+  margin-block: t.$sp-7 t.$sp-8;
+}
+
+// --- Shared account heading + tabs (mirrors account.page) -----------------
+.account-heading {
+  margin-bottom: t.$sp-6;
+
+  h1 {
+    @include m.display(2);
+    margin: 0 0 t.$sp-2;
+    font-size: clamp(2rem, 5vw, 3rem);
+  }
+}
+
+.account-heading__meta {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-2;
+  flex-wrap: wrap;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+
+  span {
+    display: inline-flex;
+    align-items: center;
+    min-height: 24px;
+    border-radius: t.$r-pill;
+    padding: 4px 12px;
+    background: t.$accent;
+    color: t.$ink;
+    font-size: 0.7rem;
+    font-weight: 800;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+}
+
+.account-tabs {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-6;
+  margin-bottom: t.$sp-6;
+  border-bottom: 1px solid color-mix(in srgb, t.$caramel 40%, t.$border);
+}
+
+.account-tabs__item {
+  position: relative;
+  padding: 0 0 t.$sp-4;
+  color: t.$muted;
+  font-size: t.$fs-body-sm;
+  font-weight: 600;
+  text-decoration: none;
+
+  &:hover,
+  &--active {
+    color: t.$caramel;
+  }
+
+  &--active::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: -1px;
+    height: 2px;
+    background: t.$caramel;
+  }
+}
+
+// --- Order detail card ----------------------------------------------------
+.order-detail-card {
+  background: t.$surface;
+  border: 1px solid rgba(237, 232, 226, 0.82);
+  border-radius: t.$r-sm;
+  box-shadow: t.$shadow-soft;
+  overflow: hidden;
+}
+
+.order-detail-card__head {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-2;
+  padding: t.$sp-5 t.$sp-6;
+  background: color-mix(in srgb, t.$surface-warm 70%, t.$surface);
+  border-bottom: 1px solid t.$border;
+  color: t.$ink;
+
+  h2 {
+    margin: 0;
+    font-family: t.$font-body;
+    font-size: 1.05rem;
+    font-weight: 650;
+  }
+}
+
+.order-detail-card__back {
+  @include m.btn-text;
+  margin-left: auto;
+  color: t.$muted;
+  font-size: t.$fs-micro;
+}
+
+.order-detail-card__body {
+  padding: t.$sp-6;
+  display: flex;
+  flex-direction: column;
+  gap: t.$sp-6;
+}
+
+// --- Progress tracker -----------------------------------------------------
+.tracker {
+  list-style: none;
+  margin: t.$sp-2 0 0;
+  padding: 0;
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: 1fr;
+}
+
+.tracker__step {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: t.$sp-2;
+  text-align: center;
+
+  // Connector line to the next step
+  &:not(:last-child)::after {
+    content: "";
+    position: absolute;
+    top: 22px;
+    left: calc(50% + 26px);
+    right: calc(-50% + 26px);
+    height: 2px;
+    background: t.$border;
+    z-index: 0;
+  }
+
+  &[data-state="done"]::after {
+    background: t.$caramel;
+  }
+}
+
+.tracker__node {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: t.$paper;
+  border: 2px solid t.$border;
+  color: t.$muted;
+  transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
+}
+
+.tracker__label {
+  font-size: t.$fs-micro;
+  color: t.$muted;
+  max-width: 12ch;
+  line-height: 1.3;
+}
+
+.tracker__step[data-state="done"] {
+  .tracker__node {
+    background: t.$caramel;
+    border-color: t.$caramel;
+    color: #fff;
+  }
+  .tracker__label { color: t.$ink; }
+}
+
+.tracker__step[data-state="current"] {
+  .tracker__node {
+    background: t.$primary;
+    border-color: t.$primary;
+    color: #fff;
+    box-shadow: 0 0 0 4px color-mix(in srgb, t.$primary 20%, transparent);
+  }
+  .tracker__label { color: t.$primary; font-weight: 700; }
+}
+
+.order-cancelled {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: t.$sp-2;
+  padding: t.$sp-4;
+  border-radius: t.$r-sm;
+  background: color-mix(in srgb, t.$danger 10%, t.$surface);
+  color: t.$danger;
+  font-weight: 600;
+  font-size: t.$fs-body-sm;
+}
+
+// --- Order meta bar -------------------------------------------------------
+.order-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: t.$sp-4;
+  margin: 0;
+  padding: t.$sp-4 t.$sp-5;
+  border: 1px solid t.$border;
+  border-radius: t.$r-sm;
+  background: t.$paper;
+}
+
+.order-meta__cell {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+
+  dt {
+    font-size: t.$fs-eyebrow;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: t.$muted;
+  }
+
+  dd {
+    margin: 0;
+    font-size: t.$fs-body-sm;
+    color: t.$ink;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.order-meta__id { font-weight: 800; }
+
+.order-meta__status {
+  font-weight: 700;
+
+  &--pending { color: t.$warning; }
+  &--confirmed { color: t.$info; }
+  &--processing { color: t.$caramel; }
+  &--ready,
+  &--delivered { color: t.$success; }
+  &--cancelled { color: t.$danger; }
+}
+
+// --- Blocks ---------------------------------------------------------------
+.order-block__title {
+  margin: 0 0 t.$sp-3;
+  font-size: t.$fs-eyebrow;
+  font-weight: 700;
+  letter-spacing: t.$tracking-wide;
+  text-transform: uppercase;
+  color: t.$caramel;
+}
+
+.order-block__line {
+  display: flex;
+  gap: t.$sp-3;
+  margin: 0 0 6px;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+  line-height: 1.5;
+
+  span {
+    flex-shrink: 0;
+    width: 84px;
+    color: t.$muted;
+  }
+}
+
+// --- Product list ---------------------------------------------------------
+.prod-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.prod {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-4;
+  padding: t.$sp-3 0;
+  border-top: 1px solid t.$border;
+
+  &:first-child { border-top: none; }
+}
+
+.prod__thumb {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 8px;
+  background: t.$surface-warm;
+  color: t.$caramel;
+}
+
+.prod__info {
+  flex: 1;
+  min-width: 0;
+}
+
+.prod__name {
+  margin: 0 0 2px;
+  font-family: t.$font-display;
+  font-weight: 550;
+  color: t.$ink;
+}
+
+.prod__opts,
+.prod__qty {
+  margin: 0;
+  font-size: t.$fs-micro;
+  color: t.$muted;
+}
+
+.prod__price {
+  flex-shrink: 0;
+  font-family: t.$font-display;
+  font-weight: 600;
+  color: t.$ink;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+// --- Review widget --------------------------------------------------------
+.review {
+  margin: 0 0 t.$sp-3;
+  padding: t.$sp-4;
+  border: 1px solid t.$border;
+  border-radius: t.$r-sm;
+  background: t.$paper;
+}
+
+.review__prompt {
+  margin: 0 0 t.$sp-2;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+}
+
+.star-input {
+  display: inline-flex;
+  gap: 4px;
+  margin-bottom: t.$sp-3;
+}
+
+.star-input__btn {
+  border: none;
+  background: none;
+  padding: 0;
+  cursor: pointer;
+  font-size: 1.6rem;
+  line-height: 1;
+  color: t.$border;
+  transition: color 0.1s ease, transform 0.1s ease;
+
+  &--on { color: t.$accent; }
+  &:hover { transform: scale(1.12); }
+}
+
+.review__textarea {
+  @include m.field;
+  width: 100%;
+  min-height: 82px;
+  resize: vertical;
+  margin-bottom: t.$sp-3;
+}
+
+.review__submit {
+  @include m.btn-solid;
+  width: 100%;
+  background: t.$ink;
+  padding: 12px;
+
+  &:hover:not(:disabled) { background: t.$primary; }
+}
+
+.review--done {
+  background: color-mix(in srgb, t.$success 8%, t.$surface);
+  border-color: color-mix(in srgb, t.$success 30%, t.$border);
+}
+
+.review__done-head {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-3;
+}
+
+.review__done-tag {
+  font-size: t.$fs-micro;
+  font-weight: 700;
+  color: t.$success;
+}
+
+.review__done-comment {
+  margin: t.$sp-2 0 0;
+  font-size: t.$fs-body-sm;
+  font-style: italic;
+  color: t.$muted;
+}
+
+// --- Totals & payment -----------------------------------------------------
+.order-total-row {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  padding-top: t.$sp-4;
+  border-top: 1px solid t.$border;
+  color: t.$ink;
+  font-weight: 600;
+
+  strong {
+    font-family: t.$font-display;
+    font-size: 1.45rem;
+    color: t.$primary;
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+.order-payment {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-3;
+  padding: t.$sp-4 t.$sp-5;
+  border-radius: t.$r-sm;
+  background: t.$surface-warm;
+  color: t.$ink;
+  font-size: t.$fs-body-sm;
+
+  svg { flex-shrink: 0; color: t.$caramel; }
+}
+
+.order-payment__status {
+  margin-left: auto;
+  font-size: t.$fs-micro;
+  font-weight: 700;
+  color: t.$warning;
+  white-space: nowrap;
+
+  &--paid { color: t.$success; }
+}
+
+.order-cancel-btn {
+  @include m.btn-outline;
+  align-self: flex-start;
+  padding: 11px 24px;
+  font-size: t.$fs-micro;
+  border-color: t.$danger;
+  color: t.$danger;
+
+  &:hover:not(:disabled) {
+    background: t.$danger;
+    color: t.$paper;
+  }
+}
+
+.order-notfound {
+  text-align: center;
+  padding: t.$sp-8 0;
+  color: t.$muted;
+
+  a {
+    @include m.btn-text;
+    color: t.$primary;
+  }
+}
+
+// --- Responsive -----------------------------------------------------------
+@include m.mq-down(md) {
+  .order-meta { grid-template-columns: 1fr; gap: t.$sp-3; }
+
+  .tracker__label { font-size: 0.6875rem; }
+
+  .tracker__step:not(:last-child)::after {
+    left: calc(50% + 22px);
+    right: calc(-50% + 22px);
+  }
+}
+
+@include m.mq-down(sm) {
+  .order-detail-card__body { padding: t.$sp-4; }
+
+  .tracker__node { width: 38px; height: 38px; }
+
+  .tracker__step:not(:last-child)::after { top: 19px; }
+}

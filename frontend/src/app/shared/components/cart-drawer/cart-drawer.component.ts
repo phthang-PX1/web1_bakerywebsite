@@ -1,18 +1,24 @@
-﻿import { Component, DestroyRef, inject, input, output } from '@angular/core';
-import { RouterLink } from '@angular/router';
+﻿import { Component, DestroyRef, inject, input, output, signal } from '@angular/core';
+import { Router, RouterLink } from '@angular/router';
 import { AsyncPipe } from '@angular/common';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
 import { CartService } from '../../../core/services/cart.service';
+import { CakeMessageService } from '../../../core/services/cake-message.service';
 import { CurrencyVndPipe } from '../../pipes/currency-vnd.pipe';
 import { QuantityStepperComponent } from '../quantity-stepper/quantity-stepper.component';
+import {
+  CakeMessageDialogComponent,
+  type CakeMessageDialogResult,
+} from '../cake-message-dialog/cake-message-dialog.component';
 import { ImgFallbackDirective } from '../../directives/img-fallback.directive';
 import { environment } from '../../../../environments/environment';
+import type { CartItem } from '../../../core/models/cart.model';
 
 @Component({
   selector: 'app-cart-drawer',
   standalone: true,
-  imports: [AsyncPipe, RouterLink, CurrencyVndPipe, QuantityStepperComponent, ImgFallbackDirective],
+  imports: [AsyncPipe, RouterLink, CurrencyVndPipe, QuantityStepperComponent, CakeMessageDialogComponent, ImgFallbackDirective],
   template: `
     @if (open()) {
       <div class="overlay" (click)="closed.emit()" aria-hidden="true"></div>
@@ -81,10 +87,10 @@ import { environment } from '../../../../environments/environment';
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#16a34a" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
               <span>Miễn phí vận chuyển</span>
             </div>
-            <a class="btn btn--primary btn--full" routerLink="/checkout" (click)="closed.emit()">
+            <button class="btn btn--primary btn--full" type="button" (click)="checkout(cart.items)">
               Đặt hàng ngay
               <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
-            </a>
+            </button>
             <a class="btn btn--ghost btn--full" routerLink="/cart" (click)="closed.emit()">Xem giỏ hàng đầy đủ</a>
           </div>
         } @else {
@@ -101,6 +107,13 @@ import { environment } from '../../../../environments/environment';
           </div>
         }
       </aside>
+
+      <app-cake-message-dialog
+        [open]="messageDialogOpen()"
+        [items]="messageDialogItems()"
+        startAt="prompt"
+        (finished)="onMessageDialogFinished($event)"
+      />
     }
   `,
   styles: [`
@@ -204,9 +217,34 @@ import { environment } from '../../../../environments/environment';
 })
 export class CartDrawerComponent {
   readonly cartService = inject(CartService);
+  private readonly cakeMessages = inject(CakeMessageService);
+  private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
   readonly open = input(false);
   readonly closed = output<void>();
+
+  readonly messageDialogOpen = signal(false);
+  readonly messageDialogItems = signal<readonly CartItem[]>([]);
+
+  /** "Đặt hàng ngay" — offer greeting cards for eligible cakes first. */
+  checkout(items: readonly CartItem[]): void {
+    const pending = this.cakeMessages.pendingItems(items);
+    if (pending.length > 0 && !this.cakeMessages.skippedThisSession) {
+      this.messageDialogItems.set(pending);
+      this.messageDialogOpen.set(true);
+      return;
+    }
+    this.closed.emit();
+    this.router.navigate(['/checkout']);
+  }
+
+  onMessageDialogFinished(result: CakeMessageDialogResult): void {
+    this.messageDialogOpen.set(false);
+    if (result !== 'dismissed') {
+      this.closed.emit();
+      this.router.navigate(['/checkout']);
+    }
+  }
 
   resolveImageUrl(url: string | null): string {
     if (!url) return '';

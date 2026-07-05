@@ -11,6 +11,7 @@ export interface CartItem {
   readonly productId: string;
   readonly name: string;
   readonly slug: string;
+  readonly categorySlug: string;
   readonly thumbnailUrl: string | null;
   readonly quantity: number;
   readonly unitPrice: number;
