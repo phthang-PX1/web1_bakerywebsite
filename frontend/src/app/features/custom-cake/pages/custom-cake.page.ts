@@ -1,15 +1,17 @@
-﻿import { Component, OnInit, inject, signal, computed } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { catchError, finalize, map, of, switchMap } from 'rxjs';
 
-import { ProductsApi } from '../../../core/api/products.api';
 import { OptionsApi } from '../../../core/api/options.api';
+import { ProductsApi } from '../../../core/api/products.api';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
-import type { Product, OptionGroup, OptionItem } from '../../../core/models/product.model';
-import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
+import type { OptionGroup, OptionItem, Product } from '../../../core/models/product.model';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { QuantityStepperComponent } from '../../../shared/components/quantity-stepper/quantity-stepper.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
+import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 
 interface SelectedOption {
   groupId: string;
@@ -25,10 +27,13 @@ interface SelectedOption {
   imports: [CurrencyVndPipe, LoadingSpinnerComponent, QuantityStepperComponent, ImgFallbackDirective],
   template: `
     @if (loading()) {
-      <app-loading-spinner [fullPage]="true" />
+      <div class="loading-page"><app-loading-spinner /></div>
+    } @else if (error()) {
+      <div class="configurator-empty">
+        <p>{{ error() }}</p>
+      </div>
     } @else if (customProduct(); as product) {
       <div class="configurator">
-        <!-- Left: preview -->
         <div class="configurator__preview">
           <div class="preview-image">
             <img
@@ -51,7 +56,6 @@ interface SelectedOption {
           </div>
         </div>
 
-        <!-- Right: options panel -->
         <div class="configurator__options">
           <h1 class="configurator__title">Tùy chỉnh bánh của bạn</h1>
 
@@ -89,8 +93,8 @@ interface SelectedOption {
               (click)="addToCart()"
               [disabled]="!canAddToCart() || adding()"
             >
-              @if (adding()) { Đang thêm… }
-              @else { Thêm vào giỏ — {{ totalPrice() | currencyVnd }} }
+              @if (adding()) { Đang thêm... }
+              @else { Thêm vào giỏ - {{ totalPrice() | currencyVnd }} }
             </button>
           </div>
           <p class="configurator__hint" [class.configurator__hint--hidden]="canAddToCart()">
@@ -112,20 +116,17 @@ export class CustomCakePage implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly destroyRef = inject(DestroyRef);
 
   readonly loading = signal(true);
+  readonly error = signal('');
   readonly adding = signal(false);
   readonly customProduct = signal<Product | null>(null);
   readonly optionGroups = signal<OptionGroup[]>([]);
   readonly selectedOptions = signal<SelectedOption[]>([]);
   readonly quantity = signal(1);
 
-  // ASSUMPTION: custom cake product has slug 'custom-cake'. Adjust if backend uses different slug.
-  private readonly CUSTOM_CAKE_SLUG = 'custom-cake';
-
   readonly previewImageUrl = computed(() => {
-    // Most-recently selected option with an image wins (selections append,
-    // so scan from the end); falls back as selections are removed.
     const opts = this.selectedOptions();
     for (let i = opts.length - 1; i >= 0; i--) {
       if (opts[i].imageUrl) return opts[i].imageUrl!;
@@ -136,31 +137,16 @@ export class CustomCakePage implements OnInit {
   readonly totalPrice = computed(() => {
     const p = this.customProduct();
     if (!p) return 0;
-    // extraPrice may arrive as a string (Prisma Decimal) — coerce before summing.
     const extra = this.selectedOptions().reduce((sum, o) => sum + Number(o.extraPrice), 0);
-    // Unit price incl. options — quantity only affects the cart total.
     return Number(p.basePrice) + extra;
   });
 
-  readonly canAddToCart = computed(() => {
-    return this.optionGroups().every((g) =>
-      !g.isRequired || this.selectedOptions().some((s) => s.groupId === g.groupId)
-    );
-  });
+  readonly canAddToCart = computed(() =>
+    this.optionGroups().every((g) => !g.isRequired || this.selectedOptions().some((s) => s.groupId === g.groupId))
+  );
 
   ngOnInit(): void {
-    this.productsApi.getProducts({ limit: 100 }).subscribe({
-      next: (res) => {
-        const custom = res.items.find((p) => p.isCustomizable) ?? null;
-        if (!custom) { this.loading.set(false); return; }
-        this.customProduct.set(custom);
-        this.optionsApi.getProductOptions(custom.productId).subscribe({
-          next: (groups) => { this.optionGroups.set([...groups]); this.loading.set(false); },
-          error: () => this.loading.set(false),
-        });
-      },
-      error: () => this.loading.set(false),
-    });
+    this.loadCustomCake();
   }
 
   isSelected(groupId: string, itemId: string): boolean {
@@ -169,39 +155,77 @@ export class CustomCakePage implements OnInit {
 
   toggleOption(group: OptionGroup, item: OptionItem): void {
     const current = this.selectedOptions();
+    const selectedOption = {
+      groupId: group.groupId,
+      itemId: item.itemId,
+      name: item.name,
+      extraPrice: item.extraPrice,
+      imageUrl: item.imageUrl,
+    };
+
     if (group.isMultiple) {
       const exists = current.find((s) => s.groupId === group.groupId && s.itemId === item.itemId);
       this.selectedOptions.set(
         exists
           ? current.filter((s) => !(s.groupId === group.groupId && s.itemId === item.itemId))
-          : [...current, { groupId: group.groupId, itemId: item.itemId, name: item.name, extraPrice: item.extraPrice, imageUrl: item.imageUrl }]
+          : [...current, selectedOption]
       );
-    } else {
-      const filtered = current.filter((s) => s.groupId !== group.groupId);
-      const alreadySelected = current.find((s) => s.groupId === group.groupId && s.itemId === item.itemId);
-      this.selectedOptions.set(
-        alreadySelected
-          ? filtered
-          : [...filtered, { groupId: group.groupId, itemId: item.itemId, name: item.name, extraPrice: item.extraPrice, imageUrl: item.imageUrl }]
-      );
+      return;
     }
+
+    const filtered = current.filter((s) => s.groupId !== group.groupId);
+    const alreadySelected = current.find((s) => s.groupId === group.groupId && s.itemId === item.itemId);
+    this.selectedOptions.set(alreadySelected ? filtered : [...filtered, selectedOption]);
   }
 
   addToCart(): void {
     const p = this.customProduct();
     if (!p || !this.canAddToCart()) return;
+
     this.adding.set(true);
-    this.cartService.addItem({
-      product_id: p.productId,
-      quantity: this.quantity(),
-      option_item_ids: this.selectedOptions().map((s) => s.itemId),
-    }).subscribe({
-      next: () => {
-        this.adding.set(false);
-        this.toastService.success('Đã thêm bánh vào giỏ hàng!');
-        this.router.navigate(['/cart']);
-      },
-      error: () => { this.adding.set(false); this.toastService.error('Thêm vào giỏ thất bại.'); },
-    });
+    this.cartService
+      .addItem({
+        product_id: p.productId,
+        quantity: this.quantity(),
+        option_item_ids: this.selectedOptions().map((s) => s.itemId),
+      })
+      .pipe(finalize(() => this.adding.set(false)), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: () => {
+          this.toastService.success('Đã thêm bánh vào giỏ hàng!');
+          this.router.navigate(['/cart']);
+        },
+        error: () => this.toastService.error('Thêm vào giỏ thất bại.'),
+      });
+  }
+
+  private loadCustomCake(): void {
+    this.loading.set(true);
+    this.error.set('');
+
+    this.productsApi
+      .getProducts({ limit: 100 })
+      .pipe(
+        map((res) => res.items.find((p) => p.isCustomizable) ?? null),
+        switchMap((product) => {
+          if (!product) {
+            return of({ product: null, groups: [] as OptionGroup[] });
+          }
+
+          return this.optionsApi
+            .getProductOptions(product.productId)
+            .pipe(map((groups) => ({ product, groups })));
+        }),
+        catchError(() => {
+          this.error.set('Không thể tải dữ liệu tùy chỉnh bánh. Vui lòng thử lại.');
+          return of({ product: null, groups: [] as OptionGroup[] });
+        }),
+        finalize(() => this.loading.set(false)),
+        takeUntilDestroyed(this.destroyRef)
+      )
+      .subscribe(({ product, groups }) => {
+        this.customProduct.set(product);
+        this.optionGroups.set([...groups]);
+      });
   }
 }

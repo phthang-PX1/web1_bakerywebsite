@@ -1,58 +1,56 @@
-<div
+<section
   class="hero-carousel"
+  aria-label="Banner WeBee"
   (mouseenter)="stopRotation()"
   (mouseleave)="startRotation()"
   (pointerdown)="onPointerDown($event)"
   (pointerup)="onPointerUp($event)"
 >
-  <div class="hero-carousel__track" [style.transform]="'translateX(-' + current() * 100 + '%)'">
-    <!-- Slide 0: editorial hero -->
-    <div class="hero-carousel__slide" [attr.aria-hidden]="current() !== 0">
-      <app-hero-banner />
+  <div class="hero-carousel__viewport">
+    <div class="hero-carousel__track" [style.transform]="'translateX(-' + current() * 100 + '%)'">
+      @for (banner of banners(); track banner.id; let idx = $index) {
+        <div
+          class="hero-carousel__slide"
+          [attr.aria-hidden]="current() !== idx"
+        >
+          <img [src]="banner.imageUrl" [alt]="banner.title" draggable="false" />
+        </div>
+      }
     </div>
-
-    <!-- Campaign banners from admin -->
-    @for (banner of banners(); track banner.bannerId; let idx = $index) {
-      <div class="hero-carousel__slide" [attr.aria-hidden]="current() !== idx + 1">
-        <section class="banner-slide">
-          <div class="banner-slide__copy">
-            <p class="banner-slide__eyebrow">Ưu đãi &amp; sự kiện</p>
-            <h2 class="banner-slide__title">{{ banner.title }}</h2>
-            @if (banner.subtitle) {
-              <p class="banner-slide__subtitle">{{ banner.subtitle }}</p>
-            }
-            @if (banner.linkUrl) {
-              <button type="button" class="banner-slide__cta" (click)="openBanner(banner)">
-                Khám phá ngay
-              </button>
-            }
-          </div>
-          <div class="banner-slide__media">
-            <img [src]="banner.imageUrl" [alt]="banner.title" loading="lazy" draggable="false" />
-          </div>
-        </section>
-      </div>
-    }
   </div>
 
   @if (slideCount() > 1) {
-    <button class="hero-carousel__arrow hero-carousel__arrow--prev" type="button" (click)="prev()" aria-label="Banner trước">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M15 18l-6-6 6-6"/></svg>
+    <button
+      class="hero-carousel__arrow hero-carousel__arrow--prev"
+      type="button"
+      (click)="prev()"
+      aria-label="Banner truoc"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+        <path d="M15 18l-6-6 6-6" />
+      </svg>
     </button>
-    <button class="hero-carousel__arrow hero-carousel__arrow--next" type="button" (click)="next()" aria-label="Banner sau">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20"><path d="M9 6l6 6-6 6"/></svg>
+    <button
+      class="hero-carousel__arrow hero-carousel__arrow--next"
+      type="button"
+      (click)="next()"
+      aria-label="Banner sau"
+    >
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+        <path d="M9 6l6 6-6 6" />
+      </svg>
     </button>
 
-    <div class="hero-carousel__dots" role="tablist" aria-label="Chọn banner">
-      @for (i of [].constructor(slideCount()); track $index) {
+    <div class="hero-carousel__dots" role="tablist" aria-label="Chon banner">
+      @for (banner of banners(); track banner.id; let idx = $index) {
         <button
           type="button"
           class="hero-carousel__dot"
-          [class.hero-carousel__dot--active]="current() === $index"
-          (click)="goTo($index)"
-          [attr.aria-label]="'Banner ' + ($index + 1)"
+          [class.hero-carousel__dot--active]="current() === idx"
+          (click)="goTo(idx)"
+          [attr.aria-label]="'Banner ' + (idx + 1)"
         ></button>
       }
     </div>
   }
-</div>
+</section>

@@ -2,7 +2,7 @@
 @use "mixins" as m;
 
 .product-section {
-  padding: t.$section-y 0;
+  padding: clamp(2.5rem, 4.75vw, 4.25rem) 0;
 }
 
 .product-section--soft {
@@ -90,6 +90,10 @@
 }
 
 @include m.mq-down(md) {
+  .product-section {
+    padding: t.$sp-6 0;
+  }
+
   .product-section__heading {
     flex-direction: column;
     align-items: flex-start;

@@ -1,0 +1,3 @@
+ALTER TABLE "orders"
+ADD COLUMN "card_type" VARCHAR(20) NOT NULL DEFAULT 'none',
+ADD COLUMN "card_message" VARCHAR(300);

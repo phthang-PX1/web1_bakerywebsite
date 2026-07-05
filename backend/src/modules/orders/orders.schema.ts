@@ -26,6 +26,8 @@ export const orderIdParamsSchema = z.object({
 
 export const createOrderBodySchema = z
   .object({
+    buyer_name: z.string().trim().min(2).max(100).optional(),
+    buyer_phone: phoneSchema.optional(),
     recipient_name: z.string().trim().min(2).max(100),
     email: z.string().trim().email().optional(),
     phone: phoneSchema,
@@ -50,6 +52,8 @@ export const createOrderBodySchema = z
     }
   )
   .transform((value) => ({
+    buyerName: value.buyer_name ?? value.recipient_name,
+    buyerPhone: value.buyer_phone ?? value.phone,
     recipientName: value.recipient_name,
     email: value.email?.toLowerCase(),
     phone: value.phone,

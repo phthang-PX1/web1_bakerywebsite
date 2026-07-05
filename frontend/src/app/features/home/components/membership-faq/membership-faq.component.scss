@@ -2,7 +2,7 @@
 @use "mixins" as m;
 
 .membership {
-  padding: t.$section-y 0;
+  padding: clamp(2.5rem, 4.75vw, 4.25rem) 0;
 }
 
 .membership__inner {
@@ -142,6 +142,10 @@
 
 // --- Responsive -----------------------------------------------------------
 @include m.mq-down(md) {
+  .membership {
+    padding: t.$sp-6 0;
+  }
+
   .membership__inner {
     grid-template-columns: 1fr;
     gap: t.$sp-6;

@@ -13,7 +13,7 @@
   grid-template-columns: 7fr 5fr;
   align-items: center;
   gap: t.$sp-8;
-  padding: t.$section-y 0;
+  padding: clamp(2.5rem, 4.75vw, 4.25rem) 0;
 }
 
 // --- Copy --------------------------------------------------------------
@@ -76,7 +76,7 @@
   border: 1px solid rgba(232, 221, 213, 0.25);
 
   img {
-    @include m.img-cover(4 / 5);
+    @include m.img-cover(0.8);
   }
 }
 
@@ -85,6 +85,7 @@
   .custom-cta__inner {
     grid-template-columns: 1fr;
     gap: t.$sp-6;
+    padding: t.$sp-6 0;
   }
 
   .custom-cta__visual {

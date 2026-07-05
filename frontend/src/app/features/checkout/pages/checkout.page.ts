@@ -1,22 +1,25 @@
+import { AsyncPipe } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { AsyncPipe } from '@angular/common';
 import { Router } from '@angular/router';
 
-import { CartService } from '../../../core/services/cart.service';
-import { OrdersApi } from '../../../core/api/orders.api';
 import { CouponsApi } from '../../../core/api/coupons.api';
-import { ToastService } from '../../../core/services/toast.service';
-import { AuthService } from '../../../core/services/auth.service';
+import { OrdersApi } from '../../../core/api/orders.api';
 import type { ValidateCouponResponse } from '../../../core/models/coupon.model';
 import type { CreateOrderResponse } from '../../../core/models/order.model';
+import { AuthService } from '../../../core/services/auth.service';
+import { CakeMessageService } from '../../../core/services/cake-message.service';
+import { CartService } from '../../../core/services/cart.service';
+import { ToastService } from '../../../core/services/toast.service';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 
 export interface DeliveryDay {
   label: string;
   sublabel: string;
-  value: string; // YYYY-MM-DD
+  value: string;
 }
+
+const phoneValidator = [Validators.required, Validators.pattern(/^[0-9]{9,11}$/)];
 
 @Component({
   selector: 'app-checkout-page',
@@ -27,6 +30,7 @@ export interface DeliveryDay {
 })
 export class CheckoutPage implements OnInit {
   private readonly cartService = inject(CartService);
+  private readonly cakeMessages = inject(CakeMessageService);
   private readonly ordersApi = inject(OrdersApi);
   private readonly couponsApi = inject(CouponsApi);
   private readonly toastService = inject(ToastService);
@@ -40,24 +44,19 @@ export class CheckoutPage implements OnInit {
   readonly couponError = signal('');
   readonly giftRecipient = signal(false);
   readonly showCustomDate = signal(false);
+  readonly isDelivery = signal(true);
+  readonly discount = signal(0);
 
-  // Backend: shippingFee luôn = 0 (DELIVERY_SHIPPING_FEE = 0, PICKUP_SHIPPING_FEE = 0)
   readonly shippingFee = 0;
   readonly today = new Date().toISOString().split('T')[0];
-
   readonly deliveryDays: DeliveryDay[] = this.buildDeliveryDays();
-
-  readonly timeSlots = [
-    '08:00-10:00',
-    '10:00-12:00',
-    '13:00-15:00',
-    '15:00-17:00',
-    '17:00-19:00',
-  ];
+  readonly timeSlots = ['08:00-10:00', '10:00-12:00', '13:00-15:00', '15:00-17:00', '17:00-19:00'];
 
   readonly form = new FormGroup({
-    recipientName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    phone: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]{9,11}$/)]),
+    buyerName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
+    buyerPhone: new FormControl('', phoneValidator),
+    recipientName: new FormControl(''),
+    recipientPhone: new FormControl(''),
     email: new FormControl(''),
     fulfillmentType: new FormControl<'delivery' | 'pickup'>('delivery', [Validators.required]),
     street: new FormControl(''),
@@ -66,68 +65,36 @@ export class CheckoutPage implements OnInit {
     ward: new FormControl(''),
     deliveryDate: new FormControl(this.deliveryDays[0].value, [Validators.required]),
     deliveryTimeSlot: new FormControl('', [Validators.required]),
-    // 'cash' = COD (Prisma PaymentMethod enum: cash | transfer | card)
     paymentMethod: new FormControl<'transfer' | 'cash'>('cash', [Validators.required]),
     couponCode: new FormControl(''),
     note: new FormControl(''),
     businessInvoice: new FormControl(false),
   });
 
-  readonly isDelivery = signal(true);
-
-  readonly discount = signal(0);
-
   ngOnInit(): void {
     const user = this.authService.currentUser$.value;
     if (user) {
-      this.form.patchValue({ recipientName: user.fullName, email: user.email ?? '' });
+      this.form.patchValue({
+        buyerName: user.fullName,
+        buyerPhone: user.phone ?? '',
+        email: user.email ?? '',
+      });
     }
 
-    // Đồng bộ signal isDelivery với form control
     this.form.controls.fulfillmentType.valueChanges.subscribe((type) => {
       const delivery = type === 'delivery';
       this.isDelivery.set(delivery);
 
-      const addressFields = ['street', 'city', 'district'] as const;
-      if (delivery) {
-        addressFields.forEach(f => {
-          this.form.controls[f].setValidators([Validators.required]);
-          this.form.controls[f].updateValueAndValidity();
-        });
-      } else {
-        addressFields.forEach(f => {
-          this.form.controls[f].clearValidators();
-          this.form.controls[f].setValue('');
-          this.form.controls[f].updateValueAndValidity();
-        });
+      if (!delivery) {
+        this.toggleGiftRecipient(false);
       }
+
+      this.syncAddressValidators(delivery);
+      this.syncRecipientValidators();
     });
 
-    // Default: delivery → địa chỉ bắt buộc
-    ['street', 'city', 'district'].forEach(f => {
-      (this.form.controls as any)[f].setValidators([Validators.required]);
-      (this.form.controls as any)[f].updateValueAndValidity();
-    });
-  }
-
-  private buildDeliveryDays(): DeliveryDay[] {
-    const DAY_NAMES = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
-    const days: DeliveryDay[] = [];
-    const base = new Date();
-    base.setHours(0, 0, 0, 0);
-
-    for (let i = 0; i < 3; i++) {
-      const d = new Date(base);
-      d.setDate(base.getDate() + i);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const value = `${yyyy}-${mm}-${dd}`;
-      const dayName = i === 0 ? 'Hôm nay' : i === 1 ? 'Ngày mai' : DAY_NAMES[d.getDay()];
-      const sublabel = `(${dd}/${mm})`;
-      days.push({ label: dayName, sublabel, value });
-    }
-    return days;
+    this.syncAddressValidators(true);
+    this.syncRecipientValidators();
   }
 
   selectDay(value: string): void {
@@ -145,17 +112,29 @@ export class CheckoutPage implements OnInit {
   }
 
   toggleGiftRecipient(checked: boolean): void {
-    this.giftRecipient.set(checked);
+    this.giftRecipient.set(checked && this.isDelivery());
+    this.syncRecipientValidators();
   }
 
   validateCoupon(): void {
     const code = this.form.value.couponCode?.trim();
     if (!code) return;
+
+    if (!this.form.value.buyerPhone?.trim()) {
+      this.couponError.set('Nhập số điện thoại người đặt ở phần thông tin để sử dụng voucher.');
+      return;
+    }
+
     this.validatingCoupon.set(true);
     this.couponError.set('');
     const subtotal = this.cartService.snapshot.subtotal;
+
     this.couponsApi.validate({ code, order_value: subtotal }).subscribe({
-      next: (res) => { this.coupon.set(res); this.discount.set(res.discountAmount ?? 0); this.validatingCoupon.set(false); },
+      next: (res) => {
+        this.coupon.set(res);
+        this.discount.set(res.discountAmount ?? 0);
+        this.validatingCoupon.set(false);
+      },
       error: (err) => {
         this.validatingCoupon.set(false);
         this.coupon.set(null);
@@ -173,56 +152,123 @@ export class CheckoutPage implements OnInit {
   }
 
   submit(): void {
+    this.syncRecipientValidators();
     this.form.markAllAsTouched();
+
     if (this.form.invalid) {
       this.toastService.error('Vui lòng kiểm tra lại thông tin đặt hàng.');
-      // Let the error messages render, then bring the first one into view.
       setTimeout(() => {
-        document.querySelector('.field__error')
-          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document.querySelector('.field__error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
 
     this.submitting.set(true);
-    const v = this.form.value;
+    const v = this.form.getRawValue();
+    const hasGiftRecipient = this.isDelivery() && this.giftRecipient();
+    const recipientName = hasGiftRecipient ? v.recipientName! : v.buyerName!;
+    const recipientPhone = hasGiftRecipient ? v.recipientPhone! : v.buyerPhone!;
+    const deliveryAddress =
+      v.fulfillmentType === 'delivery'
+        ? [v.street, v.ward, v.district, v.city].filter(Boolean).join(', ')
+        : undefined;
 
-    // Ghép địa chỉ từ các field riêng
-    const deliveryAddress = v.fulfillmentType === 'delivery'
-      ? [v.street, v.ward, v.district, v.city].filter(Boolean).join(', ')
-      : undefined;
+    const cardMessage =
+      Object.values(this.cakeMessages.messages())
+        .map((m) => `${m.productName} (${this.cakeMessages.templateById(m.templateId).name}): "${m.text}"`)
+        .join(' | ')
+        .slice(0, 300) || undefined;
 
-    this.ordersApi.createOrder({
-      recipient_name: v.recipientName!,
-      email: v.email || undefined,
-      phone: v.phone!,
-      fulfillment_type: v.fulfillmentType!,
-      delivery_address: deliveryAddress,
-      delivery_date: v.deliveryDate!,
-      delivery_time_slot: v.deliveryTimeSlot!,
-      payment_method: v.paymentMethod!,
-      coupon_code: this.coupon()?.code || undefined,
-      note: v.note || undefined,
-      card_type: 'none',
-    }).subscribe({
-      next: (res: CreateOrderResponse) => {
-        this.submitting.set(false);
-        const totalAmount = res.summary?.totalAmount ?? 0;
-        this.router.navigate(['/checkout/success'], {
-          state: {
-            orderId: res.order_id,
-            paymentQrUrl: res.payment_qr_url,       // null nếu COD
-            transferContent: res.transfer_content,   // null nếu COD
-            paymentMethod: v.paymentMethod,
-            totalAmount,
-            recipientName: v.recipientName,
-          }
-        });
-      },
-      error: () => {
-        this.submitting.set(false);
-        this.toastService.error('Không thể đặt hàng. Vui lòng thử lại.');
-      },
+    this.ordersApi
+      .createOrder({
+        buyer_name: v.buyerName!,
+        buyer_phone: v.buyerPhone!,
+        recipient_name: recipientName,
+        email: v.email || undefined,
+        phone: recipientPhone,
+        fulfillment_type: v.fulfillmentType!,
+        delivery_address: deliveryAddress,
+        delivery_date: v.deliveryDate!,
+        delivery_time_slot: v.deliveryTimeSlot!,
+        payment_method: v.paymentMethod!,
+        coupon_code: this.coupon()?.code || undefined,
+        note: v.note || undefined,
+        card_type: cardMessage ? 'on_cake' : 'none',
+        card_message: cardMessage,
+      })
+      .subscribe({
+        next: (res: CreateOrderResponse) => {
+          this.submitting.set(false);
+          this.cakeMessages.clearAll();
+          const totalAmount = res.summary?.totalAmount ?? 0;
+          this.router.navigate(['/checkout/success'], {
+            state: {
+              orderId: res.order_id,
+              paymentQrUrl: res.payment_qr_url,
+              transferContent: res.transfer_content,
+              paymentMethod: v.paymentMethod,
+              totalAmount,
+              recipientName,
+            },
+          });
+        },
+        error: () => {
+          this.submitting.set(false);
+          this.toastService.error('Không thể đặt hàng. Vui lòng thử lại.');
+        },
+      });
+  }
+
+  private buildDeliveryDays(): DeliveryDay[] {
+    const dayNames = ['CN', 'T2', 'T3', 'T4', 'T5', 'T6', 'T7'];
+    const days: DeliveryDay[] = [];
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+
+    for (let i = 0; i < 3; i++) {
+      const d = new Date(base);
+      d.setDate(base.getDate() + i);
+      const yyyy = d.getFullYear();
+      const mm = String(d.getMonth() + 1).padStart(2, '0');
+      const dd = String(d.getDate()).padStart(2, '0');
+      const value = `${yyyy}-${mm}-${dd}`;
+      const label = i === 0 ? 'Hôm nay' : i === 1 ? 'Ngày mai' : dayNames[d.getDay()];
+      days.push({ label, sublabel: `${dd}/${mm}`, value });
+    }
+
+    return days;
+  }
+
+  private syncAddressValidators(delivery: boolean): void {
+    const addressFields = ['street', 'city', 'district'] as const;
+    addressFields.forEach((field) => {
+      const control = this.form.controls[field];
+      if (delivery) {
+        control.setValidators([Validators.required]);
+      } else {
+        control.clearValidators();
+        control.setValue('');
+      }
+      control.updateValueAndValidity();
     });
+  }
+
+  private syncRecipientValidators(): void {
+    const required = this.isDelivery() && this.giftRecipient();
+    const name = this.form.controls.recipientName;
+    const phone = this.form.controls.recipientPhone;
+
+    if (required) {
+      name.setValidators([Validators.required, Validators.maxLength(100)]);
+      phone.setValidators(phoneValidator);
+    } else {
+      name.clearValidators();
+      phone.clearValidators();
+      name.setValue('');
+      phone.setValue('');
+    }
+
+    name.updateValueAndValidity();
+    phone.updateValueAndValidity();
   }
 }

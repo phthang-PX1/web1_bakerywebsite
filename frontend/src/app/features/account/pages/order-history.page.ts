@@ -1,9 +1,10 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { SlicePipe } from '@angular/common';
+import { AsyncPipe, SlicePipe } from '@angular/common';
 
 import { OrdersApi } from '../../../core/api/orders.api';
-import type { Order } from '../../../core/models/order.model';
+import { AuthService } from '../../../core/services/auth.service';
+import type { Order, OrderStatus } from '../../../core/models/order.model';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
@@ -11,34 +12,54 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
 @Component({
   selector: 'app-order-history-page',
   standalone: true,
-  imports: [RouterLink, SlicePipe, CurrencyVndPipe, PaginationComponent, LoadingSpinnerComponent],
+  imports: [RouterLink, AsyncPipe, SlicePipe, CurrencyVndPipe, PaginationComponent, LoadingSpinnerComponent],
   template: `
-    <div class="account-form-page">
-      <div class="page-header">
-        <a class="back-link" routerLink="/account">← Tài khoản</a>
-        <h1>Lịch sử đơn hàng</h1>
-      </div>
+    <div class="account-page">
+      @if (authService.currentUser$ | async; as user) {
+        <header class="account-heading">
+          <div>
+            <h1>Tài khoản của tôi</h1>
+            <div class="account-heading__meta">
+              <strong>{{ user.fullName }}</strong>
+              <span>WeBee {{ user.membershipTier }} member</span>
+            </div>
+          </div>
+        </header>
+        <nav class="account-tabs" aria-label="Quản lý tài khoản">
+          <a class="account-tabs__item" routerLink="/account">Hồ sơ cá nhân</a>
+          <a class="account-tabs__item account-tabs__item--active" routerLink="/account/orders">Đơn hàng của tôi</a>
+        </nav>
+      }
 
       @if (loading()) {
         <app-loading-spinner />
       } @else if (orders().length === 0) {
-        <div class="empty-state">
+        <div class="orders-empty">
+          <svg width="56" height="56" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M7 3.5h8.5L19 7v13.5H7z"/><path d="M15 3.5V7h3.5M9.8 12h4.4M9.8 15.5h4.4"/>
+          </svg>
           <p>Bạn chưa có đơn hàng nào.</p>
-          <a class="btn-save" routerLink="/products">Mua sắm ngay</a>
+          <a class="orders-empty__cta" routerLink="/products">Mua sắm ngay</a>
         </div>
       } @else {
-        <ul class="orders-list">
+        <ul class="order-cards">
           @for (order of orders(); track order.orderId) {
             <li>
-              <a class="order-row" [routerLink]="['/account/orders', order.orderId]">
-                <div class="order-row__main">
-                  <span class="order-row__id">#{{ order.orderId.slice(-8).toUpperCase() }}</span>
-                  <span class="order-row__date">{{ order.createdAt | slice:0:10 }}</span>
+              <a class="order-card" [routerLink]="['/account/orders', order.orderId]">
+                <div class="order-card__top">
+                  <span class="order-card__id">#{{ order.orderId.slice(-8).toUpperCase() }}</span>
+                  <span class="order-card__badge" [class]="'order-card__badge--' + order.orderStatus">
+                    {{ STATUS_LABELS[order.orderStatus] ?? order.orderStatus }}
+                  </span>
                 </div>
-                <span class="order-row__amount">{{ order.totalAmount | currencyVnd }}</span>
-                <span class="order-status-badge" [class]="'order-status-badge--' + order.orderStatus">
-                  {{ STATUS_LABELS[order.orderStatus] ?? order.orderStatus }}
-                </span>
+                <div class="order-card__body">
+                  <span class="order-card__date">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="4.5" width="17" height="16" rx="2"/><path d="M3.5 9h17M8 3v3M16 3v3"/></svg>
+                    {{ order.createdAt | slice:0:10 }}
+                  </span>
+                  <span class="order-card__amount">{{ order.totalAmount | currencyVnd }}</span>
+                </div>
+                <span class="order-card__cta">Xem chi tiết →</span>
               </a>
             </li>
           }
@@ -47,21 +68,28 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
       }
     </div>
   `,
-  styleUrl: './account.page.scss',
+  styleUrl: './order-history.page.scss',
 })
 export class OrderHistoryPage implements OnInit {
   private readonly ordersApi = inject(OrdersApi);
+  readonly authService = inject(AuthService);
   readonly orders = signal<Order[]>([]);
   readonly loading = signal(true);
   readonly page = signal(1);
   readonly totalPages = signal(0);
 
-  readonly STATUS_LABELS: Record<string, string> = {
-    pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang làm',
-    ready: 'Sẵn sàng giao/nhận', delivered: 'Đã giao', cancelled: 'Đã hủy',
+  readonly STATUS_LABELS: Record<OrderStatus, string> = {
+    pending: 'Chờ xác nhận',
+    confirmed: 'Đã xác nhận',
+    processing: 'Đang làm bánh',
+    ready: 'Đang giao hàng',
+    delivered: 'Đã giao',
+    cancelled: 'Đã hủy',
   };
 
-  ngOnInit(): void { this.loadPage(1); }
+  ngOnInit(): void {
+    this.loadPage(1);
+  }
 
   loadPage(p: number): void {
     this.loading.set(true);
@@ -72,6 +100,7 @@ export class OrderHistoryPage implements OnInit {
         this.page.set(p);
         this.loading.set(false);
       },
+      error: () => this.loading.set(false),
     });
   }
 }

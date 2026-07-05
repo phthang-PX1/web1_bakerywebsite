@@ -295,9 +295,9 @@ export class AccountPage implements OnInit {
     const labels: Record<string, string> = {
       pending: 'Chờ xác nhận',
       confirmed: 'Đã xác nhận',
-      processing: 'Đang làm',
-      ready: 'Sẵn sàng',
-      delivered: 'Hoàn thành',
+      processing: 'Đang làm bánh',
+      ready: 'Đang giao hàng',
+      delivered: 'Đã giao',
       cancelled: 'Đã hủy',
     };
     return labels[status] ?? status;

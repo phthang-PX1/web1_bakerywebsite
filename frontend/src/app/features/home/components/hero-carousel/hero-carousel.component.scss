@@ -2,135 +2,125 @@
 @use "mixins" as m;
 
 .hero-carousel {
+  width: min(1920px, calc(100vw - 72px));
+  margin-inline: auto;
   position: relative;
+  overflow: visible;
+  padding: t.$sp-4 0 t.$sp-5;
+}
+
+.hero-carousel__viewport {
+  border-radius: t.$r-sm;
   overflow: hidden;
+  background: t.$surface;
+  aspect-ratio: 2161 / 728;
 }
 
 .hero-carousel__track {
   display: flex;
   align-items: stretch;
+  height: 100%;
   transition: transform 0.55s ease;
 }
 
 .hero-carousel__slide {
   flex: 0 0 100%;
   min-width: 0;
-}
-
-// --- Campaign banner slide (same visual language as the hero) --------------
-.banner-slide {
-  @include m.container;
-  display: grid;
-  grid-template-columns: 55fr 45fr;
+  border: 0;
+  padding: 0;
+  background: t.$surface;
+  line-height: 0;
+  display: flex;
   align-items: center;
-  gap: t.$sp-8;
-  padding: t.$sp-8 0 t.$sp-9;
+  justify-content: center;
   height: 100%;
-  box-sizing: border-box;
-}
-
-.banner-slide__eyebrow {
-  @include m.eyebrow(true);
-  margin: 0 0 t.$sp-5;
-}
-
-.banner-slide__title {
-  @include m.display(1);
-  margin: 0 0 t.$sp-4;
-}
-
-.banner-slide__subtitle {
-  font-size: t.$fs-body;
-  line-height: 1.75;
-  color: t.$muted;
-  max-width: 44ch;
-  margin: 0 0 t.$sp-6;
-}
-
-.banner-slide__cta {
-  @include m.btn-solid;
-}
-
-.banner-slide__media {
-  @include m.arch-media;
-  border: 1px solid t.$border;
 
   img {
-    @include m.img-cover(4 / 5);
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    user-select: none;
   }
 }
 
-// --- Controls ----------------------------------------------------------------
 .hero-carousel__arrow {
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: calc(t.$sp-4 + (100% - t.$sp-4 - t.$sp-5) / 2);
+  z-index: 2;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   width: 42px;
   height: 42px;
-  border: 1px solid t.$border;
+  border: 1px solid rgba(t.$ink, 0.12);
   border-radius: t.$r-pill;
-  background: t.$paper;
+  background: rgba(t.$paper, 0.9);
   color: t.$ink;
   cursor: pointer;
-  z-index: 2;
-  transition: border-color 0.2s ease, color 0.2s ease;
+  transform: translateY(-50%);
+  transition: background-color 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
   &:hover {
-    border-color: t.$primary;
-    color: t.$primary;
+    border-color: t.$caramel;
+    color: t.$caramel;
+    background: t.$paper;
   }
 
-  &--prev { left: t.$sp-4; }
-  &--next { right: t.$sp-4; }
+  &--prev {
+    left: -21px;
+  }
+
+  &--next {
+    right: -21px;
+  }
 }
 
 .hero-carousel__dots {
   position: absolute;
-  bottom: t.$sp-4;
   left: 50%;
-  transform: translateX(-50%);
+  bottom: t.$sp-4;
+  z-index: 2;
   display: flex;
   gap: t.$sp-2;
-  z-index: 2;
+  transform: translateX(-50%);
 }
 
 .hero-carousel__dot {
   width: 8px;
   height: 8px;
-  border-radius: 50%;
   border: 1px solid t.$caramel;
-  background: transparent;
+  border-radius: 50%;
   padding: 0;
+  background: transparent;
   cursor: pointer;
   transition: background-color 0.2s ease, width 0.2s ease;
 
   &--active {
-    background: t.$caramel;
     width: 22px;
     border-radius: t.$r-pill;
+    background: t.$ink;
+    border-color: t.$ink;
   }
 }
 
-// --- Responsive ------------------------------------------------------------------
 @include m.mq-down(md) {
-  .banner-slide {
-    grid-template-columns: 1fr;
-    gap: t.$sp-5;
-    padding: t.$sp-6 0 t.$sp-8;
+  .hero-carousel {
+    width: min(100% - t.$sp-4, 1920px);
+    padding: t.$sp-3 0 t.$sp-5;
   }
 
-  .banner-slide__media {
-    order: -1;
-
-    img {
-      aspect-ratio: 4 / 3;
-    }
+  .hero-carousel__viewport {
+    border-radius: t.$r-sm;
+    aspect-ratio: 16 / 9;
   }
 
   .hero-carousel__arrow {
-    display: none; // swipe on mobile
+    display: none;
+  }
+
+  .hero-carousel__dots {
+    bottom: t.$sp-4;
   }
 }

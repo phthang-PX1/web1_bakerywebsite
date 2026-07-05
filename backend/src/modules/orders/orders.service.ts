@@ -63,6 +63,9 @@ const formatOrderItem = (item: {
     optionNameSnapshot: string;
     optionPriceSnapshot: Prisma.Decimal;
   }[];
+  // Present only on the detail query — lets the client know if this line was
+  // already reviewed so it can show the rating instead of the review form.
+  review?: { reviewId: string; rating: number; comment: string | null } | null;
 }) => ({
   orderItemId: item.orderItemId,
   productId: item.productId,
@@ -78,13 +81,25 @@ const formatOrderItem = (item: {
     itemId: option.itemId,
     name: option.optionNameSnapshot,
     extraPrice: toMoney(option.optionPriceSnapshot)
-  }))
+  })),
+  review:
+    item.review === undefined
+      ? undefined
+      : item.review
+        ? {
+            reviewId: item.review.reviewId,
+            rating: item.review.rating,
+            comment: item.review.comment
+          }
+        : null
 });
 
 const formatOrderSummary = (order: {
   orderId: string;
   userId: string | null;
   couponId: string | null;
+  buyerName?: string | null;
+  buyerPhone?: string | null;
   recipientName: string;
   phone: string;
   fulfillmentType: "delivery" | "pickup";
@@ -107,6 +122,8 @@ const formatOrderSummary = (order: {
   orderId: order.orderId,
   userId: order.userId,
   couponId: order.couponId,
+  buyerName: order.buyerName ?? null,
+  buyerPhone: order.buyerPhone ?? null,
   recipientName: order.recipientName,
   phone: order.phone,
   fulfillmentType: order.fulfillmentType,
@@ -167,11 +184,11 @@ const resolveCartIdentity = (identity: OrderIdentity): CartIdentity => {
 
 const findSingleUserByContact = async (
   tx: TransactionClient,
-  input: Pick<OrderCreateInput, "email" | "phone">
+  input: Pick<OrderCreateInput, "email" | "buyerPhone">
 ) => {
   const filters = [
     input.email ? { email: input.email } : undefined,
-    input.phone ? { phone: input.phone } : undefined
+    input.buyerPhone ? { phone: input.buyerPhone } : undefined
   ].filter(Boolean) as Array<{ email: string } | { phone: string }>;
 
   if (filters.length === 0) return null;
@@ -212,8 +229,8 @@ const resolveOrderUser = async (
   const user = await tx.user.create({
     data: {
       email: input.email,
-      phone: input.phone,
-      fullName: input.recipientName,
+      phone: input.buyerPhone,
+      fullName: input.buyerName,
       authProvider: "local",
       isActive: false
     }
@@ -315,7 +332,7 @@ const sendOrderNotification = async (data: {
   activationUserId?: string;
   email?: string;
   phone: string;
-  recipientName: string;
+  buyerName: string;
   orderId: string;
   totalAmount: number;
   paymentQrUrl: string | null;
@@ -338,7 +355,7 @@ const sendOrderNotification = async (data: {
       subject: `WeBee order ${data.orderId}`,
       text: `${message}${activationUrl ? ` Activate account: ${activationUrl}` : ""}`,
       html: `
-        <p>Hi ${data.recipientName},</p>
+        <p>Hi ${data.buyerName},</p>
         <p>Your WeBee order has been created.</p>
         <p>Total: <strong>${data.totalAmount}</strong></p>
         ${isCash
@@ -417,6 +434,8 @@ export const createOrder = async (
       data: {
         userId,
         couponId,
+        buyerName: input.buyerName,
+        buyerPhone: input.buyerPhone,
         recipientName: input.recipientName,
         phone: input.phone,
         fulfillmentType: input.fulfillmentType,
@@ -436,7 +455,7 @@ export const createOrder = async (
         items: {
           create: buildOrderItems(cart.items)
         }
-      }
+      } as any
     });
 
     return { order, activationUserId };
@@ -454,8 +473,8 @@ export const createOrder = async (
     await sendOrderNotification({
       activationUserId: createdOrder.activationUserId,
       email: input.email,
-      phone: input.phone,
-      recipientName: input.recipientName,
+      phone: input.buyerPhone,
+      buyerName: input.buyerName,
       orderId: createdOrder.order.orderId,
       totalAmount: toMoney(createdOrder.order.totalAmount),
       paymentQrUrl,
@@ -519,7 +538,10 @@ export const getMyOrderDetail = async (
     },
     include: {
       items: {
-        include: { options: true },
+        include: {
+          options: true,
+          review: { select: { reviewId: true, rating: true, comment: true } }
+        },
         orderBy: { orderItemId: "asc" }
       }
     }

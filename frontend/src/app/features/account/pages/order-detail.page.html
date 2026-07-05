@@ -1,92 +1,196 @@
-<div class="account-form-page">
-  <div class="page-header">
-    <a class="back-link" routerLink="/account/orders">← Đơn hàng</a>
-    <h1>Chi tiết đơn hàng</h1>
-  </div>
+<div class="account-page">
+  <!-- Account heading + tabs (shared shell) -->
+  @if (authService.currentUser$ | async; as user) {
+    <header class="account-heading">
+      <div>
+        <h1>Tài khoản của tôi</h1>
+        <div class="account-heading__meta">
+          <strong>{{ user.fullName }}</strong>
+          <span>WeBee {{ user.membershipTier }} member</span>
+        </div>
+      </div>
+    </header>
+    <nav class="account-tabs" aria-label="Quản lý tài khoản">
+      <a class="account-tabs__item" routerLink="/account">Hồ sơ cá nhân</a>
+      <a class="account-tabs__item account-tabs__item--active" routerLink="/account/orders">Đơn hàng của tôi</a>
+    </nav>
+  }
 
   @if (loading()) {
     <app-loading-spinner />
   } @else if (order(); as o) {
-    <div class="order-header">
-      <p class="order-id">#{{ o.orderId.slice(-8).toUpperCase() }}</p>
-      <span class="order-status-badge" [class]="'order-status-badge--' + o.orderStatus">
-        {{ STATUS_LABELS[o.orderStatus] ?? o.orderStatus }}
-      </span>
-    </div>
+    <article class="order-detail-card">
+      <header class="order-detail-card__head">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M7 3.5h8.5L19 7v13.5H7z"/><path d="M15 3.5V7h3.5M9.8 12h4.4M9.8 15.5h4.4"/>
+        </svg>
+        <h2>Chi tiết đơn hàng</h2>
+        <a class="order-detail-card__back" routerLink="/account/orders">← Danh sách đơn</a>
+      </header>
 
-    <section class="form-section">
-      <h2 class="form-section__title">Thông tin giao hàng</h2>
-      <p><strong>Người nhận:</strong> {{ o.recipientName }} — {{ o.phone }}</p>
-      @if (o.deliveryAddress) {
-        <p><strong>Địa chỉ:</strong> {{ o.deliveryAddress }}</p>
-      }
-      <p><strong>Ngày:</strong> {{ o.deliveryDate }} ({{ o.deliveryTimeSlot }})</p>
-    </section>
+      <div class="order-detail-card__body">
 
-    <section class="form-section">
-      <h2 class="form-section__title">Sản phẩm</h2>
-      @for (item of o.items; track item.orderItemId) {
-        <div class="order-item">
-          <div class="order-item__info">
-            <p class="order-item__name">{{ item.productName }}</p>
-            @if (item.options.length > 0) {
-              <p class="order-item__opts">{{ item.options.map(opt => opt.name).join(', ') }}</p>
-            }
-            <p class="order-item__qty">SL: {{ item.quantity }}</p>
+        <!-- Progress tracker -->
+        @if (isCancelled()) {
+          <div class="order-cancelled">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M15 9l-6 6M9 9l6 6"/></svg>
+            Đơn hàng đã được hủy
           </div>
-          <span class="order-item__price">{{ item.itemTotal | currencyVnd }}</span>
+        } @else {
+          <ol class="tracker" aria-label="Tiến trình đơn hàng">
+            @for (step of TRACK_STEPS; track step.key; let i = $index) {
+              <li class="tracker__step" [attr.data-state]="stepState(i)">
+                <span class="tracker__node">
+                  @switch (step.icon) {
+                    @case ('clock') {
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="8"/><path d="M12 7.5V12l3 2"/></svg>
+                    }
+                    @case ('chef') {
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 13.5a4 4 0 0 1-.6-7.95A4 4 0 0 1 14 4.2a4 4 0 0 1 3.6 9.3M7 13.5V19a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-5.5M7 13.5h10"/></svg>
+                    }
+                    @case ('truck') {
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 6.5h11v9H3zM14 9.5h4l3 3v3h-7z"/><circle cx="7" cy="17.5" r="1.6"/><circle cx="17.5" cy="17.5" r="1.6"/></svg>
+                    }
+                    @case ('check') {
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+                    }
+                  }
+                </span>
+                <span class="tracker__label">{{ step.label }}</span>
+              </li>
+            }
+          </ol>
+        }
+
+        <!-- Order info bar -->
+        <dl class="order-meta">
+          <div class="order-meta__cell">
+            <dt>Mã đơn hàng</dt>
+            <dd class="order-meta__id">#{{ o.orderId.slice(-8).toUpperCase() }}</dd>
+          </div>
+          <div class="order-meta__cell">
+            <dt>Ngày đặt</dt>
+            <dd>{{ o.createdAt | slice:0:10 }}</dd>
+          </div>
+          <div class="order-meta__cell">
+            <dt>Trạng thái hiện tại</dt>
+            <dd class="order-meta__status" [class]="'order-meta__status--' + o.orderStatus">
+              {{ STATUS_LABELS[o.orderStatus] ?? o.orderStatus }}
+            </dd>
+          </div>
+        </dl>
+
+        <!-- Delivery / recipient -->
+        <section class="order-block">
+          <h3 class="order-block__title">Thông tin nhận hàng</h3>
+          <p class="order-block__line"><span>Người nhận</span>{{ o.recipientName }} · {{ o.phone }}</p>
+          @if (o.deliveryAddress) {
+            <p class="order-block__line"><span>Địa chỉ</span>{{ o.deliveryAddress }}</p>
+          } @else {
+            <p class="order-block__line"><span>Hình thức</span>Nhận tại cửa hàng</p>
+          }
+          <p class="order-block__line"><span>Thời gian</span>{{ o.deliveryDate }} · {{ o.deliveryTimeSlot }}</p>
+          @if (o.cardMessage) {
+            <p class="order-block__line"><span>Lời chúc</span>{{ o.cardMessage }}</p>
+          }
+          @if (o.note) {
+            <p class="order-block__line"><span>Ghi chú</span>{{ o.note }}</p>
+          }
+        </section>
+
+        <!-- Products -->
+        <section class="order-block">
+          <h3 class="order-block__title">Chi tiết sản phẩm</h3>
+          <ul class="prod-list">
+            @for (item of o.items; track item.orderItemId) {
+              <li class="prod">
+                <span class="prod__thumb" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 20h16M5 20v-7a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v7M4 15c1.3 1 2.7 1 4 0s2.7-1 4 0 2.7 1 4 0 2.7-1 4 0"/><path d="M12 8V5"/></svg>
+                </span>
+                <div class="prod__info">
+                  <p class="prod__name">{{ item.productName }}</p>
+                  @if (item.options.length > 0) {
+                    <p class="prod__opts">{{ item.options.map(o => o.name).join(', ') }}</p>
+                  }
+                  <p class="prod__qty">Số lượng: {{ item.quantity }}</p>
+                </div>
+                <span class="prod__price">{{ item.itemTotal | currencyVnd }}</span>
+              </li>
+
+              <!-- Per-item review -->
+              @if (o.orderStatus === 'delivered') {
+                @if (item.review; as rv) {
+                  <div class="review review--done">
+                    <div class="review__done-head">
+                      <app-star-rating [rating]="rv.rating" />
+                      <span class="review__done-tag">✓ Đã đánh giá</span>
+                    </div>
+                    @if (rv.comment) {
+                      <p class="review__done-comment">“{{ rv.comment }}”</p>
+                    }
+                  </div>
+                } @else if (draftFor(item.orderItemId); as draft) {
+                  <div class="review">
+                    <p class="review__prompt">Đánh giá &amp; phản hồi cho <strong>{{ item.productName }}</strong></p>
+                    <div class="star-input" (mouseleave)="setHover(item.orderItemId, 0)">
+                      @for (n of [1,2,3,4,5]; track n) {
+                        <button
+                          type="button"
+                          class="star-input__btn"
+                          [class.star-input__btn--on]="n <= (draft.hover || draft.rating)"
+                          (mouseenter)="setHover(item.orderItemId, n)"
+                          (click)="setRating(item.orderItemId, n)"
+                          [attr.aria-label]="n + ' sao'"
+                        >★</button>
+                      }
+                    </div>
+                    <textarea
+                      class="review__textarea"
+                      placeholder="Chia sẻ cảm nhận của bạn về sản phẩm này..."
+                      [value]="draft.comment"
+                      (input)="setComment(item.orderItemId, $any($event.target).value)"
+                    ></textarea>
+                    <button
+                      class="review__submit"
+                      type="button"
+                      [disabled]="draft.rating < 1 || draft.submitting"
+                      (click)="submitReview(item.orderItemId)"
+                    >
+                      {{ draft.submitting ? 'Đang gửi...' : 'Gửi đánh giá' }}
+                    </button>
+                  </div>
+                }
+              }
+            }
+          </ul>
+        </section>
+
+        <!-- Totals -->
+        <div class="order-total-row">
+          <span>Tổng cộng</span>
+          <strong>{{ o.totalAmount | currencyVnd }}</strong>
         </div>
 
-        @if (o.orderStatus === 'delivered') {
-          @if (!reviewSubmitted()) {
-            <div class="review-form">
-              <h3>Đánh giá sản phẩm</h3>
-              <form [formGroup]="reviewForm" (ngSubmit)="submitReview()" novalidate>
-                <div class="field">
-                  <label class="field__label">Chọn sản phẩm để đánh giá</label>
-                  <select class="field__input" (change)="selectedOrderItemId.set($any($event.target).value)">
-                    <option value="">-- Chọn sản phẩm --</option>
-                    @for (it of o.items; track it.orderItemId) {
-                      <option [value]="it.orderItemId">{{ it.productName }}</option>
-                    }
-                  </select>
-                </div>
-                <div class="field">
-                  <label class="field__label">Đánh giá (1–5 sao) *</label>
-                  <input type="number" class="field__input" formControlName="rating" min="1" max="5" />
-                </div>
-                <div class="field">
-                  <label class="field__label">Nhận xét (tuỳ chọn)</label>
-                  <textarea class="field__input field__textarea" formControlName="comment"></textarea>
-                </div>
-                <button type="submit" class="btn-save" [disabled]="submittingReview() || !selectedOrderItemId()">
-                  {{ submittingReview() ? 'Đang gửi...' : 'Gửi đánh giá' }}
-                </button>
-              </form>
-            </div>
-          } @else {
-            <p class="review-done">✓ Đã gửi đánh giá</p>
-          }
-        }
-      }
-    </section>
+        <!-- Payment method -->
+        <div class="order-payment">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="2.5" y="6" width="19" height="12" rx="2"/><path d="M2.5 10h19"/></svg>
+          <span><strong>Phương thức thanh toán:</strong> {{ PAYMENT_LABELS[o.paymentMethod] ?? o.paymentMethod }}</span>
+          <span class="order-payment__status" [class.order-payment__status--paid]="o.paymentStatus === 'paid'">
+            {{ o.paymentStatus === 'paid' ? 'Đã thanh toán' : 'Chưa thanh toán' }}
+          </span>
+        </div>
 
-    <section class="form-section">
-      <h2 class="form-section__title">Thanh toán</h2>
-      <div class="order-summary">
-        <div class="order-summary__row"><span>Tạm tính</span><span>{{ o.subtotal | currencyVnd }}</span></div>
-        @if (o.discountAmount > 0) {
-          <div class="order-summary__row"><span>Giảm giá</span><span>−{{ o.discountAmount | currencyVnd }}</span></div>
+        @if (o.orderStatus === 'pending') {
+          <button class="order-cancel-btn" type="button" [disabled]="cancelling()" (click)="cancelOrder()">
+            {{ cancelling() ? 'Đang hủy...' : 'Hủy đơn hàng' }}
+          </button>
         }
-        <div class="order-summary__row"><span>Phí vận chuyển</span><span>Miễn phí</span></div>
-        <div class="order-summary__total"><span>Tổng cộng</span><strong>{{ o.totalAmount | currencyVnd }}</strong></div>
       </div>
-    </section>
-
-    @if (o.orderStatus === 'pending') {
-      <button class="btn-danger" type="button" [disabled]="cancelling()" (click)="cancelOrder()">
-        {{ cancelling() ? 'Đang hủy...' : 'Hủy đơn hàng' }}
-      </button>
-    }
+    </article>
+  } @else {
+    <div class="order-notfound">
+      <p>Không tìm thấy đơn hàng.</p>
+      <a routerLink="/account/orders">← Quay lại danh sách đơn</a>
+    </div>
   }
 </div>
