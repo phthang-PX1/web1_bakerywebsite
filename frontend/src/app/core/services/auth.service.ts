@@ -5,7 +5,7 @@ import { Router } from '@angular/router';
 
 import { AUTH_STORAGE_KEYS } from '../constants/app.constants';
 import type { User } from '../models/user.model';
-import type { AuthResponse, AuthTokens, LoginRequest, RegisterRequest } from '../models/auth.model';
+import type { AuthResponse, AuthTokens, LoginRequest, RegisterRequest, RegisterResponse } from '../models/auth.model';
 import { AuthApi } from '../api/auth.api';
 import { UsersApi } from '../api/users.api';
 
@@ -42,7 +42,7 @@ export class AuthService {
     );
   }
 
-  register(body: RegisterRequest): Observable<{ message: string }> {
+  register(body: RegisterRequest): Observable<RegisterResponse> {
     return this.authApi.register(body);
   }
 

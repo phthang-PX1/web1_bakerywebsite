@@ -3,7 +3,8 @@ import type { ProductCardViewModel } from '../../shared/components/product-card/
 export interface HomeCategoryItem {
   readonly id: string;
   readonly name: string;
-  readonly icon: string;
+  /** Path to the category illustration (SVG in /assets/categories). */
+  readonly image: string;
   readonly slug: string;
 }
 

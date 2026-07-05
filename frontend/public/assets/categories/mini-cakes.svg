@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Mini Cakes — cupcake with a cream swirl -->
+  <g stroke="#2b1a0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- cream swirl -->
+    <path d="M40 58c-4-8 2-14 8-13-1-7 8-11 13-7 3-6 13-5 15 2 7-1 11 7 7 12 3 2 3 6 1 8" fill="#fff5ee"/>
+    <path d="M46 50c4-3 9-3 12 0M60 44c4-3 9-2 11 1" stroke="#c47a2b" stroke-width="2"/>
+    <!-- cherry -->
+    <circle cx="62" cy="34" r="4" fill="#c96a2e" stroke="#2b1a0f" stroke-width="2"/>
+    <!-- cup -->
+    <path d="M38 60h44l-6 32H44l-6-32z" fill="#f5e6d3"/>
+    <path d="M46 62l4 28M58 62l2 28M70 62l-2 28" stroke="#c47a2b" stroke-width="2"/>
+    <path d="M38 60h44" />
+  </g>
+  <g stroke="#c47a2b" stroke-width="2" stroke-linecap="round">
+    <path d="M28 40l0 6M25 43l6 0"/>
+    <path d="M94 46l0 6M91 49l6 0"/>
+  </g>
+</svg>

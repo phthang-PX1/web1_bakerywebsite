@@ -67,6 +67,10 @@ export const routes: Routes = [
         loadComponent: () => import('./features/auth/pages/register.page').then((m) => m.RegisterPage),
       },
       {
+        path: 'verify-otp',
+        loadComponent: () => import('./features/auth/pages/verify-otp.page').then((m) => m.VerifyOtpPage),
+      },
+      {
         path: 'activate/:token',
         loadComponent: () => import('./features/auth/pages/activate.page').then((m) => m.ActivatePage),
       },
@@ -132,6 +136,10 @@ export const routes: Routes = [
       {
         path: 'coupons',
         loadComponent: () => import('./features/admin/pages/coupons-list.page').then((m) => m.AdminCouponsListPage),
+      },
+      {
+        path: 'banners',
+        loadComponent: () => import('./features/admin/pages/banners-list.page').then((m) => m.AdminBannersListPage),
       },
     ],
   },

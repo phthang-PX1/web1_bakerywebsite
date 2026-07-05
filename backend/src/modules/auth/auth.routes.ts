@@ -12,15 +12,19 @@ import {
   logoutController,
   refreshController,
   registerController,
-  resetPasswordController
+  resendOtpController,
+  resetPasswordController,
+  verifyOtpController
 } from "./auth.controller";
 import {
   contactBodySchema,
   loginBodySchema,
   refreshBodySchema,
   registerBodySchema,
+  resendOtpBodySchema,
   resetPasswordBodySchema,
-  tokenParamsSchema
+  tokenParamsSchema,
+  verifyOtpBodySchema
 } from "./auth.schema";
 import { configureGoogleAuth } from "./auth.service";
 
@@ -48,6 +52,43 @@ const googleFailureRedirect = `${env.FRONTEND_URL.split(",")[0].trim()}/auth/goo
  *         description: Registration successful
  */
 router.post("/register", validate({ body: registerBodySchema }), registerController);
+
+/**
+ * @swagger
+ * /auth/verify-otp:
+ *   post:
+ *     summary: Confirm the OTP sent to a phone signup and sign the user in
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             phone: "0912345678"
+ *             otp: "123456"
+ *     responses:
+ *       200:
+ *         description: Account activated — returns tokens and user
+ */
+router.post("/verify-otp", validate({ body: verifyOtpBodySchema }), verifyOtpController);
+
+/**
+ * @swagger
+ * /auth/resend-otp:
+ *   post:
+ *     summary: Resend the verification OTP to a pending phone signup
+ *     tags: [Auth]
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             phone: "0912345678"
+ *     responses:
+ *       200:
+ *         description: Verification code sent
+ */
+router.post("/resend-otp", validate({ body: resendOtpBodySchema }), resendOtpController);
 
 /**
  * @swagger
@@ -96,7 +137,7 @@ router.post("/login", validate({ body: loginBodySchema }), loginController);
  *       302:
  *         description: Redirects to Google consent screen
  */
-router.post(
+router.get(
   "/google/redirect",
   passport.authenticate("google", {
     scope: ["profile", "email"],

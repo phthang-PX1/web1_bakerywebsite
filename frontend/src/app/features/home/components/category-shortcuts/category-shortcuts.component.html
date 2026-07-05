@@ -8,20 +8,21 @@
   </div>
 
   @if (loading()) {
-    <div class="category-index">
+    <div class="category-grid">
       @for (i of [1,2,3,4,5,6]; track i) {
         <div class="category-skeleton"></div>
       }
     </div>
   } @else if (!error() && categories().length > 0) {
-    <div class="category-index">
-      @for (cat of categories(); track cat.id; let idx = $index) {
-        <a class="category-row"
+    <div class="category-grid">
+      @for (cat of categories(); track cat.id) {
+        <a class="category-tile"
            [routerLink]="['/products']"
            [queryParams]="{ category: cat.slug }">
-          <span class="category-row__num" aria-hidden="true">{{ (idx + 1) < 10 ? '0' + (idx + 1) : idx + 1 }}</span>
-          <span class="category-row__name">{{ cat.name }}</span>
-          <span class="category-row__arrow" aria-hidden="true">→</span>
+          <span class="category-tile__media">
+            <img [src]="cat.image" [alt]="cat.name" loading="lazy" />
+          </span>
+          <span class="category-tile__name">{{ cat.name }}</span>
         </a>
       }
     </div>

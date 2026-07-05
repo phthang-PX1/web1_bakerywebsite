@@ -63,6 +63,8 @@
   margin: 0;
   font-size: t.$fs-micro;
   color: t.$muted;
+  // Reserve space so selecting/deselecting options never shifts the layout.
+  min-height: 96px;
 
   li {
     padding: 2px 0;
@@ -72,6 +74,11 @@
     color: t.$caramel;
     margin-left: 4px;
   }
+}
+
+.preview-info__placeholder {
+  font-style: italic;
+  font-family: t.$font-display;
 }
 
 // --- Options column -------------------------------------------------------
@@ -164,8 +171,13 @@
 
 .configurator__hint {
   font-size: t.$fs-micro;
-  color: t.$primary-dark;
+  color: t.$danger;
   margin: 0;
+
+  // Keep the line's space when satisfied so the footer doesn't shift.
+  &--hidden {
+    visibility: hidden;
+  }
 }
 
 .configurator-empty {

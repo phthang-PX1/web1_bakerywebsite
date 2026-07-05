@@ -85,6 +85,8 @@ model User {
   membershipTier   MembershipTier @default(member) @map("membership_tier")
   isActive         Boolean        @default(false) @map("is_active")
   refreshTokenHash String?        @map("refresh_token_hash") @db.VarChar(255)
+  otpHash          String?        @map("otp_hash") @db.VarChar(255)
+  otpExpiresAt     DateTime?      @map("otp_expires_at")
   createdAt        DateTime       @default(now()) @map("created_at")
   updatedAt        DateTime       @updatedAt @map("updated_at")
 
@@ -375,4 +377,19 @@ model AnalyticsEvent {
   @@index([sessionId])
   @@index([userId])
   @@map("analytics_events")
+}
+
+model Banner {
+  bannerId  String   @id @default(uuid()) @map("banner_id") @db.Uuid
+  title     String   @db.VarChar(255)
+  subtitle  String?  @db.VarChar(500)
+  imageUrl  String   @map("image_url") @db.VarChar(500)
+  linkUrl   String?  @map("link_url") @db.VarChar(500)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("banners")
 }

@@ -156,15 +156,66 @@ const sendResetPasswordMessage = async (user: User, token: string) => {
   }
 };
 
+const OTP_TTL_MS = 5 * 60 * 1000;
+
+const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+
+/**
+ * Issue a fresh OTP for the user and try to deliver it by SMS. Delivery
+ * failure must not abort the flow (Twilio trial/regional limits); outside
+ * production the OTP is returned so the flow stays testable end-to-end.
+ */
+const issueOtp = async (user: Pick<User, "userId" | "phone">) => {
+  const otp = generateOtp();
+  await prisma.user.update({
+    where: { userId: user.userId },
+    data: {
+      otpHash: await bcrypt.hash(otp, SALT_ROUNDS),
+      otpExpiresAt: new Date(Date.now() + OTP_TTL_MS)
+    }
+  });
+
+  let smsDelivered = false;
+  if (user.phone) {
+    try {
+      await sendSms(user.phone, `Ma xac thuc WeBee cua ban: ${otp} (hieu luc 5 phut)`);
+      smsDelivered = true;
+    } catch (error) {
+      console.error("OTP SMS delivery failed:", error);
+    }
+  }
+
+  return {
+    smsDelivered,
+    ...(env.NODE_ENV !== "production" ? { devOtp: otp } : {})
+  };
+};
+
 export const register = async (input: RegisterInput) => {
   const data = normalizeContact(input);
   const existingUser = await findUserByContact(data);
+  const phoneOnly = !data.email;
+  const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
+
+  // A phone that started registration but never verified its OTP may retry:
+  // refresh the record instead of blocking with a 409.
+  if (existingUser && phoneOnly && !existingUser.isActive && existingUser.phone === data.phone) {
+    await prisma.user.update({
+      where: { userId: existingUser.userId },
+      data: { fullName: data.fullName, passwordHash }
+    });
+    const delivery = await issueOtp(existingUser);
+    return {
+      message: "Verification code sent. Please confirm the OTP.",
+      requiresOtp: true,
+      ...delivery
+    };
+  }
 
   if (existingUser) {
     throw new AppError(409, "Email or phone is already registered");
   }
 
-  const passwordHash = await bcrypt.hash(data.password, SALT_ROUNDS);
   const user = await prisma.user.create({
     data: {
       email: data.email,
@@ -175,6 +226,17 @@ export const register = async (input: RegisterInput) => {
       isActive: false
     }
   });
+
+  // Phone signups confirm ownership with an OTP; email signups keep the
+  // activation-link flow.
+  if (phoneOnly) {
+    const delivery = await issueOtp(user);
+    return {
+      message: "Verification code sent. Please confirm the OTP.",
+      requiresOtp: true,
+      ...delivery
+    };
+  }
 
   const activationToken = signActionToken(
     { userId: user.userId, purpose: "activation" },
@@ -190,6 +252,44 @@ export const register = async (input: RegisterInput) => {
 
   return {
     message: "Registration successful. Please check your email or phone to activate your account."
+  };
+};
+
+export const verifyOtp = async (input: { phone: string; otp: string }) => {
+  const user = await prisma.user.findUnique({ where: { phone: input.phone.trim() } });
+
+  if (!user || !user.otpHash || !user.otpExpiresAt) {
+    throw new AppError(400, "No pending verification for this phone");
+  }
+
+  if (user.otpExpiresAt.getTime() < Date.now()) {
+    throw new AppError(410, "OTP has expired. Please request a new code.");
+  }
+
+  const matches = await bcrypt.compare(input.otp, user.otpHash);
+  if (!matches) {
+    throw new AppError(401, "Incorrect OTP");
+  }
+
+  const activated = await prisma.user.update({
+    where: { userId: user.userId },
+    data: { isActive: true, otpHash: null, otpExpiresAt: null }
+  });
+
+  return createAuthResponse(activated);
+};
+
+export const resendOtp = async (input: { phone: string }) => {
+  const user = await prisma.user.findUnique({ where: { phone: input.phone.trim() } });
+
+  if (!user || user.isActive) {
+    throw new AppError(400, "No pending verification for this phone");
+  }
+
+  const delivery = await issueOtp(user);
+  return {
+    message: "Verification code sent.",
+    ...delivery
   };
 };
 
@@ -380,7 +480,8 @@ export const configureGoogleAuth = () => {
       {
         clientID: env.GOOGLE_CLIENT_ID,
         clientSecret: env.GOOGLE_CLIENT_SECRET,
-        callbackURL: env.GOOGLE_CALLBACK_URL
+        // Env may hold a comma-separated list (per-environment); use the first.
+        callbackURL: env.GOOGLE_CALLBACK_URL.split(",")[0].trim()
       },
       async (_accessToken, _refreshToken, profile, done) => {
         try {

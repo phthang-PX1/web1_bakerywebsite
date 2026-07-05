@@ -174,7 +174,15 @@ export class CheckoutPage implements OnInit {
 
   submit(): void {
     this.form.markAllAsTouched();
-    if (this.form.invalid) return;
+    if (this.form.invalid) {
+      this.toastService.error('Vui lòng kiểm tra lại thông tin đặt hàng.');
+      // Let the error messages render, then bring the first one into view.
+      setTimeout(() => {
+        document.querySelector('.field__error')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      });
+      return;
+    }
 
     this.submitting.set(true);
     const v = this.form.value;

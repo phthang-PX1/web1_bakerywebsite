@@ -30,79 +30,95 @@
   white-space: nowrap;
 }
 
-// --- Typographic index --------------------------------------------------
-.category-index {
+// --- Illustration tiles ---------------------------------------------------
+.category-grid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: t.$sp-8;
-  border-top: 1px solid t.$border;
+  grid-template-columns: repeat(6, 1fr);
+  gap: t.$sp-5;
 }
 
-.category-row {
+.category-tile {
   display: flex;
-  align-items: baseline;
-  gap: t.$sp-4;
-  padding: t.$sp-4 t.$sp-1;
-  border-bottom: 1px solid t.$border;
+  flex-direction: column;
+  align-items: center;
+  gap: t.$sp-3;
   text-decoration: none;
+  transition: transform 0.25s ease;
 
   &:hover {
-    .category-row__name {
-      font-style: italic;
-      color: t.$primary;
+    transform: translateY(-4px);
+
+    .category-tile__media {
+      border-color: t.$caramel;
+      background: t.$surface-warm;
     }
 
-    .category-row__arrow {
-      transform: translateX(6px);
+    .category-tile__name {
+      font-style: italic;
       color: t.$primary;
     }
   }
 }
 
-.category-row__num {
-  font-family: t.$font-display;
-  font-size: t.$fs-micro;
-  color: t.$caramel;
-  font-variant-numeric: tabular-nums;
+.category-tile__media {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 112px;
+  height: 112px;
+  border-radius: 50%;
+  background: t.$sand;
+  border: 1px solid t.$border;
+  transition: border-color 0.25s ease, background-color 0.25s ease;
+
+  img {
+    width: 76%;
+    height: 76%;
+  }
 }
 
-.category-row__name {
+.category-tile__name {
   font-family: t.$font-display;
-  font-size: t.$fs-h3;
+  font-size: 1.05rem;
   font-weight: 550;
   color: t.$ink;
+  text-align: center;
   transition: color 0.2s ease;
-}
-
-.category-row__arrow {
-  margin-left: auto;
-  font-size: 1.1rem;
-  color: t.$muted;
-  transition: transform 0.25s ease, color 0.2s ease;
 }
 
 // --- Skeleton -----------------------------------------------------------
 .category-skeleton {
-  height: 62px;
-  border-bottom: 1px solid t.$border;
-  background: linear-gradient(90deg, transparent, rgba(43, 26, 15, 0.05), transparent);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  max-width: 112px;
+  margin-inline: auto;
+  width: 100%;
+  background: linear-gradient(90deg, t.$sand, rgba(43, 26, 15, 0.06), t.$sand);
   background-size: 200% 100%;
   animation: shimmer 1.4s infinite;
 }
 
 // --- Responsive -----------------------------------------------------------
-@include m.mq-down(md) {
+@include m.mq-down(lg) {
+  .category-grid {
+    grid-template-columns: repeat(3, 1fr);
+    row-gap: t.$sp-6;
+  }
+}
+
+@include m.mq-down(sm) {
   .categories__header {
     flex-direction: column;
     align-items: flex-start;
     gap: t.$sp-3;
   }
 
-  .category-index {
-    grid-template-columns: 1fr;
+  .category-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 
-  .category-row__name {
-    font-size: 1.2rem;
+  .category-tile__media {
+    width: 96px;
+    height: 96px;
   }
 }

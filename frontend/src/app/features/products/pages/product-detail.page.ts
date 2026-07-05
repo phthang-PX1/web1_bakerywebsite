@@ -1,6 +1,7 @@
 ﻿import { Component, OnInit, inject, signal, computed, DestroyRef } from '@angular/core';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs/operators';
 
 import { ProductsApi } from '../../../core/api/products.api';
 import { CartService } from '../../../core/services/cart.service';
@@ -29,10 +30,14 @@ interface SelectedOption {
 })
 export class ProductDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly router = inject(Router);
   private readonly productsApi = inject(ProductsApi);
   private readonly cartService = inject(CartService);
   private readonly toastService = inject(ToastService);
   private readonly destroyRef = inject(DestroyRef);
+
+  /** Cart line being edited when arriving via "Sửa" (?edit=cartItemId). */
+  readonly editingCartItemId = signal<string | null>(null);
 
   readonly product = signal<Product | null>(null);
   readonly optionGroups = signal<OptionGroup[]>([]);
@@ -57,7 +62,8 @@ export class ProductDetailPage implements OnInit {
       }
       return sum;
     }, 0);
-    return (Number(p.basePrice) + optionsExtra) * this.quantity();
+    // Unit price incl. selected options — quantity only affects the cart total.
+    return Number(p.basePrice) + optionsExtra;
   });
 
   readonly canAddToCart = computed(() => {
@@ -88,7 +94,33 @@ export class ProductDetailPage implements OnInit {
     this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((params) => {
       const slug = params.get('slug')!;
       this.resetState();
+      this.editingCartItemId.set(this.route.snapshot.queryParamMap.get('edit'));
       this.loadProduct(slug);
+    });
+  }
+
+  /** Preselect options + quantity from the cart line being edited. */
+  private prefillFromCartItem(): void {
+    const cartItemId = this.editingCartItemId();
+    if (!cartItemId) return;
+
+    this.cartService.cart$.pipe(take(1)).subscribe((cart) => {
+      const item = cart.items.find((i) => i.cartItemId === cartItemId);
+      if (!item) {
+        // Line no longer exists — behave like a normal visit.
+        this.editingCartItemId.set(null);
+        return;
+      }
+
+      const groups = this.optionGroups();
+      const selections: SelectedOption[] = [];
+      for (const opt of item.options) {
+        const group = groups.find((g) => g.items.some((i) => i.itemId === opt.itemId));
+        if (group) selections.push({ groupId: group.groupId, itemId: opt.itemId });
+      }
+      this.selectedOptions.set(selections);
+      this.quantity.set(item.quantity);
+      if (selections.length > 0) this.showOptions.set(true);
     });
   }
 
@@ -115,6 +147,7 @@ export class ProductDetailPage implements OnInit {
         if (product.optionGroups && product.optionGroups.length > 0) {
           this.optionGroups.set(product.optionGroups as OptionGroup[]);
         }
+        this.prefillFromCartItem();
         this.productsApi.getProductReviews(product.productId, { limit: 5 }).subscribe({
           next: (res) => this.reviews.set([...res.items]),
           error: () => {},
@@ -189,11 +222,30 @@ export class ProductDetailPage implements OnInit {
     const p = this.product();
     if (!p || !this.canAddToCart()) return;
     this.addingToCart.set(true);
-    this.cartService.addItem({
+
+    const payload = {
       product_id: p.productId,
       quantity: this.quantity(),
       option_item_ids: this.selectedOptions().map((s) => s.itemId),
-    }).subscribe({
+    };
+
+    const editingId = this.editingCartItemId();
+    if (editingId) {
+      this.cartService.replaceItem(editingId, payload).subscribe({
+        next: () => {
+          this.addingToCart.set(false);
+          this.toastService.success(`Đã cập nhật "${p.name}" trong giỏ hàng.`);
+          this.router.navigate(['/cart']);
+        },
+        error: () => {
+          this.addingToCart.set(false);
+          this.toastService.error('Không thể cập nhật giỏ hàng. Vui lòng thử lại.');
+        },
+      });
+      return;
+    }
+
+    this.cartService.addItem(payload).subscribe({
       next: () => {
         this.addingToCart.set(false);
         this.toastService.success(`Đã thêm "${p.name}" vào giỏ hàng.`);

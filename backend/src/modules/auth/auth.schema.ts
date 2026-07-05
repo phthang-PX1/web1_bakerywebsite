@@ -42,6 +42,15 @@ export const contactBodySchema = z
     path: ["email"]
   });
 
+export const verifyOtpBodySchema = z.object({
+  phone: phoneSchema,
+  otp: z.string().trim().regex(/^\d{6}$/, "OTP must be 6 digits")
+});
+
+export const resendOtpBodySchema = z.object({
+  phone: phoneSchema
+});
+
 export const refreshBodySchema = z.object({
   refreshToken: z.string().min(1)
 });

@@ -10,20 +10,21 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
   imports: [ReactiveFormsModule, RouterLink, LoadingSpinnerComponent],
   template: `
     <div class="auth-card">
-      <h1 class="auth-card__title">Quên mật khẩu</h1>
-      <p class="auth-card__sub">Nhập email để nhận hướng dẫn đặt lại mật khẩu</p>
+      <span class="auth-card__eyebrow">WeBee Bakery</span>
+      <h1 class="auth-card__title">Quên <em>mật khẩu?</em></h1>
+      <p class="auth-card__sub">Đừng lo — nhập số điện thoại đã đăng ký, WeBee sẽ gửi liên kết đặt lại mật khẩu qua tin nhắn SMS.</p>
 
       @if (success()) {
         <div class="auth-success">
-          📧 Hướng dẫn đặt lại mật khẩu đã được gửi đến email của bạn.
+          Liên kết đặt lại mật khẩu đã được gửi đến số điện thoại của bạn.
         </div>
       } @else {
         <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
           <div class="field">
-            <label class="field__label" for="email">Email</label>
-            <input id="email" type="email" class="field__input" formControlName="email" placeholder="example@email.com" />
-            @if (form.controls.email.invalid && form.controls.email.touched) {
-              <p class="field__error">Vui lòng nhập email hợp lệ.</p>
+            <label class="field__label" for="phone">Số điện thoại</label>
+            <input id="phone" type="tel" class="field__input" formControlName="phone" placeholder="0912 345 678" autocomplete="tel" />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <p class="field__error">Vui lòng nhập số điện thoại hợp lệ (9–11 số).</p>
             }
           </div>
 
@@ -32,7 +33,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
           }
 
           <button type="submit" class="btn btn--primary btn--full" [disabled]="loading()">
-            @if (loading()) { <app-loading-spinner /> } @else { Gửi yêu cầu }
+            @if (loading()) { <app-loading-spinner [inline]="true" /> } @else { Gửi yêu cầu }
           </button>
         </form>
       }
@@ -51,7 +52,7 @@ export class ForgotPasswordPage {
   readonly success = signal(false);
 
   readonly form = new FormGroup({
-    email: new FormControl('', [Validators.required, Validators.email]),
+    phone: new FormControl('', [Validators.required, Validators.pattern(/^[0-9]{9,11}$/)]),
   });
 
   submit(): void {
@@ -59,9 +60,10 @@ export class ForgotPasswordPage {
     if (this.form.invalid) return;
     this.loading.set(true);
     this.error.set('');
-    this.authApi.forgotPassword({ email: this.form.value.email! }).subscribe({
+    this.authApi.forgotPassword({ phone: this.form.value.phone! }).subscribe({
       next: () => { this.loading.set(false); this.success.set(true); },
       error: () => { this.loading.set(false); this.error.set('Có lỗi xảy ra. Vui lòng thử lại.'); },
     });
   }
 }
+

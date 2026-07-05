@@ -41,13 +41,13 @@ interface SelectedOption {
           <div class="preview-info">
             <h2 class="preview-info__name">{{ product.name }}</h2>
             <p class="preview-info__price">{{ totalPrice() | currencyVnd }}</p>
-            @if (selectedOptions().length > 0) {
-              <ul class="preview-info__options">
-                @for (opt of selectedOptions(); track opt.itemId) {
-                  <li>{{ opt.name }} @if (opt.extraPrice > 0) { <span>+{{ opt.extraPrice | currencyVnd }}</span> }</li>
-                }
-              </ul>
-            }
+            <ul class="preview-info__options">
+              @for (opt of selectedOptions(); track opt.itemId) {
+                <li>{{ opt.name }} @if (opt.extraPrice > 0) { <span>+{{ opt.extraPrice | currencyVnd }}</span> }</li>
+              } @empty {
+                <li class="preview-info__placeholder">Chọn tùy chọn ở bên phải để bắt đầu</li>
+              }
+            </ul>
           </div>
         </div>
 
@@ -93,9 +93,9 @@ interface SelectedOption {
               @else { Thêm vào giỏ — {{ totalPrice() | currencyVnd }} }
             </button>
           </div>
-          @if (!canAddToCart()) {
-            <p class="configurator__hint">Vui lòng chọn đầy đủ tùy chọn bắt buộc (*)</p>
-          }
+          <p class="configurator__hint" [class.configurator__hint--hidden]="canAddToCart()">
+            Vui lòng chọn đầy đủ tùy chọn bắt buộc (*)
+          </p>
         </div>
       </div>
     } @else {
@@ -124,17 +124,22 @@ export class CustomCakePage implements OnInit {
   private readonly CUSTOM_CAKE_SLUG = 'custom-cake';
 
   readonly previewImageUrl = computed(() => {
+    // Most-recently selected option with an image wins (selections append,
+    // so scan from the end); falls back as selections are removed.
     const opts = this.selectedOptions();
-    const withImage = opts.find((o) => o.imageUrl);
-    if (withImage) return withImage.imageUrl!;
+    for (let i = opts.length - 1; i >= 0; i--) {
+      if (opts[i].imageUrl) return opts[i].imageUrl!;
+    }
     return this.customProduct()?.thumbnailUrl ?? '/assets/images/product-placeholder.svg';
   });
 
   readonly totalPrice = computed(() => {
     const p = this.customProduct();
     if (!p) return 0;
-    const extra = this.selectedOptions().reduce((sum, o) => sum + o.extraPrice, 0);
-    return (p.basePrice + extra) * this.quantity();
+    // extraPrice may arrive as a string (Prisma Decimal) — coerce before summing.
+    const extra = this.selectedOptions().reduce((sum, o) => sum + Number(o.extraPrice), 0);
+    // Unit price incl. options — quantity only affects the cart total.
+    return Number(p.basePrice) + extra;
   });
 
   readonly canAddToCart = computed(() => {

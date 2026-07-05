@@ -33,7 +33,7 @@ import { RouterLink } from '@angular/router';
           <h2>Bắt đầu ngay hôm nay!</h2>
           <p>Đăng ký tài khoản và mua hàng để tích điểm thưởng.</p>
           <div class="membership-cta__btns">
-            <a class="btn btn--primary" routerLink="/register">Đăng ký</a>
+            <a class="btn btn--primary" routerLink="/auth/register">Đăng ký</a>
             <a class="btn btn--outline" routerLink="/products">Xem sản phẩm</a>
           </div>
         </div>

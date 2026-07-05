@@ -7,6 +7,7 @@ import type { PaginatedResponse } from '../models/pagination.model';
 import type { Order, OrderStatus } from '../models/order.model';
 import type { Product, ProductImage } from '../models/product.model';
 import type { Coupon } from '../models/coupon.model';
+import type { Banner, BannerRequest } from '../models/banner.model';
 
 export interface AdminOverview {
   totalRevenue: number;
@@ -127,5 +128,37 @@ export class AdminApi {
 
   toggleCouponStatus(couponId: string): Observable<Coupon> {
     return this.http.patch<Coupon>(`${this.base}/coupons/${couponId}/status`, {});
+  }
+
+  // --- Banners ---------------------------------------------------------
+
+  getBanners(): Observable<Banner[]> {
+    return this.http.get<Banner[]>(`${this.base}/banners`);
+  }
+
+  private bannerFormData(body: Partial<BannerRequest>, image?: File): FormData {
+    const form = new FormData();
+    if (body.title !== undefined) form.append('title', body.title);
+    if (body.subtitle) form.append('subtitle', body.subtitle);
+    if (body.linkUrl) form.append('linkUrl', body.linkUrl);
+    if (body.sortOrder !== undefined) form.append('sortOrder', String(body.sortOrder));
+    if (image) form.append('image', image);
+    return form;
+  }
+
+  createBanner(body: BannerRequest, image: File): Observable<Banner> {
+    return this.http.post<Banner>(`${this.base}/banners`, this.bannerFormData(body, image));
+  }
+
+  updateBanner(bannerId: string, body: Partial<BannerRequest>, image?: File): Observable<Banner> {
+    return this.http.put<Banner>(`${this.base}/banners/${bannerId}`, this.bannerFormData(body, image));
+  }
+
+  toggleBannerStatus(bannerId: string): Observable<Banner> {
+    return this.http.patch<Banner>(`${this.base}/banners/${bannerId}/status`, {});
+  }
+
+  deleteBanner(bannerId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/banners/${bannerId}`);
   }
 }
