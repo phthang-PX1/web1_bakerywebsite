@@ -6,7 +6,7 @@ import { NgClass } from '@angular/common';
   standalone: true,
   imports: [NgClass],
   template: `
-    <div class="spinner-wrap" [ngClass]="{ 'spinner-wrap--fullpage': fullPage() }">
+    <div class="spinner-wrap" [ngClass]="{ 'spinner-wrap--fullpage': fullPage(), 'spinner-wrap--inline': inline() }">
       <div class="spinner"></div>
     </div>
   `,
@@ -33,8 +33,20 @@ import { NgClass } from '@angular/common';
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
     }
+    // Compact variant for use inside buttons — must not change their size.
+    .spinner-wrap--inline {
+      display: inline-flex;
+      padding: 0;
+    }
+    .spinner-wrap--inline .spinner {
+      width: 18px;
+      height: 18px;
+      border-color: rgba(253, 251, 245, 0.35);
+      border-top-color: t.$paper;
+    }
   `],
 })
 export class LoadingSpinnerComponent {
   readonly fullPage = input(false);
+  readonly inline = input(false);
 }

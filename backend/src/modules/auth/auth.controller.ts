@@ -7,7 +7,9 @@ import {
   logout,
   refreshAccessToken,
   register,
-  resetPassword
+  resendOtp,
+  resetPassword,
+  verifyOtp
 } from "./auth.service";
 import type {
   ContactInput,
@@ -37,6 +39,24 @@ export const registerController: RequestHandler = async (req, res, next) => {
   try {
     const result = await register(req.body as RegisterInput);
     res.status(201).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyOtpController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await verifyOtp(req.body as { phone: string; otp: string });
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resendOtpController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await resendOtp(req.body as { phone: string });
+    res.status(200).json(result);
   } catch (error) {
     next(error);
   }

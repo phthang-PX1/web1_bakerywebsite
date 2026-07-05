@@ -9,6 +9,7 @@ import type {
   ForgotPasswordRequest,
   LoginRequest,
   RegisterRequest,
+  RegisterResponse,
   ResetPasswordRequest,
 } from '../models/auth.model';
 
@@ -17,8 +18,17 @@ export class AuthApi {
   private readonly http = inject(HttpClient);
   private readonly base = `${environment.apiUrl}/auth`;
 
-  register(body: RegisterRequest): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/register`, body);
+  register(body: RegisterRequest): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.base}/register`, body);
+  }
+
+  /** Confirm the OTP for a phone signup — activates and signs the user in. */
+  verifyOtp(body: { phone: string; otp: string }): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/verify-otp`, body);
+  }
+
+  resendOtp(body: { phone: string }): Observable<RegisterResponse> {
+    return this.http.post<RegisterResponse>(`${this.base}/resend-otp`, body);
   }
 
   activate(token: string): Observable<{ message: string }> {
@@ -46,6 +56,6 @@ export class AuthApi {
   }
 
   googleRedirect(): string {
-    return `${this.base}/google`;
+    return `${this.base}/google/redirect`;
   }
 }

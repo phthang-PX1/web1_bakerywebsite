@@ -18,6 +18,10 @@ Kiến trúc tổng thể khá vững: backend module hóa rõ ràng (Express + 
 | 6 | [Test coverage](phase-6-test-coverage.md) | Chưa bắt đầu | `/verify` |
 | 7 | [Đồng bộ tài liệu](phase-7-docs-sync.md) | Chưa bắt đầu | — (Edit trực tiếp) |
 
+## UX đợt 3 — Banner động + category art + 7 nhóm fix
+
+Đợt hoàn thiện theo phản hồi thực tế của người dùng: xem [ui_improvements/](ui_improvements/README.md) — 7 phase (A→G) từ quick fixes đến hệ thống banner quản lý từ admin.
+
 ## UI Redesign — Editorial/Artisanal (đợt riêng)
 
 Redesign giao diện client (giữ màu/chức năng, đổi ngôn ngữ thiết kế) có bộ tài liệu riêng tại [ui_redesign/](ui_redesign/README.md) — 8 phase từ foundation token layer đến checkout flow.

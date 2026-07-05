@@ -19,7 +19,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
         <a class="btn btn--primary" routerLink="/auth/login">Đăng nhập ngay</a>
       } @else {
         <p class="auth-card__error">{{ error() }}</p>
-        <a class="auth-link" routerLink="/register">Quay lại đăng ký</a>
+        <a class="auth-link" routerLink="/auth/register">Quay lại đăng ký</a>
       }
     </div>
   `,

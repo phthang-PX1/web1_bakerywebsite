@@ -1,6 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { BehaviorSubject, EMPTY, Observable, Subject, of, tap } from 'rxjs';
-import { catchError, debounceTime, switchMap } from 'rxjs/operators';
+import { catchError, concatMap, debounceTime, switchMap } from 'rxjs/operators';
 
 import { CartApi } from '../api/cart.api';
 import { ToastService } from './toast.service';
@@ -113,6 +113,18 @@ export class CartService {
   /** Remove an item and publish the updated cart. */
   removeItem(cartItemId: string): Observable<CartResponse> {
     return this.cartApi.removeItem(cartItemId).pipe(tap((cart) => this.cartSubject.next(cart)));
+  }
+
+  /**
+   * Replace a cart line with a new configuration (edit flow).
+   * The backend only supports quantity updates, so this removes the old
+   * line and adds the new one sequentially.
+   */
+  replaceItem(cartItemId: string, request: AddCartItemRequest): Observable<CartResponse> {
+    return this.cartApi.removeItem(cartItemId).pipe(
+      concatMap(() => this.cartApi.addItem(request)),
+      tap((cart) => this.cartSubject.next(cart))
+    );
   }
 
   /** Clear the cart and publish the updated empty state. */

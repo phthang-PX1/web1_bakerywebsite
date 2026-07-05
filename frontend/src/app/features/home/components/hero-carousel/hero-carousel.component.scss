@@ -1,0 +1,136 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
+.hero-carousel {
+  position: relative;
+  overflow: hidden;
+}
+
+.hero-carousel__track {
+  display: flex;
+  align-items: stretch;
+  transition: transform 0.55s ease;
+}
+
+.hero-carousel__slide {
+  flex: 0 0 100%;
+  min-width: 0;
+}
+
+// --- Campaign banner slide (same visual language as the hero) --------------
+.banner-slide {
+  @include m.container;
+  display: grid;
+  grid-template-columns: 55fr 45fr;
+  align-items: center;
+  gap: t.$sp-8;
+  padding: t.$sp-8 0 t.$sp-9;
+  height: 100%;
+  box-sizing: border-box;
+}
+
+.banner-slide__eyebrow {
+  @include m.eyebrow(true);
+  margin: 0 0 t.$sp-5;
+}
+
+.banner-slide__title {
+  @include m.display(1);
+  margin: 0 0 t.$sp-4;
+}
+
+.banner-slide__subtitle {
+  font-size: t.$fs-body;
+  line-height: 1.75;
+  color: t.$muted;
+  max-width: 44ch;
+  margin: 0 0 t.$sp-6;
+}
+
+.banner-slide__cta {
+  @include m.btn-solid;
+}
+
+.banner-slide__media {
+  @include m.arch-media;
+  border: 1px solid t.$border;
+
+  img {
+    @include m.img-cover(4 / 5);
+  }
+}
+
+// --- Controls ----------------------------------------------------------------
+.hero-carousel__arrow {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid t.$border;
+  border-radius: t.$r-pill;
+  background: t.$paper;
+  color: t.$ink;
+  cursor: pointer;
+  z-index: 2;
+  transition: border-color 0.2s ease, color 0.2s ease;
+
+  &:hover {
+    border-color: t.$primary;
+    color: t.$primary;
+  }
+
+  &--prev { left: t.$sp-4; }
+  &--next { right: t.$sp-4; }
+}
+
+.hero-carousel__dots {
+  position: absolute;
+  bottom: t.$sp-4;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  gap: t.$sp-2;
+  z-index: 2;
+}
+
+.hero-carousel__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  border: 1px solid t.$caramel;
+  background: transparent;
+  padding: 0;
+  cursor: pointer;
+  transition: background-color 0.2s ease, width 0.2s ease;
+
+  &--active {
+    background: t.$caramel;
+    width: 22px;
+    border-radius: t.$r-pill;
+  }
+}
+
+// --- Responsive ------------------------------------------------------------------
+@include m.mq-down(md) {
+  .banner-slide {
+    grid-template-columns: 1fr;
+    gap: t.$sp-5;
+    padding: t.$sp-6 0 t.$sp-8;
+  }
+
+  .banner-slide__media {
+    order: -1;
+
+    img {
+      aspect-ratio: 4 / 3;
+    }
+  }
+
+  .hero-carousel__arrow {
+    display: none; // swipe on mobile
+  }
+}

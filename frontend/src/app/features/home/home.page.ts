@@ -8,7 +8,7 @@ import type { Category } from '../../core/models/category.model';
 import type { Product } from '../../core/models/product.model';
 import { CategoryShortcutsComponent } from './components/category-shortcuts/category-shortcuts.component';
 import { CustomCakeCtaComponent } from './components/custom-cake-cta/custom-cake-cta.component';
-import { HeroBannerComponent } from './components/hero-banner/hero-banner.component';
+import { HeroCarouselComponent } from './components/hero-carousel/hero-carousel.component';
 import { MembershipFaqComponent } from './components/membership-faq/membership-faq.component';
 import { ProductSectionComponent } from './components/product-section/product-section.component';
 import { BEST_SELLER_FALLBACK, FEATURED_PRODUCT_FALLBACK, HOME_CATEGORIES, HOME_FAQS } from './home.data';
@@ -21,7 +21,7 @@ const SECTION_ERROR = 'Không thể tải dữ liệu lúc này. Vui lòng thử
   imports: [
     CategoryShortcutsComponent,
     CustomCakeCtaComponent,
-    HeroBannerComponent,
+    HeroCarouselComponent,
     MembershipFaqComponent,
     ProductSectionComponent,
   ],
@@ -125,7 +125,7 @@ export class HomePage {
     return {
       id: category.categoryId,
       name: category.name,
-      icon: fallback?.icon ?? 'cake',
+      image: fallback?.image ?? '/assets/categories/banh-gato.svg',
       slug: category.slug
     };
   }

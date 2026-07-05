@@ -107,6 +107,7 @@
 
   &--active {
     border-color: t.$primary;
+    background: t.$surface-warm;
     color: t.$ink;
 
     svg {
@@ -206,7 +207,7 @@
 
 .field__error {
   font-size: t.$fs-micro;
-  color: t.$primary-dark;
+  color: t.$danger;
   margin: 6px 0 0;
 }
 
@@ -247,6 +248,7 @@
 
   &--active {
     border-color: t.$primary;
+    background: t.$surface-warm;
     color: t.$primary;
   }
 }
@@ -321,14 +323,17 @@
   background: t.$surface;
   border: 1px solid t.$border;
   border-radius: t.$r-sm;
-  padding: t.$sp-5;
+  padding: 0 t.$sp-5 t.$sp-5;
+  overflow: hidden;
 }
 
 .summary-header {
   display: flex;
   align-items: baseline;
   gap: t.$sp-2;
-  margin-bottom: t.$sp-4;
+  margin: 0 (-(t.$sp-5)) t.$sp-4;
+  padding: t.$sp-4 t.$sp-5;
+  background: t.$sand;
 }
 
 .summary-header__title {
@@ -431,6 +436,7 @@
   font-family: t.$font-display;
   font-size: 1.5rem;
   font-weight: 600;
+  color: t.$primary;
   font-variant-numeric: tabular-nums;
 }
 

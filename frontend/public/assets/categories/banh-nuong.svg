@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" fill="none">
+  <!-- Bánh Nướng & Bánh mì — croissant with warm steam -->
+  <g stroke="#2b1a0f" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+    <!-- steam -->
+    <g stroke="#c47a2b" stroke-width="2">
+      <path d="M50 26c-2 4 2 6 0 10"/>
+      <path d="M64 22c-2 4 2 6 0 10"/>
+    </g>
+    <!-- croissant body -->
+    <path d="M60 50c-12 0-22 8-26 18-2 5-8 6-11 3-4 8 4 18 13 16 10 8 38 8 48 0 9 2 17-8 13-16-3 3-9 2-11-3-4-10-14-18-26-18z" fill="#f5e6d3"/>
+    <!-- segment folds -->
+    <path d="M44 54c2 8 2 18 0 28M60 51v34M76 54c-2 8-2 18 0 28" stroke="#c47a2b" stroke-width="2"/>
+    <!-- crust shine -->
+    <path d="M50 44c3-2 7-3 10-3" stroke="#c47a2b" stroke-width="2"/>
+    <!-- plate -->
+    <path d="M28 96h64"/>
+  </g>
+</svg>

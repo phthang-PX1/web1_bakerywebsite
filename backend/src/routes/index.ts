@@ -1,6 +1,7 @@
 import { Router } from "express";
 import analyticsRoutes, { adminAnalyticsRoutes } from "../modules/analytics/analytics.routes";
 import authRoutes from "../modules/auth/auth.routes";
+import bannersRoutes, { adminBannersRoutes } from "../modules/banners/banners.routes";
 import cartRoutes from "../modules/cart/cart.routes";
 import categoriesRoutes, { adminCategoriesRoutes } from "../modules/categories/categories.routes";
 import couponsRoutes, { adminCouponsRoutes } from "../modules/coupons/coupons.routes";
@@ -22,6 +23,8 @@ const router = Router();
 router.use("/analytics", analyticsRoutes);
 router.use("/admin/analytics", adminAnalyticsRoutes);
 router.use("/auth", authRoutes);
+router.use("/banners", bannersRoutes);
+router.use("/admin/banners", adminBannersRoutes);
 router.use("/cart", cartRoutes);
 router.use("/categories", categoriesRoutes);
 router.use("/admin/categories", adminCategoriesRoutes);

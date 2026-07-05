@@ -28,6 +28,9 @@ import { AsyncPipe } from '@angular/common';
           <a routerLink="/admin/coupons" routerLinkActive="sidebar__link--active" class="sidebar__link">
             🎟️ Mã giảm giá
           </a>
+          <a routerLink="/admin/banners" routerLinkActive="sidebar__link--active" class="sidebar__link">
+            🖼️ Banner
+          </a>
         </nav>
       </aside>
 

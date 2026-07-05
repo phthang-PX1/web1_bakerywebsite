@@ -1,25 +1,35 @@
 @use "tokens" as t;
 @use "mixins" as m;
 
+// Frameless editorial form — sits directly on the paper background.
 .auth-card {
   width: 100%;
-  max-width: 440px;
-  background: t.$surface;
-  border: 1px solid t.$border;
-  border-radius: t.$r-sm;
-  padding: t.$sp-7 t.$sp-6;
+  max-width: 400px;
+}
+
+.auth-card__eyebrow {
+  @include m.eyebrow(true);
+  display: inline-flex;
+  margin: 0 0 t.$sp-3;
 }
 
 .auth-card__title {
   font-family: t.$font-display;
-  font-size: 1.9rem;
+  font-size: 2.3rem;
   font-weight: 550;
+  line-height: 1.1;
   color: t.$ink;
-  margin: 0 0 t.$sp-2;
+  margin: 0 0 t.$sp-3;
+
+  em {
+    font-style: italic;
+    color: t.$primary;
+  }
 }
 
 .auth-card__sub {
   font-size: t.$fs-body-sm;
+  line-height: 1.65;
   color: t.$muted;
   margin: 0 0 t.$sp-6;
 }
@@ -40,11 +50,48 @@
 
 .field__input {
   @include m.field;
+
+  // Angular stamps ng-invalid/ng-touched — paint the offending field red.
+  &.ng-invalid.ng-touched {
+    border-color: t.$danger;
+
+    &:focus {
+      box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.12);
+    }
+  }
+}
+
+.field__input-wrap {
+  position: relative;
+
+  .field__input {
+    padding-right: 42px;
+  }
+}
+
+.field__eye {
+  position: absolute;
+  top: 50%;
+  right: 10px;
+  transform: translateY(-50%);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: t.$muted;
+  cursor: pointer;
+
+  &:hover {
+    color: t.$ink;
+  }
 }
 
 .field__error {
   font-size: t.$fs-micro;
-  color: t.$primary-dark;
+  color: t.$danger;
   margin: 5px 0 0;
 }
 
@@ -55,16 +102,41 @@
 }
 
 .auth-card__error {
-  border: 1px solid t.$danger;
-  border-radius: t.$r-xs;
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  background: rgba(220, 38, 38, 0.06);
+  border-left: 3px solid t.$danger;
+  border-radius: 0 t.$r-xs t.$r-xs 0;
   color: t.$danger;
-  padding: 10px 14px;
-  font-size: t.$fs-body-sm;
+  padding: 11px 14px;
+  font-size: t.$fs-micro;
+  font-weight: 600;
+  line-height: 1.5;
   margin: 0 0 t.$sp-4;
+
+  &::before {
+    content: "!";
+    flex-shrink: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 17px;
+    height: 17px;
+    margin-top: 1px;
+    border: 1.5px solid t.$danger;
+    border-radius: 50%;
+    font-size: 11px;
+    font-weight: 800;
+  }
 }
 
 .btn--primary {
   @include m.btn-solid;
+  // Fixed height so the inline loading spinner never changes the button size.
+  min-height: 48px;
+  padding-top: 0;
+  padding-bottom: 0;
 }
 
 .btn--google {
@@ -95,7 +167,7 @@
     content: "";
     position: absolute;
     top: 50%;
-    width: calc(50% - 28px);
+    width: calc(50% - 72px);
     height: 1px;
     background: t.$border;
   }
@@ -132,4 +204,38 @@
   font-size: t.$fs-body-sm;
   text-align: center;
   margin-bottom: t.$sp-5;
+}
+
+// --- OTP ------------------------------------------------------------------
+.otp-input {
+  font-family: t.$font-display;
+  font-size: 1.6rem;
+  letter-spacing: 0.5em;
+  text-align: center;
+  font-variant-numeric: tabular-nums;
+}
+
+.otp-dev-hint {
+  font-size: t.$fs-micro;
+  font-style: italic;
+  font-family: t.$font-display;
+  color: t.$caramel;
+  margin: 0 0 t.$sp-4;
+}
+
+.otp-cooldown {
+  color: t.$muted;
+  font-size: t.$fs-body-sm;
+}
+
+.otp-resend {
+  border: none;
+  background: none;
+  cursor: pointer;
+  padding: 0;
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 }

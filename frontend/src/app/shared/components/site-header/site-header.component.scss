@@ -21,11 +21,21 @@
 .brand {
   display: inline-flex;
   align-items: center;
+  gap: t.$sp-2;
+  text-decoration: none;
 }
 
 .brand__logo {
-  height: 44px;
+  height: 56px;
   width: auto;
+}
+
+.brand__wordmark {
+  font-family: t.$font-display;
+  font-style: italic;
+  font-size: 1.5rem;
+  font-weight: 550;
+  color: t.$ink;
 }
 
 // --- Nav ---------------------------------------------------------------
@@ -416,6 +426,16 @@
     display: flex;
     flex-direction: column;
     background: t.$surface;
+  }
+
+  .nav-mobile-products__label {
+    display: block;
+    padding: 13px t.$sp-5 4px;
+    font-size: t.$fs-eyebrow;
+    font-weight: 700;
+    letter-spacing: t.$tracking-wide;
+    text-transform: uppercase;
+    color: t.$caramel;
   }
 
   .nav-mobile-products__item {
