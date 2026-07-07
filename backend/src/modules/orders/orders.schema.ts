@@ -24,6 +24,10 @@ export const orderIdParamsSchema = z.object({
   id: uuidSchema
 });
 
+export const orderTrackingQuerySchema = z.object({
+  token: z.string().min(1)
+});
+
 export const createOrderBodySchema = z
   .object({
     buyer_name: z.string().trim().min(2).max(100).optional(),
@@ -38,7 +42,10 @@ export const createOrderBodySchema = z
     coupon_code: optionalTrimmedString(50).transform((value) =>
       value?.toUpperCase()
     ),
-    payment_method: z.enum(["transfer", "cash"]).default("transfer"),
+    payment_method: z
+      .enum(["transfer", "cash", "cod"])
+      .default("transfer")
+      .transform((val) => (val === "cod" ? "cash" : val)),
     note: optionalTrimmedString(1000),
     card_type: z.enum(["none", "on_cake", "small_card", "premium_card"]).default("none"),
     card_message: optionalTrimmedString(300)

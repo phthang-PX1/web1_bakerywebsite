@@ -1,0 +1,140 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(43, 26, 15, 0.45);
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+}
+
+.dialog {
+  background: t.$surface;
+  border: 1px solid t.$border;
+  border-radius: t.$r-sm;
+  padding: t.$sp-5;
+  max-width: 480px;
+  width: 100%;
+  box-shadow: t.$shadow-lift;
+  max-height: 92vh;
+  overflow-y: auto;
+}
+
+.dialog__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-3;
+  margin-bottom: t.$sp-4;
+}
+
+.dialog__title {
+  margin: 0;
+  font-family: t.$font-display;
+  font-size: 1.25rem;
+  font-weight: 550;
+  color: t.$ink;
+}
+
+.dialog__close {
+  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: none;
+  color: t.$muted;
+  cursor: pointer;
+
+  &:hover {
+    color: t.$ink;
+  }
+}
+
+.field-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: t.$sp-4;
+}
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  &--full {
+    grid-column: 1 / -1;
+  }
+}
+
+.field__label {
+  font-size: t.$fs-eyebrow;
+  font-weight: 650;
+  color: t.$ink;
+}
+
+.field__input {
+  @include m.field;
+  min-height: 46px;
+  background: #fffdf9;
+}
+
+.field__error {
+  margin: 0;
+  color: t.$danger;
+  font-size: t.$fs-micro;
+}
+
+.field__checkbox {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-2;
+  font-size: t.$fs-body-sm;
+  color: t.$ink;
+  cursor: pointer;
+
+  input {
+    width: 18px;
+    height: 18px;
+    accent-color: t.$caramel;
+  }
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: t.$sp-4;
+  margin-top: t.$sp-5;
+}
+
+.btn-cancel {
+  @include m.btn-text;
+  color: t.$muted;
+}
+
+.btn-save {
+  @include m.btn-solid;
+  min-height: 44px;
+  padding: 10px 22px;
+  background: t.$accent;
+  color: t.$ink;
+  box-shadow: 0 8px 18px rgba(245, 200, 66, 0.32);
+
+  &:hover:not(:disabled) {
+    background: t.$primary;
+    color: t.$paper;
+  }
+}
+
+@include m.mq-down(sm) {
+  .field-grid {
+    grid-template-columns: 1fr;
+  }
+}

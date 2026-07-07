@@ -60,6 +60,17 @@ export class AccountOrderDetailPage implements OnInit {
     cash: 'Tiền mặt khi nhận hàng',
   };
 
+  tierLabel(tier: string): string {
+    const labels: Record<string, string> = {
+      member: 'Classic',
+      bronze: 'Bronze',
+      silver: 'Silver',
+      gold: 'Gold',
+      diamond: 'Diamond',
+    };
+    return labels[tier] ?? 'Classic';
+  }
+
   /** The four-step visual tracker shown at the top of the order. */
   readonly TRACK_STEPS: TrackStep[] = [
     { key: 'pending', label: 'Chờ xác nhận', icon: 'clock' },

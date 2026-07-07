@@ -1,11 +1,13 @@
 export type MembershipTier = 'member' | 'bronze' | 'silver' | 'gold' | 'diamond';
 export type UserRole = 'member' | 'admin';
+export type AuthProvider = 'local' | 'google';
 
 export interface User {
   readonly userId: string;
   readonly fullName: string;
   readonly email: string | null;
   readonly phone: string | null;
+  readonly authProvider: AuthProvider;
   readonly role: UserRole;
   readonly loyaltyPoints: number;
   readonly membershipTier: MembershipTier;
@@ -27,7 +29,17 @@ export interface Address {
 
 export interface UpdateProfileRequest {
   fullName?: string;
+}
+
+export interface ContactChangeRequest {
   phone?: string;
+  email?: string;
+}
+
+export interface PhoneChangeResponse {
+  requiresOtp: boolean;
+  smsDelivered: boolean;
+  devOtp?: string;
 }
 
 export interface ChangePasswordRequest {

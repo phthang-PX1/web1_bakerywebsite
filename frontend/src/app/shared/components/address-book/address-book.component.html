@@ -1,0 +1,69 @@
+<div class="address-book" [class.address-book--compact]="compact()">
+  @if (!compact()) {
+    <div class="address-book__header">
+      <h2 class="address-book__title">Sổ địa chỉ giao hàng</h2>
+      <button class="btn-add" type="button" (click)="openAdd()">+ Thêm địa chỉ</button>
+    </div>
+  }
+
+  @if (loading()) {
+    <app-loading-spinner />
+  } @else if (addresses().length === 0) {
+    <div class="address-book__empty">
+      <p>Bạn chưa lưu địa chỉ giao hàng nào.</p>
+      <button class="btn-add" type="button" (click)="openAdd()">+ Thêm địa chỉ mới</button>
+    </div>
+  } @else {
+    <div class="address-list">
+      @for (addr of addresses(); track addr.addressId) {
+        <article class="address-card" [class.address-card--default]="addr.isDefault">
+          <div class="address-card__body">
+            <p class="address-card__name">
+              {{ addr.recipientName }} · {{ addr.phone }}
+              @if (addr.isDefault) {
+                <span class="address-card__badge">Mặc định</span>
+              }
+            </p>
+            <p class="address-card__addr">{{ addr.street }}, {{ addr.district }}, {{ addr.city }}</p>
+          </div>
+          <div class="address-card__actions">
+            @if (!addr.isDefault) {
+              <button
+                class="btn-text"
+                type="button"
+                [disabled]="settingDefaultId() === addr.addressId"
+                (click)="setDefault(addr)"
+              >
+                {{ settingDefaultId() === addr.addressId ? 'Đang đặt...' : 'Đặt mặc định' }}
+              </button>
+            }
+            <button class="btn-text" type="button" (click)="openEdit(addr)">Chỉnh sửa</button>
+            <button class="btn-text btn-text--danger" type="button" (click)="deletingAddressId.set(addr.addressId)">Xóa</button>
+          </div>
+        </article>
+      }
+    </div>
+
+    @if (compact()) {
+      <button class="btn-add btn-add--sm" type="button" (click)="openAdd()">+ Thêm địa chỉ</button>
+    }
+  }
+</div>
+
+<app-address-form-dialog
+  [open]="dialogOpen()"
+  [address]="editingAddress()"
+  [defaultChecked]="addresses().length === 0"
+  (saved)="onSaved()"
+  (dismissed)="dialogOpen.set(false)"
+/>
+
+<app-confirm-dialog
+  [open]="!!deletingAddressId()"
+  title="Xóa địa chỉ"
+  message="Bạn có chắc muốn xóa địa chỉ này?"
+  confirmLabel="Xóa"
+  cancelLabel="Hủy"
+  (confirm)="deleteAddress()"
+  (cancel)="deletingAddressId.set(null)"
+/>

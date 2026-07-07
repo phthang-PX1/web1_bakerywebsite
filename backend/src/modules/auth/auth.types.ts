@@ -11,7 +11,7 @@ export type AuthResponse = AuthTokens & {
   user: AuthUser;
 };
 
-export type AuthActionTokenPurpose = "activation" | "password_reset";
+export type AuthActionTokenPurpose = "activation" | "password_reset" | "email_change";
 
 export type AuthActionTokenPayload = {
   userId: string;

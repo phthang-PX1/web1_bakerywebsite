@@ -161,6 +161,7 @@ const productListSelect = {
   basePrice: true,
   thumbnailUrl: true,
   avgRating: true,
+  soldCount: true,
   isCustomizable: true,
   isActive: true,
   createdAt: true,
@@ -191,6 +192,7 @@ const buildProductOrderBy = (sort: ProductListQuery["sort"]): Prisma.ProductOrde
   if (sort === "price_asc") return [{ basePrice: "asc" }, { createdAt: "desc" }];
   if (sort === "price_desc") return [{ basePrice: "desc" }, { createdAt: "desc" }];
   if (sort === "rating_desc") return [{ avgRating: "desc" }, { createdAt: "desc" }];
+  if (sort === "best_sellers") return [{ soldCount: "desc" }, { avgRating: "desc" }, { createdAt: "desc" }];
   return [{ createdAt: "desc" }];
 };
 
@@ -255,6 +257,7 @@ export const getProducts = async (
     basePrice: Number(p.basePrice),
     thumbnailUrl: p.thumbnailUrl,
     avgRating: Number(p.avgRating),
+    soldCount: p.soldCount,
     reviewCount: p._count.orderItems,
     isCustomizable: p.isCustomizable,
     isActive: p.isActive,

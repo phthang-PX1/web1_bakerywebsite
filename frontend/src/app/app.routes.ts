@@ -30,9 +30,12 @@ export const routes: Routes = [
       },
       {
         path: 'orders/:orderId/track',
-        canActivate: [authGuard],
         loadComponent: () =>
           import('./features/checkout/pages/order-tracking.page').then((m) => m.OrderTrackingPage),
+      },
+      {
+        path: 'account/confirm-email',
+        loadComponent: () => import('./features/account/pages/confirm-email.page').then((m) => m.ConfirmEmailPage),
       },
       {
         path: 'account',
@@ -146,5 +149,8 @@ export const routes: Routes = [
     ],
   },
 
-  { path: '**', redirectTo: '' },
+  {
+    path: '**',
+    loadComponent: () => import('./shared/components/not-found/not-found.page').then((m) => m.NotFoundPage),
+  },
 ];

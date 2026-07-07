@@ -43,8 +43,8 @@ export class AuthApi {
     return this.http.post<AuthTokens>(`${this.base}/refresh`, { refreshToken });
   }
 
-  logout(): Observable<void> {
-    return this.http.post<void>(`${this.base}/logout`, {});
+  logout(refreshToken: string): Observable<void> {
+    return this.http.post<void>(`${this.base}/logout`, { refreshToken });
   }
 
   forgotPassword(body: ForgotPasswordRequest): Observable<{ message: string }> {

@@ -1,6 +1,6 @@
 import type { Category } from './category.model';
 
-export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'rating_desc';
+export type ProductSort = 'newest' | 'price_asc' | 'price_desc' | 'rating_desc' | 'best_sellers';
 
 export interface ProductImage {
   readonly imageId: string;
@@ -40,6 +40,7 @@ export interface Product {
   readonly isCustomizable: boolean;
   readonly hasRequiredOptions: boolean;
   readonly avgRating: number;
+  readonly soldCount?: number;
   readonly reviewCount: number;
   readonly isActive: boolean;
   readonly createdAt: string;

@@ -5,7 +5,7 @@ import bannersRoutes, { adminBannersRoutes } from "../modules/banners/banners.ro
 import cartRoutes from "../modules/cart/cart.routes";
 import categoriesRoutes, { adminCategoriesRoutes } from "../modules/categories/categories.routes";
 import couponsRoutes, { adminCouponsRoutes } from "../modules/coupons/coupons.routes";
-import loyaltyRoutes from "../modules/loyalty/loyalty.routes";
+import loyaltyRoutes, { adminLoyaltyRoutes } from "../modules/loyalty/loyalty.routes";
 import productOptionsRoutes, {
   adminOptionsRouter,
   adminProductOptionsRouter
@@ -31,6 +31,7 @@ router.use("/admin/categories", adminCategoriesRoutes);
 router.use("/coupons", couponsRoutes);
 router.use("/admin/coupons", adminCouponsRoutes);
 router.use("/internal/loyalty", loyaltyRoutes);
+router.use("/admin/loyalty", adminLoyaltyRoutes);
 router.use("/orders", ordersRoutes);
 router.use("/webhooks", paymentWebhookRoutes);
 router.use("/admin/orders", adminOrdersRoutes);

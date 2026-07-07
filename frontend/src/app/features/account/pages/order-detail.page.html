@@ -6,7 +6,7 @@
         <h1>Tài khoản của tôi</h1>
         <div class="account-heading__meta">
           <strong>{{ user.fullName }}</strong>
-          <span>WeBee {{ user.membershipTier }} member</span>
+          <span>{{ tierLabel(user.membershipTier) }} member</span>
         </div>
       </div>
     </header>

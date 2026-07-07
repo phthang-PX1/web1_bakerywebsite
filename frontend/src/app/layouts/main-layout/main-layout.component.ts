@@ -10,7 +10,7 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
   imports: [RouterOutlet, SiteHeaderComponent, SiteFooterComponent, ToastComponent],
   template: `
     <app-site-header />
-    <main class="main-content">
+    <main id="main-content" class="main-content">
       <router-outlet />
     </main>
     <app-site-footer />

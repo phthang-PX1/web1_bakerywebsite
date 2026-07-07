@@ -79,7 +79,7 @@ export const productListQuerySchema = z
       (value) => (value === "" ? undefined : value),
       z.coerce.number().min(0).optional()
     ),
-    sort: z.enum(["newest", "price_asc", "price_desc", "rating_desc"]).default("newest"),
+    sort: z.enum(["newest", "price_asc", "price_desc", "rating_desc", "best_sellers"]).default("newest"),
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20)
   })

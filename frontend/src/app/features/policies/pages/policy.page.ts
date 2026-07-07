@@ -1,4 +1,5 @@
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 
 interface PolicyContent {
@@ -112,13 +113,15 @@ Nếu bạn chọn ghé lấy tại cửa hàng: WeBee Bakery — 123 Đường 
     </div>
   `,
   styleUrl: '../../blog/pages/content.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class PolicyPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
   readonly policy = signal<PolicyContent | null>(null);
 
   ngOnInit(): void {
-    this.route.paramMap.subscribe((p) => {
+    this.route.paramMap.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((p) => {
       const slug = p.get('slug') ?? '';
       this.policy.set(POLICIES[slug] ?? null);
     });

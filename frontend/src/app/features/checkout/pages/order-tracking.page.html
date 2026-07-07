@@ -58,10 +58,12 @@
       </div>
 
       <div class="tracking-actions">
-        @if (o.orderStatus === 'pending') {
+        @if (isLoggedIn() && o.orderStatus === 'pending') {
           <button class="btn-cancel" type="button" (click)="cancelOrder()">Hủy đơn hàng</button>
         }
-        <a class="btn-detail" [routerLink]="['/account/orders', o.orderId]">Xem chi tiết đơn hàng</a>
+        @if (isLoggedIn()) {
+          <a class="btn-detail" [routerLink]="['/account/orders', o.orderId]">Xem chi tiết đơn hàng</a>
+        }
       </div>
     </div>
   }

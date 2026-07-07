@@ -40,7 +40,7 @@
         </div>
         <div class="field">
           <label class="field__label" for="phone">Số điện thoại</label>
-          <input id="phone" type="tel" class="field__input" formControlName="phone" placeholder="0901234567" />
+          <input id="phone" type="tel" class="field__input field__input--disabled" [value]="user.phone ?? ''" disabled />
         </div>
         <button type="submit" class="btn-save" [disabled]="savingProfile()">
           {{ savingProfile() ? 'Đang lưu...' : 'Lưu thay đổi' }}

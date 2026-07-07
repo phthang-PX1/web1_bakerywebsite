@@ -1,4 +1,6 @@
-import { Component, OnDestroy, computed, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { BannersApi } from '../../../../core/api/banners.api';
 
 const ROTATE_INTERVAL_MS = 6000;
 const HOME_BANNERS: HeroBannerSlide[] = [
@@ -18,6 +20,7 @@ interface HeroBannerSlide {
   readonly id: string;
   readonly title: string;
   readonly imageUrl: string;
+  readonly linkUrl?: string;
 }
 
 @Component({
@@ -25,8 +28,12 @@ interface HeroBannerSlide {
   standalone: true,
   templateUrl: './hero-carousel.component.html',
   styleUrl: './hero-carousel.component.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
-export class HeroCarouselComponent implements OnDestroy {
+export class HeroCarouselComponent implements OnInit, OnDestroy {
+  private readonly bannersApi = inject(BannersApi);
+  private readonly destroyRef = inject(DestroyRef);
+
   readonly banners = signal<HeroBannerSlide[]>(HOME_BANNERS);
   readonly current = signal(0);
   readonly slideCount = computed(() => this.banners().length);
@@ -36,6 +43,26 @@ export class HeroCarouselComponent implements OnDestroy {
 
   constructor() {
     this.startRotation();
+  }
+
+  ngOnInit(): void {
+    this.bannersApi.getBanners().pipe(
+      takeUntilDestroyed(this.destroyRef)
+    ).subscribe({
+      next: (res) => {
+        const active = res.filter(b => b.isActive).sort((a, b) => a.sortOrder - b.sortOrder);
+        if (active.length > 0) {
+          this.banners.set(active.map(b => ({
+            id: b.bannerId,
+            title: b.title,
+            imageUrl: b.imageUrl,
+            linkUrl: b.linkUrl ?? undefined,
+          })));
+          this.startRotation();
+        }
+      },
+      error: () => {}
+    });
   }
 
   ngOnDestroy(): void {

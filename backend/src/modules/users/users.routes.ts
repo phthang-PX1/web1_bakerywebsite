@@ -5,27 +5,44 @@ import { validate } from "../../middlewares/validate";
 import { upload } from "../../utils/upload";
 import {
   changePasswordController,
+  confirmEmailChangeController,
   createAddressController,
+  deactivateAccountController,
   deleteAddressController,
   getAddressesController,
   getLoyaltyLogsController,
   getLoyaltySummaryController,
   getProfileController,
+  redeemRewardController,
+  requestEmailChangeController,
+  requestPhoneChangeController,
   updateAddressController,
   updateProfileController,
-  uploadAvatarController
+  uploadAvatarController,
+  verifyPhoneChangeController
 } from "./users.controller";
 import {
   addressBodySchema,
   addressParamsSchema,
+  changeEmailBodySchema,
   changePasswordBodySchema,
+  changePhoneBodySchema,
+  confirmEmailChangeBodySchema,
   loyaltyLogsQuerySchema,
+  redeemRewardBodySchema,
   updateAddressBodySchema,
-  updateProfileBodySchema
+  updateProfileBodySchema,
+  verifyPhoneChangeBodySchema
 } from "./users.schema";
 
 const router = Router();
 const memberAccess = [auth, requireRole("member", "admin")];
+
+router.post(
+  "/me/email/confirm",
+  validate({ body: confirmEmailChangeBodySchema }),
+  confirmEmailChangeController
+);
 
 /**
  * @swagger
@@ -120,6 +137,33 @@ router.put(
   ...memberAccess,
   validate({ body: changePasswordBodySchema }),
   changePasswordController
+);
+
+router.post(
+  "/me/phone/change-request",
+  ...memberAccess,
+  validate({ body: changePhoneBodySchema }),
+  requestPhoneChangeController
+);
+
+router.post(
+  "/me/phone/change-verify",
+  ...memberAccess,
+  validate({ body: verifyPhoneChangeBodySchema }),
+  verifyPhoneChangeController
+);
+
+router.post(
+  "/me/email/change-request",
+  ...memberAccess,
+  validate({ body: changeEmailBodySchema }),
+  requestEmailChangeController
+);
+
+router.post(
+  "/me/deactivate",
+  ...memberAccess,
+  deactivateAccountController
 );
 
 /**
@@ -238,6 +282,12 @@ router.delete(
  *         description: Loyalty points and membership tier
  */
 router.get("/me/loyalty", ...memberAccess, getLoyaltySummaryController);
+router.post(
+  "/me/loyalty/redeem",
+  ...memberAccess,
+  validate({ body: redeemRewardBodySchema }),
+  redeemRewardController
+);
 
 /**
  * @swagger

@@ -7,11 +7,13 @@ import {
   getAdminOrders,
   getMyOrderDetail,
   getMyOrders,
+  getTrackedOrderDetail,
   updateAdminOrderStatus
 } from "./orders.service";
 import type {
   OrderCreateInput,
   OrderListQuery,
+  OrderTrackingQuery,
   PaymentWebhookInput,
   UpdateOrderStatusInput
 } from "./orders.types";
@@ -80,6 +82,22 @@ export const getMyOrderDetailController: RequestHandler = async (
 ) => {
   try {
     const result = await getMyOrderDetail(req.user?.userId, req.params.id);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getTrackedOrderDetailController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const result = await getTrackedOrderDetail(
+      req.params.id,
+      req.query as unknown as OrderTrackingQuery
+    );
     res.status(200).json(result);
   } catch (error) {
     next(error);

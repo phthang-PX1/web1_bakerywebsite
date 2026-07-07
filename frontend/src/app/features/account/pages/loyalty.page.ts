@@ -8,10 +8,12 @@ import { TierBadgeComponent } from '../../../shared/components/tier-badge/tier-b
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
 
+import { EmptyStateComponent } from '../../../shared/components/empty-state/empty-state.component';
+
 @Component({
   selector: 'app-loyalty-page',
   standalone: true,
-  imports: [RouterLink, SlicePipe, TierBadgeComponent, LoadingSpinnerComponent, PaginationComponent],
+  imports: [RouterLink, SlicePipe, TierBadgeComponent, LoadingSpinnerComponent, PaginationComponent, EmptyStateComponent],
   template: `
     <div class="account-form-page">
       <div class="page-header">
@@ -49,6 +51,14 @@ import { PaginationComponent } from '../../../shared/components/pagination/pagin
               }
             </ul>
             <app-pagination [currentPage]="logsPage()" [totalPages]="logsTotalPages()" (pageChange)="loadLogs($event)" />
+          </section>
+        } @else {
+          <section class="form-section">
+            <app-empty-state
+              title="Chưa có lịch sử điểm"
+              description="Bạn chưa có giao dịch tích lũy hay sử dụng điểm nào."
+              icon="star"
+            />
           </section>
         }
       }

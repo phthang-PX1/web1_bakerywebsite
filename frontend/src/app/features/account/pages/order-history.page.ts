@@ -21,7 +21,7 @@ import { LoadingSpinnerComponent } from '../../../shared/components/loading-spin
             <h1>Tài khoản của tôi</h1>
             <div class="account-heading__meta">
               <strong>{{ user.fullName }}</strong>
-              <span>WeBee {{ user.membershipTier }} member</span>
+              <span>{{ tierLabel(user.membershipTier) }} member</span>
             </div>
           </div>
         </header>
@@ -86,6 +86,17 @@ export class OrderHistoryPage implements OnInit {
     delivered: 'Đã giao',
     cancelled: 'Đã hủy',
   };
+
+  tierLabel(tier: string): string {
+    const labels: Record<string, string> = {
+      member: 'Classic',
+      bronze: 'Bronze',
+      silver: 'Silver',
+      gold: 'Gold',
+      diamond: 'Diamond',
+    };
+    return labels[tier] ?? 'Classic';
+  }
 
   ngOnInit(): void {
     this.loadPage(1);

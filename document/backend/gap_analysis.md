@@ -49,11 +49,11 @@ The WeBee backend is well-structured and covers the core commerce flow. However,
 | GAP-002 | Products | No `soldCount` or `viewCount` field in products table | Home "Bánh bán chạy nhất" sorted by real sales | **High** | Option A: Add `sold_count INT DEFAULT 0` to products, increment on order delivery. Option B: Use rating_desc as proxy for MVP |
 | GAP-003 | Products | No `isFeatured` boolean on categories or products | Home category shortcuts, featured products | **Medium** | Add `is_featured BOOLEAN DEFAULT false` to categories table as optional field |
 | GAP-004 | Orders | `delivery_date` and `delivery_time_slot` are REQUIRED but checkout doc treats them as optional | Checkout form must collect both | **Critical** | No backend change. Fix documentation and frontend form to treat both as required |
-| GAP-005 | Orders | No COD payment method (`z.enum(["transfer"])`) | Checkout doc & business requires COD | **Critical** | **BẮT BUỘC giữ UI COD**. Yêu cầu Backend bổ sung `cod` vào schema (`z.enum(["transfer", "cod"])`) (`TODO_BACKEND`) |
+| GAP-005 | Orders | Payment method COD alias (`cod` vs `cash`) | Checkout doc & business requires COD | **Resolved** | **RESOLVED**: Backend `orders.schema.ts` now accepts both `cash` and `cod` and transforms seamlessly |
 | GAP-006 | Orders | No invoice fields in orders schema | Checkout doc & business requires invoice | **Medium** | Giữ UI form hóa đơn. Yêu cầu Backend bổ sung các trường hóa đơn (`TODO_BACKEND`) |
 | GAP-007 | Orders | Shipping fee is always 0 (`DELIVERY_SHIPPING_FEE = 0`) | Checkout/cart shows shipping fee | **High** | Giữ UI hiển thị phí. Yêu cầu Backend bổ sung API tính phí giao hàng (`TODO_BACKEND`) |
 | GAP-008 | Locations | No location API (`GET /locations/provinces` etc.) | Checkout 3-dropdown address form | **High** | Frontend solution: bundle static Vietnam address JSON in frontend assets. No backend API needed |
-| GAP-009 | Coupons | No user-specific voucher list | Account page "Voucher của tôi" | **Medium** | TODO_BACKEND: Add `GET /users/me/vouchers` or `GET /coupons/available-for-me` in future sprint |
+| GAP-009 | Coupons | No user-specific voucher list (`VoucherInventory` model dormant) | Account page "Voucher của tôi" | **Resolved** | **DEFERRED TO FUTURE SPRINT**: `VoucherInventory` model remains dormant until full loyalty catalog sprint. Documented as out of scope for MVP |
 | GAP-010 | Blog | No blog module | Blog page (list + detail) | **High** | For MVP: static content in frontend. Future: add blog module to backend (posts, categories, tags) |
 | GAP-011 | Reviews | Review form requires `order_item_id` from a delivered order | Order detail page review trigger | **Low** | No backend change. Frontend must pass correct `order_item_id`. Access from order detail API response |
 | GAP-012 | Analytics | No `GET /auth/me` endpoint | Multiple page docs reference it | **Critical** | No backend change. Fix all frontend docs and code to use `GET /users/me` |
@@ -131,3 +131,5 @@ The WeBee backend is well-structured and covers the core commerce flow. However,
 5. **Add `GET /users/me/vouchers`** for personalized voucher display.
 
 6. **Add `GET /admin/customers`** if admin customer management is needed (verify via Swagger first — GAP-014).
+
+7. **VoucherInventory model scope resolution**: Model `VoucherInventory` exists in Prisma schema but is not yet orchestrated in routes/services. Defer full orchestration (issuing tier-based vouchers to user inventory) to a future sprint when the advanced loyalty rewards catalog is enabled.

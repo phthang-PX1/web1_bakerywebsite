@@ -5,12 +5,15 @@ import { Router } from '@angular/router';
 
 import { CouponsApi } from '../../../core/api/coupons.api';
 import { OrdersApi } from '../../../core/api/orders.api';
+import { UsersApi } from '../../../core/api/users.api';
 import type { ValidateCouponResponse } from '../../../core/models/coupon.model';
 import type { CreateOrderResponse } from '../../../core/models/order.model';
+import type { Address } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CakeMessageService } from '../../../core/services/cake-message.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
+import { AddressFormDialogComponent } from '../../../shared/components/address-form-dialog/address-form-dialog.component';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 
 export interface DeliveryDay {
@@ -24,7 +27,7 @@ const phoneValidator = [Validators.required, Validators.pattern(/^[0-9]{9,11}$/)
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [ReactiveFormsModule, AsyncPipe, CurrencyVndPipe],
+  imports: [ReactiveFormsModule, AsyncPipe, CurrencyVndPipe, AddressFormDialogComponent],
   templateUrl: './checkout.page.html',
   styleUrl: './checkout.page.scss',
 })
@@ -32,9 +35,10 @@ export class CheckoutPage implements OnInit {
   private readonly cartService = inject(CartService);
   private readonly cakeMessages = inject(CakeMessageService);
   private readonly ordersApi = inject(OrdersApi);
+  private readonly usersApi = inject(UsersApi);
   private readonly couponsApi = inject(CouponsApi);
   private readonly toastService = inject(ToastService);
-  private readonly authService = inject(AuthService);
+  readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 
   readonly cart$ = this.cartService.cart$;
@@ -46,6 +50,12 @@ export class CheckoutPage implements OnInit {
   readonly showCustomDate = signal(false);
   readonly isDelivery = signal(true);
   readonly discount = signal(0);
+  readonly addresses = signal<Address[]>([]);
+  readonly selectedAddressId = signal('');
+  /** Address chosen/entered for this delivery (may be an unsaved guest address). */
+  readonly selectedAddress = signal<Address | null>(null);
+  readonly addressDialogOpen = signal(false);
+  readonly addressError = signal(false);
 
   readonly shippingFee = 0;
   readonly today = new Date().toISOString().split('T')[0];
@@ -59,10 +69,6 @@ export class CheckoutPage implements OnInit {
     recipientPhone: new FormControl(''),
     email: new FormControl(''),
     fulfillmentType: new FormControl<'delivery' | 'pickup'>('delivery', [Validators.required]),
-    street: new FormControl(''),
-    city: new FormControl(''),
-    district: new FormControl(''),
-    ward: new FormControl(''),
     deliveryDate: new FormControl(this.deliveryDays[0].value, [Validators.required]),
     deliveryTimeSlot: new FormControl('', [Validators.required]),
     paymentMethod: new FormControl<'transfer' | 'cash'>('cash', [Validators.required]),
@@ -70,6 +76,11 @@ export class CheckoutPage implements OnInit {
     note: new FormControl(''),
     businessInvoice: new FormControl(false),
   });
+
+  /** Logged-in members can persist addresses; guests use a one-off address. */
+  get canPersistAddress(): boolean {
+    return !!this.authService.currentUser$.value;
+  }
 
   ngOnInit(): void {
     const user = this.authService.currentUser$.value;
@@ -79,6 +90,7 @@ export class CheckoutPage implements OnInit {
         buyerPhone: user.phone ?? '',
         email: user.email ?? '',
       });
+      this.loadAddresses();
     }
 
     this.form.controls.fulfillmentType.valueChanges.subscribe((type) => {
@@ -89,11 +101,9 @@ export class CheckoutPage implements OnInit {
         this.toggleGiftRecipient(false);
       }
 
-      this.syncAddressValidators(delivery);
       this.syncRecipientValidators();
     });
 
-    this.syncAddressValidators(true);
     this.syncRecipientValidators();
   }
 
@@ -114,6 +124,33 @@ export class CheckoutPage implements OnInit {
   toggleGiftRecipient(checked: boolean): void {
     this.giftRecipient.set(checked && this.isDelivery());
     this.syncRecipientValidators();
+  }
+
+  applyAddress(address: Address): void {
+    this.selectedAddress.set(address);
+    this.selectedAddressId.set(address.addressId);
+    this.addressError.set(false);
+  }
+
+  openAddressDialog(): void {
+    this.addressDialogOpen.set(true);
+  }
+
+  onAddressSaved(address: Address): void {
+    this.addressDialogOpen.set(false);
+    if (this.canPersistAddress) {
+      // Refresh the saved list, then select the newly saved address.
+      this.usersApi.getAddresses().subscribe({
+        next: (addresses) => {
+          this.addresses.set(addresses);
+          const match = addresses.find((a) => a.addressId === address.addressId) ?? address;
+          this.applyAddress(match);
+        },
+      });
+    } else {
+      // Guest: keep the one-off address in memory for this order only.
+      this.applyAddress(address);
+    }
   }
 
   validateCoupon(): void {
@@ -155,10 +192,16 @@ export class CheckoutPage implements OnInit {
     this.syncRecipientValidators();
     this.form.markAllAsTouched();
 
-    if (this.form.invalid) {
+    const needsAddress = this.isDelivery();
+    const address = this.selectedAddress();
+    this.addressError.set(needsAddress && !address);
+
+    if (this.form.invalid || this.addressError()) {
       this.toastService.error('Vui lòng kiểm tra lại thông tin đặt hàng.');
       setTimeout(() => {
-        document.querySelector('.field__error')?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        document
+          .querySelector('.field__error, .address-error')
+          ?.scrollIntoView({ behavior: 'smooth', block: 'center' });
       });
       return;
     }
@@ -169,8 +212,8 @@ export class CheckoutPage implements OnInit {
     const recipientName = hasGiftRecipient ? v.recipientName! : v.buyerName!;
     const recipientPhone = hasGiftRecipient ? v.recipientPhone! : v.buyerPhone!;
     const deliveryAddress =
-      v.fulfillmentType === 'delivery'
-        ? [v.street, v.ward, v.district, v.city].filter(Boolean).join(', ')
+      v.fulfillmentType === 'delivery' && address
+        ? [address.street, address.district, address.city].filter(Boolean).join(', ')
         : undefined;
 
     const cardMessage =
@@ -202,10 +245,12 @@ export class CheckoutPage implements OnInit {
           this.cakeMessages.clearAll();
           const totalAmount = res.summary?.totalAmount ?? 0;
           this.router.navigate(['/checkout/success'], {
+            queryParams: { orderId: res.orderId, trackingToken: res.trackingToken },
             state: {
-              orderId: res.order_id,
-              paymentQrUrl: res.payment_qr_url,
-              transferContent: res.transfer_content,
+              orderId: res.orderId,
+              paymentQrUrl: res.paymentQrUrl,
+              transferContent: res.transferContent,
+              trackingToken: res.trackingToken,
               paymentMethod: v.paymentMethod,
               totalAmount,
               recipientName,
@@ -239,20 +284,6 @@ export class CheckoutPage implements OnInit {
     return days;
   }
 
-  private syncAddressValidators(delivery: boolean): void {
-    const addressFields = ['street', 'city', 'district'] as const;
-    addressFields.forEach((field) => {
-      const control = this.form.controls[field];
-      if (delivery) {
-        control.setValidators([Validators.required]);
-      } else {
-        control.clearValidators();
-        control.setValue('');
-      }
-      control.updateValueAndValidity();
-    });
-  }
-
   private syncRecipientValidators(): void {
     const required = this.isDelivery() && this.giftRecipient();
     const name = this.form.controls.recipientName;
@@ -270,5 +301,17 @@ export class CheckoutPage implements OnInit {
 
     name.updateValueAndValidity();
     phone.updateValueAndValidity();
+  }
+
+  private loadAddresses(): void {
+    this.usersApi.getAddresses().subscribe({
+      next: (addresses) => {
+        this.addresses.set(addresses);
+        const defaultAddress = addresses.find((address) => address.isDefault) ?? addresses[0];
+        if (defaultAddress) {
+          this.applyAddress(defaultAddress);
+        }
+      },
+    });
   }
 }

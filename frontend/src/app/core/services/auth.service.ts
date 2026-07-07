@@ -47,7 +47,10 @@ export class AuthService {
   }
 
   logout(): void {
-    this.authApi.logout().subscribe({ error: () => {} });
+    const refreshToken = this.refreshToken;
+    if (refreshToken) {
+      this.authApi.logout(refreshToken).subscribe({ error: () => {} });
+    }
     this.clearTokens();
     this.currentUser$.next(null);
     this.router.navigate(['/']);

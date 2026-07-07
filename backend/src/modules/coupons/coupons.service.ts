@@ -1,15 +1,13 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { AppError } from "../../middlewares/errorHandler";
+import { toMoney } from "../../utils/money";
 import type {
   CouponInput,
   CouponValidationResult,
   UpdateCouponInput,
   ValidateCouponInput
 } from "./coupons.types";
-
-const toMoney = (value: Prisma.Decimal | number) =>
-  Number(Number(value).toFixed(2));
 
 const formatCoupon = (coupon: {
   couponId: string;

@@ -399,6 +399,19 @@
     width: 20px;
     height: 1.5px;
     background: t.$ink;
+    transition: transform 0.25s ease, opacity 0.25s ease;
+  }
+
+  &--open {
+    span:nth-child(1) {
+      transform: translateY(6.5px) rotate(45deg);
+    }
+    span:nth-child(2) {
+      opacity: 0;
+    }
+    span:nth-child(3) {
+      transform: translateY(-6.5px) rotate(-45deg);
+    }
   }
 }
 

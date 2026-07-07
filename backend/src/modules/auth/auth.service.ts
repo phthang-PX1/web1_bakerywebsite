@@ -1,7 +1,4 @@
-import crypto from "node:crypto";
 import bcrypt from "bcrypt";
-import jwt from "jsonwebtoken";
-import type { SignOptions } from "jsonwebtoken";
 import type { Profile } from "passport-google-oauth20";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import passport from "passport";
@@ -9,12 +6,11 @@ import type { User } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { env } from "../../config/env";
 import { AppError } from "../../middlewares/errorHandler";
-import { emailTransporter } from "../../utils/email";
+import { renderResetPasswordEmail, renderWelcomeEmail, sendEmailAsync } from "../../utils/email";
+import { getFrontendUrl, hashToken, issueActionToken, verifyActionToken } from "../../utils/authToken";
 import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../../utils/jwt";
 import { sendSms } from "../../utils/sms";
 import type {
-  AuthActionTokenPayload,
-  AuthActionTokenPurpose,
   AuthResponse,
   AuthTokens,
   AuthUser,
@@ -27,7 +23,6 @@ import type {
 } from "./auth.types";
 
 const SALT_ROUNDS = 12;
-const firstFrontendUrl = env.FRONTEND_URL.split(",")[0].trim();
 let googleStrategyConfigured = false;
 
 const normalizeContact = <T extends { email?: string; phone?: string }>(input: T): T => ({
@@ -36,47 +31,9 @@ const normalizeContact = <T extends { email?: string; phone?: string }>(input: T
   phone: input.phone?.trim()
 });
 
-const hashToken = (token: string) => crypto.createHash("sha256").update(token).digest("hex");
-
 const toAuthUser = (user: User): AuthUser => {
   const { passwordHash, refreshTokenHash, ...safeUser } = user;
   return safeUser;
-};
-
-const getFrontendUrl = (path: string, token: string) => {
-  const url = new URL(path, firstFrontendUrl);
-  url.searchParams.set("token", token);
-  return url.toString();
-};
-
-const signActionToken = (
-  payload: AuthActionTokenPayload,
-  expiresIn: string
-) => jwt.sign(payload, env.JWT_ACCESS_SECRET, { expiresIn: expiresIn as SignOptions["expiresIn"] });
-
-const verifyActionToken = (token: string, purpose: AuthActionTokenPurpose): AuthActionTokenPayload => {
-  let payload: string | jwt.JwtPayload;
-
-  try {
-    payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
-  } catch {
-    throw new AppError(401, "Invalid or expired token");
-  }
-
-  if (!payload || typeof payload !== "object") {
-    throw new AppError(401, "Invalid or expired token");
-  }
-
-  const candidate = payload as Partial<AuthActionTokenPayload>;
-
-  if (candidate.purpose !== purpose || typeof candidate.userId !== "string") {
-    throw new AppError(401, "Invalid or expired token");
-  }
-
-  return {
-    userId: candidate.userId,
-    purpose
-  };
 };
 
 const issueTokens = async (user: Pick<User, "userId" | "role">): Promise<AuthTokens> => {
@@ -118,12 +75,12 @@ const sendActivationMessage = async (user: User, token: string) => {
   const message = `Activate your WeBee account: ${activationUrl}`;
 
   if (user.email) {
-    await emailTransporter.sendMail({
+    await sendEmailAsync({
       from: env.EMAIL_USER,
       to: user.email,
       subject: "Activate your WeBee account",
       text: message,
-      html: `<p>Welcome to WeBee, ${user.fullName}.</p><p>Activate your account here: <a href="${activationUrl}">${activationUrl}</a></p>`
+      html: renderWelcomeEmail(user.fullName, activationUrl)
     });
     return;
   }
@@ -141,12 +98,12 @@ const sendResetPasswordMessage = async (user: User, token: string) => {
   const message = `Reset your WeBee password: ${resetUrl}`;
 
   if (user.email) {
-    await emailTransporter.sendMail({
+    await sendEmailAsync({
       from: env.EMAIL_USER,
       to: user.email,
       subject: "Reset your WeBee password",
       text: message,
-      html: `<p>Use this link to reset your WeBee password: <a href="${resetUrl}">${resetUrl}</a></p>`
+      html: renderResetPasswordEmail(resetUrl)
     });
     return;
   }
@@ -238,7 +195,7 @@ export const register = async (input: RegisterInput) => {
     };
   }
 
-  const activationToken = signActionToken(
+  const activationToken = await issueActionToken(
     { userId: user.userId, purpose: "activation" },
     "24h"
   );
@@ -294,7 +251,7 @@ export const resendOtp = async (input: { phone: string }) => {
 };
 
 export const activateAccount = async (token: string) => {
-  const payload = verifyActionToken(token, "activation");
+  const payload = await verifyActionToken(token, "activation");
   const existingUser = await prisma.user.findUnique({
     where: { userId: payload.userId }
   });
@@ -374,7 +331,7 @@ export const forgotPassword = async (input: ContactInput) => {
     return { message };
   }
 
-  const resetToken = signActionToken(
+  const resetToken = await issueActionToken(
     { userId: user.userId, purpose: "password_reset" },
     "15m"
   );
@@ -384,7 +341,7 @@ export const forgotPassword = async (input: ContactInput) => {
 };
 
 export const resetPassword = async (token: string, input: ResetPasswordInput) => {
-  const payload = verifyActionToken(token, "password_reset");
+  const payload = await verifyActionToken(token, "password_reset");
   const passwordHash = await bcrypt.hash(input.password, SALT_ROUNDS);
   const existingUser = await prisma.user.findUnique({
     where: { userId: payload.userId }
@@ -438,6 +395,14 @@ const upsertGoogleUser = async (profile: Profile) => {
   const email = profile.emails?.[0]?.value?.toLowerCase();
   const fullName = profile.displayName || email?.split("@")[0] || "Google User";
   const avatarUrl = profile.photos?.[0]?.value;
+  const emailVerified =
+    typeof profile._json === "object" &&
+    profile._json !== null &&
+    (profile._json as { email_verified?: unknown }).email_verified === true;
+
+  if (!email || !emailVerified) {
+    throw new AppError(403, "Google account email must be verified");
+  }
 
   const existingUser = await prisma.user.findFirst({
     where: {
@@ -449,12 +414,19 @@ const upsertGoogleUser = async (profile: Profile) => {
   });
 
   if (existingUser) {
+    if (existingUser.googleId && existingUser.googleId !== profile.id) {
+      throw new AppError(409, "Google account is already linked to another user");
+    }
+
+    if (!existingUser.isActive) {
+      throw new AppError(403, "Account must be activated before linking Google");
+    }
+
     return prisma.user.update({
       where: { userId: existingUser.userId },
       data: {
         googleId: profile.id,
         authProvider: "google",
-        isActive: true,
         avatarUrl: existingUser.avatarUrl ?? avatarUrl
       }
     });

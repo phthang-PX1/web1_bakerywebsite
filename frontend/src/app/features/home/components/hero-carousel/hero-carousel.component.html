@@ -13,7 +13,13 @@
           class="hero-carousel__slide"
           [attr.aria-hidden]="current() !== idx"
         >
-          <img [src]="banner.imageUrl" [alt]="banner.title" draggable="false" />
+          @if (banner.linkUrl) {
+            <a [href]="banner.linkUrl" class="slide-link">
+              <img [src]="banner.imageUrl" [alt]="banner.title" draggable="false" [attr.loading]="idx === 0 ? 'eager' : 'lazy'" />
+            </a>
+          } @else {
+            <img [src]="banner.imageUrl" [alt]="banner.title" draggable="false" [attr.loading]="idx === 0 ? 'eager' : 'lazy'" />
+          }
         </div>
       }
     </div>
@@ -46,8 +52,11 @@
         <button
           type="button"
           class="hero-carousel__dot"
+          role="tab"
           [class.hero-carousel__dot--active]="current() === idx"
           (click)="goTo(idx)"
+          [attr.aria-selected]="current() === idx"
+          [attr.aria-pressed]="current() === idx"
           [attr.aria-label]="'Banner ' + (idx + 1)"
         ></button>
       }
