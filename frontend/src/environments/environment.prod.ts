@@ -5,5 +5,5 @@
  */
 export const environment = {
   production: true,
-  apiUrl: 'https://api.webee.vn/api' // Replace with actual production API domain upon deployment
+  apiUrl: 'https://webee-backend.onrender.com/api'
 };
