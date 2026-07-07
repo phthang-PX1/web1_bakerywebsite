@@ -4,6 +4,7 @@ import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { UsersApi } from '../../../core/api/users.api';
 import { ADDRESS_CITIES, getDistrictsByCity } from '../../../core/constants/vietnam-addresses';
 import type { Address } from '../../../core/models/user.model';
+import { AuthService } from '../../../core/services/auth.service';
 import { ToastService } from '../../../core/services/toast.service';
 
 /**
@@ -23,6 +24,7 @@ import { ToastService } from '../../../core/services/toast.service';
 })
 export class AddressFormDialogComponent {
   private readonly usersApi = inject(UsersApi);
+  private readonly authService = inject(AuthService);
   private readonly toastService = inject(ToastService);
 
   readonly open = input(false);
@@ -32,6 +34,9 @@ export class AddressFormDialogComponent {
   readonly persist = input(true);
   /** Pre-checks "set as default" (e.g. the user's first address). */
   readonly defaultChecked = input(false);
+  /** Contact details are collected elsewhere; address entry only asks for address fields. */
+  readonly contactName = input<string | null>(null);
+  readonly contactPhone = input<string | null>(null);
 
   readonly saved = output<Address>();
   readonly dismissed = output<void>();
@@ -41,8 +46,8 @@ export class AddressFormDialogComponent {
   readonly districts = signal<readonly string[]>([]);
 
   readonly form = new FormGroup({
-    recipientName: new FormControl('', [Validators.required]),
-    phone: new FormControl('', [Validators.required]),
+    recipientName: new FormControl(''),
+    phone: new FormControl(''),
     street: new FormControl('', [Validators.required]),
     district: new FormControl('', [Validators.required]),
     city: new FormControl('', [Validators.required]),
@@ -73,9 +78,16 @@ export class AddressFormDialogComponent {
     this.form.markAllAsTouched();
     if (this.form.invalid) return;
     const v = this.form.value;
+    const contact = this.resolveContact();
+
+    if (this.persist() && (!contact.recipientName || !contact.phone)) {
+      this.toastService.error('Vui lòng cập nhật họ tên và số điện thoại trong thông tin tài khoản trước khi lưu địa chỉ.');
+      return;
+    }
+
     const payload = {
-      recipientName: v.recipientName!,
-      phone: v.phone!,
+      recipientName: contact.recipientName || 'Khách hàng',
+      phone: contact.phone || '0000000000',
       street: v.street!,
       district: v.district!,
       city: v.city!,
@@ -118,5 +130,21 @@ export class AddressFormDialogComponent {
       this.districts.set([]);
       this.form.reset({ isDefault: this.defaultChecked() });
     }
+  }
+
+  private resolveContact(): { recipientName: string; phone: string } {
+    const user = this.authService.currentUser$.value;
+    return {
+      recipientName:
+        this.contactName()?.trim() ||
+        user?.fullName?.trim() ||
+        this.address()?.recipientName?.trim() ||
+        '',
+      phone:
+        this.contactPhone()?.trim() ||
+        user?.phone?.trim() ||
+        this.address()?.phone?.trim() ||
+        '',
+    };
   }
 }

@@ -26,3 +26,9 @@ yarn-error.log*
 Thumbs.db
 .vscode/
 .idea/
+
+# AI agent / dev-only scaffolding
+.agent/
+.agents/
+skills/
+skills-lock.json

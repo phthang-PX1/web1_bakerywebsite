@@ -132,6 +132,20 @@ export class CheckoutPage implements OnInit {
     this.addressError.set(false);
   }
 
+  addressLine(address: Address): string {
+    return [address.street, address.district, address.city].filter(Boolean).join(', ');
+  }
+
+  addressContactName(): string {
+    const v = this.form.getRawValue();
+    return (this.isDelivery() && this.giftRecipient() ? v.recipientName : v.buyerName) ?? '';
+  }
+
+  addressContactPhone(): string {
+    const v = this.form.getRawValue();
+    return (this.isDelivery() && this.giftRecipient() ? v.recipientPhone : v.buyerPhone) ?? '';
+  }
+
   openAddressDialog(): void {
     this.addressDialogOpen.set(true);
   }
@@ -213,7 +227,7 @@ export class CheckoutPage implements OnInit {
     const recipientPhone = hasGiftRecipient ? v.recipientPhone! : v.buyerPhone!;
     const deliveryAddress =
       v.fulfillmentType === 'delivery' && address
-        ? [address.street, address.district, address.city].filter(Boolean).join(', ')
+        ? this.addressLine(address)
         : undefined;
 
     const cardMessage =

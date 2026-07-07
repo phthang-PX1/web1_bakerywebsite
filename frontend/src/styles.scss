@@ -25,6 +25,10 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+html {
+  scrollbar-gutter: stable;
+}
+
 * {
   box-sizing: border-box;
 }
@@ -52,6 +56,24 @@ select {
 
 img {
   max-width: 100%;
+}
+
+// Custom-cake configurator: lock the page to the viewport (fixed header +
+// preview, only the options column scrolls) and drop the site footer.
+body.custom-cake-active {
+  app-site-footer {
+    display: none;
+  }
+
+  @media (min-width: 768px) {
+    overflow: hidden;
+
+    .main-content {
+      min-height: 0;
+      height: calc(100dvh - 72px);
+      overflow: hidden;
+    }
+  }
 }
 
 // Shared keyframes — defined once globally; components must not redeclare.

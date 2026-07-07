@@ -16,6 +16,9 @@ import type {
 } from "./cart.types";
 
 const CART_TTL_SECONDS = 7 * 24 * 60 * 60;
+const TOPPING_SURCHARGE = 15000;
+const FREE_TOPPING_COUNT = 2;
+const MAX_FILLING_COUNT = 2;
 
 type ProductWithOptions = {
   productId: string;
@@ -63,6 +66,21 @@ const assertNoDuplicateOptions = (optionItemIds: string[]) => {
   if (new Set(optionItemIds).size !== optionItemIds.length) {
     throw new AppError(400, "option_item_ids must not contain duplicates");
   }
+};
+
+const normalizeOptionName = (value: string) =>
+  value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]/g, "");
+
+const getOptionGroupKind = (groupName: string) => {
+  const key = normalizeOptionName(groupName);
+
+  if (key.includes("nhan")) return "filling";
+  if (key.includes("topping")) return "topping";
+  return "other";
 };
 
 const parseStoredCart = (rawCart: string | null): StoredCart => {
@@ -181,6 +199,7 @@ const validateProductOptions = (
     )
   );
   const selectedByGroup = new Map<string, typeof activeItemsById extends Map<string, infer T> ? T[] : never>();
+  const toppingCountByGroup = new Map<string, number>();
   const selectedOptions: CartOptionSnapshot[] = [];
 
   for (const itemId of selectedOptionIds) {
@@ -193,12 +212,23 @@ const validateProductOptions = (
     const currentGroupItems = selectedByGroup.get(match.group.groupId) ?? [];
     currentGroupItems.push(match);
     selectedByGroup.set(match.group.groupId, currentGroupItems);
+    const groupKind = getOptionGroupKind(match.group.name);
+    const toppingIndex = toppingCountByGroup.get(match.group.groupId) ?? 0;
+    const extraPrice =
+      groupKind === "topping" && toppingIndex >= FREE_TOPPING_COUNT
+        ? TOPPING_SURCHARGE
+        : toMoney(match.item.extraPrice);
+
+    if (groupKind === "topping") {
+      toppingCountByGroup.set(match.group.groupId, toppingIndex + 1);
+    }
+
     selectedOptions.push({
       itemId: match.item.itemId,
       groupId: match.group.groupId,
       groupName: match.group.name,
       name: match.item.name,
-      extraPrice: toMoney(match.item.extraPrice)
+      extraPrice
     });
   }
 
@@ -211,6 +241,10 @@ const validateProductOptions = (
 
     if (!group.isMultiple && selectedInGroup.length > 1) {
       throw new AppError(400, `Option group "${group.name}" allows only one item`);
+    }
+
+    if (getOptionGroupKind(group.name) === "filling" && selectedInGroup.length > MAX_FILLING_COUNT) {
+      throw new AppError(400, `Option group "${group.name}" allows up to ${MAX_FILLING_COUNT} items`);
     }
   }
 

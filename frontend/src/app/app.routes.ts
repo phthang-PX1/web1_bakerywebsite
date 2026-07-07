@@ -51,6 +51,10 @@ export const routes: Routes = [
         loadChildren: () => import('./features/policies/policies.routes').then((m) => m.policiesRoutes),
       },
       {
+        path: 'custom-cake',
+        loadComponent: () => import('./features/custom-cake/pages/custom-cake.page').then((m) => m.CustomCakePage),
+      },
+      {
         path: 'membership',
         loadComponent: () => import('./features/membership/pages/membership.page').then((m) => m.MembershipPage),
       },
@@ -93,18 +97,6 @@ export const routes: Routes = [
       {
         path: 'google/callback',
         loadComponent: () => import('./features/auth/pages/google-callback.page').then((m) => m.GoogleCallbackPage),
-      },
-    ],
-  },
-
-  {
-    path: 'custom-cake',
-    loadComponent: () =>
-      import('./layouts/custom-cake-layout/custom-cake-layout.component').then((m) => m.CustomCakeLayoutComponent),
-    children: [
-      {
-        path: '',
-        loadComponent: () => import('./features/custom-cake/pages/custom-cake.page').then((m) => m.CustomCakePage),
       },
     ],
   },
