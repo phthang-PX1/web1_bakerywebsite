@@ -1,5 +1,7 @@
 import { Router } from "express";
 import type { NextFunction, Request, Response } from "express";
+import crypto from "node:crypto";
+import { env } from "../../config/env";
 import { auth } from "../../middlewares/auth";
 import { AppError } from "../../middlewares/errorHandler";
 import { requireRole } from "../../middlewares/role";
@@ -12,6 +14,7 @@ import {
   getAdminOrdersController,
   getMyOrderDetailController,
   getMyOrdersController,
+  getTrackedOrderDetailController,
   paymentWebhookController,
   updateAdminOrderStatusController
 } from "./orders.controller";
@@ -19,6 +22,7 @@ import {
   createOrderBodySchema,
   orderIdParamsSchema,
   orderListQuerySchema,
+  orderTrackingQuerySchema,
   paymentWebhookBodySchema,
   updateOrderStatusBodySchema
 } from "./orders.schema";
@@ -27,6 +31,32 @@ const publicRouter = Router();
 const adminRouter = Router();
 const webhookRouter = Router();
 const adminAccess = [auth, requireRole("admin")];
+
+const secretsMatch = (actual: string, expected: string) => {
+  const actualBuffer = Buffer.from(actual);
+  const expectedBuffer = Buffer.from(expected);
+
+  return (
+    actualBuffer.length === expectedBuffer.length &&
+    crypto.timingSafeEqual(actualBuffer, expectedBuffer)
+  );
+};
+
+const requirePaymentWebhookSecret = (req: Request, _res: Response, next: NextFunction) => {
+  if (!env.PAYMENT_WEBHOOK_SECRET) {
+    next(new AppError(500, "Server misconfiguration: PAYMENT_WEBHOOK_SECRET is not set"));
+    return;
+  }
+
+  const secret = req.header("x-payment-webhook-secret");
+
+  if (!secret || !secretsMatch(secret, env.PAYMENT_WEBHOOK_SECRET)) {
+    next(new AppError(401, "Invalid payment webhook secret"));
+    return;
+  }
+
+  next();
+};
 
 const optionalAuth = (req: Request, _res: Response, next: NextFunction) => {
   const authorization = req.headers.authorization;
@@ -130,6 +160,34 @@ publicRouter.get(
 
 /**
  * @swagger
+ * /orders/track/{id}:
+ *   get:
+ *     summary: Get guest order detail using the signed tracking token
+ *     tags: [Orders]
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *       - in: query
+ *         name: token
+ *         required: true
+ *         schema:
+ *           type: string
+ *     responses:
+ *       200:
+ *         description: Guest-safe order detail with payment and order status
+ */
+publicRouter.get(
+  "/track/:id",
+  validate({ params: orderIdParamsSchema, query: orderTrackingQuerySchema }),
+  getTrackedOrderDetailController
+);
+
+/**
+ * @swagger
  * /orders/me/{id}/cancel:
  *   patch:
  *     summary: Cancel current member pending order
@@ -173,6 +231,7 @@ publicRouter.patch(
  */
 webhookRouter.post(
   "/payment",
+  requirePaymentWebhookSecret,
   validate({ body: paymentWebhookBodySchema }),
   paymentWebhookController
 );

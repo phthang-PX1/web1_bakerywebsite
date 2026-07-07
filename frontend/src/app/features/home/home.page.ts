@@ -1,4 +1,4 @@
-import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { ChangeDetectionStrategy, Component, DestroyRef, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { catchError, finalize, map, of } from 'rxjs';
 
@@ -26,7 +26,8 @@ const SECTION_ERROR = 'Không thể tải dữ liệu lúc này. Vui lòng thử
     ProductSectionComponent,
   ],
   templateUrl: './home.page.html',
-  styleUrl: './home.page.scss'
+  styleUrl: './home.page.scss',
+  changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class HomePage {
   private readonly categoriesApi = inject(CategoriesApi);
@@ -95,9 +96,8 @@ export class HomePage {
   }
 
   private loadBestSellers(): void {
-    // TODO_BACKEND: Add a confirmed best-selling sort or dedicated endpoint.
     this.productsApi
-      .getProducts({ sort: 'rating_desc', limit: 4, page: 1 })
+      .getProducts({ sort: 'best_sellers', limit: 4, page: 1 })
       .pipe(
         map((response) =>
           response.items.map((product, index) => ({

@@ -1,13 +1,11 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database";
+import { toMoney } from "../../utils/money";
 import type {
   AnalyticsBatchInput,
   AnalyticsBehaviorQuery,
   AnalyticsRangeQuery
 } from "./analytics.types";
-
-const toMoney = (value: Prisma.Decimal | number | null | undefined) =>
-  Number(Number(value ?? 0).toFixed(2));
 
 const getGroupCount = (
   count: true | Record<string, number | undefined> | undefined

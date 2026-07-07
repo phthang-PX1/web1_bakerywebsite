@@ -1,0 +1,22 @@
+@use "tokens" as t;
+
+.skip-to-content {
+  position: absolute;
+  top: -100px;
+  left: 16px;
+  background: t.$caramel;
+  color: #fff;
+  padding: 10px 20px;
+  z-index: 99999;
+  border-radius: t.$r-sm;
+  font-weight: 600;
+  text-decoration: none;
+  transition: top 0.2s ease;
+  box-shadow: t.$shadow-lift;
+
+  &:focus {
+    top: 16px;
+    outline: 2px solid t.$cherry;
+    outline-offset: 2px;
+  }
+}

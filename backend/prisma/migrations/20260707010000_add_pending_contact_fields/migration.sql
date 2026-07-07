@@ -1,0 +1,3 @@
+ALTER TABLE "users"
+ADD COLUMN IF NOT EXISTS "pending_email" VARCHAR(255),
+ADD COLUMN IF NOT EXISTS "pending_phone" VARCHAR(20);

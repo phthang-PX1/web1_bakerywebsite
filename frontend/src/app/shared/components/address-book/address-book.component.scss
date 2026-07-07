@@ -1,0 +1,136 @@
+@use "tokens" as t;
+@use "mixins" as m;
+
+.address-book {
+  display: flex;
+  flex-direction: column;
+  gap: t.$sp-4;
+}
+
+.address-book__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-4;
+}
+
+.address-book__title {
+  margin: 0;
+  font-family: t.$font-body;
+  font-size: 1rem;
+  font-weight: 650;
+  color: t.$ink;
+}
+
+.btn-add {
+  @include m.btn-solid;
+  min-height: 40px;
+  padding: 8px 18px;
+  font-size: t.$fs-body-sm;
+  background: t.$accent;
+  color: t.$ink;
+  box-shadow: 0 8px 18px rgba(245, 200, 66, 0.32);
+
+  &:hover:not(:disabled) {
+    background: t.$primary;
+    color: t.$paper;
+  }
+
+  &--sm {
+    align-self: flex-start;
+    min-height: 36px;
+    padding: 6px 14px;
+    font-size: t.$fs-eyebrow;
+  }
+}
+
+.address-book__empty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-4;
+  flex-wrap: wrap;
+  color: t.$muted;
+
+  p {
+    margin: 0;
+    font-size: t.$fs-body-sm;
+  }
+}
+
+.address-list {
+  display: flex;
+  flex-direction: column;
+  gap: t.$sp-3;
+}
+
+.address-card {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: t.$sp-4;
+  padding: t.$sp-4;
+  border: 1px solid t.$border;
+  border-radius: t.$r-sm;
+  background: #fffdf9;
+
+  &--default {
+    border-color: color-mix(in srgb, t.$caramel 55%, t.$border);
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, t.$caramel 22%, transparent);
+  }
+}
+
+.address-card__body {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.address-card__name {
+  display: flex;
+  align-items: center;
+  gap: t.$sp-2;
+  flex-wrap: wrap;
+  margin: 0;
+  font-size: t.$fs-body-sm;
+  font-weight: 700;
+  color: t.$ink;
+}
+
+.address-card__addr {
+  margin: 0;
+  color: t.$muted;
+  font-size: t.$fs-body-sm;
+}
+
+.address-card__badge {
+  padding: 3px 10px;
+  border-radius: t.$r-pill;
+  background: t.$accent;
+  color: t.$ink;
+  font-size: t.$fs-micro;
+  font-weight: 700;
+}
+
+.address-card__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: t.$sp-3;
+  flex: 0 0 auto;
+}
+
+.btn-text {
+  @include m.btn-text;
+  font-size: t.$fs-eyebrow;
+
+  &--danger {
+    color: t.$danger;
+  }
+}
+
+@include m.mq-down(md) {
+  .address-card {
+    flex-direction: column;
+  }
+}

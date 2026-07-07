@@ -1,4 +1,4 @@
-export type ProductSort = "newest" | "price_asc" | "price_desc" | "rating_desc";
+export type ProductSort = "newest" | "price_asc" | "price_desc" | "rating_desc" | "best_sellers";
 
 export type ProductListQuery = {
   categories?: string[];

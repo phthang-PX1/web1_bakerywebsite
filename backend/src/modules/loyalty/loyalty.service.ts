@@ -1,29 +1,9 @@
 import { Prisma, type MembershipTier } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { AppError } from "../../middlewares/errorHandler";
+import { toMoney } from "../../utils/money";
+import { POINT_VALUE, REWARD_CATALOG, TIER_MULTIPLIERS, TIER_THRESHOLDS } from "./loyalty.config";
 import type { CreditLoyaltyResult } from "./loyalty.types";
-
-const POINT_VALUE = 10000;
-const TIER_MULTIPLIERS: Record<MembershipTier, number> = {
-  member: 1,
-  bronze: 1,
-  silver: 1.2,
-  gold: 1.5,
-  diamond: 2
-};
-const TIER_THRESHOLDS: Array<{
-  tier: MembershipTier;
-  minOrders: number;
-  minRevenue: number;
-}> = [
-  { tier: "diamond", minOrders: 10, minRevenue: 5000000 },
-  { tier: "gold", minOrders: 6, minRevenue: 2500000 },
-  { tier: "silver", minOrders: 4, minRevenue: 1200000 },
-  { tier: "bronze", minOrders: 2, minRevenue: 500000 }
-];
-
-const toMoney = (value: Prisma.Decimal | number) =>
-  Number(Number(value).toFixed(2));
 
 export const calculateLoyaltyPoints = (totalAmount: Prisma.Decimal | number) =>
   Math.floor(toMoney(totalAmount) / POINT_VALUE);
@@ -216,4 +196,132 @@ export const revokeOrderLoyaltyInTransaction = async (
       reason: "Order cancelled points reversal"
     }
   });
+};
+
+export const getRewardCatalog = () => REWARD_CATALOG;
+
+export const redeemReward = async (
+  userId: string | undefined,
+  rewardId: string
+) => {
+  if (!userId) {
+    throw new AppError(401, "Authentication is required");
+  }
+
+  const reward = REWARD_CATALOG.find((item) => item.rewardId === rewardId);
+  if (!reward) {
+    throw new AppError(404, "Reward not found");
+  }
+
+  const result = await prisma.$transaction(async (tx) => {
+    const redeemed = await tx.user.updateMany({
+      where: {
+        userId,
+        loyaltyPoints: { gte: reward.cost }
+      },
+      data: {
+        loyaltyPoints: { decrement: reward.cost }
+      }
+    });
+
+    if (redeemed.count !== 1) {
+      throw new AppError(400, "Not enough loyalty points");
+    }
+
+    await tx.loyaltyLog.create({
+      data: {
+        userId,
+        pointsDelta: -reward.cost,
+        reason: `Redeemed reward: ${reward.name}`
+      }
+    });
+
+    const user = await tx.user.findUniqueOrThrow({
+      where: { userId },
+      select: { loyaltyPoints: true, membershipTier: true }
+    });
+
+    const voucherCode = `WB-${reward.rewardId.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+
+    return {
+      reward,
+      voucher: {
+        code: voucherCode,
+        type: reward.voucherType,
+        issuedAt: new Date().toISOString()
+      },
+      loyaltyPoints: user.loyaltyPoints,
+      membershipTier: user.membershipTier
+    };
+  });
+
+  return {
+    message: "Reward redeemed successfully",
+    ...result
+  };
+};
+
+export const evaluateMembershipCycles = async () => {
+  const users = await prisma.user.findMany({
+    where: { role: "member" },
+    select: { userId: true, membershipTier: true }
+  });
+
+  const now = new Date();
+  const sixMonthsAgo = new Date();
+  sixMonthsAgo.setMonth(now.getMonth() - 6);
+
+  const orderStats = await prisma.order.groupBy({
+    by: ["userId"],
+    where: {
+      userId: { not: null },
+      orderStatus: "delivered",
+      createdAt: {
+        gte: sixMonthsAgo,
+        lte: now
+      }
+    },
+    _count: { orderId: true },
+    _sum: { totalAmount: true }
+  });
+  const statsByUser = new Map(orderStats.map((stat) => [stat.userId, stat]));
+  const cycleRows = users.map((user) => {
+    const stats = statsByUser.get(user.userId);
+    const totalOrders = stats?._count.orderId ?? 0;
+    const totalRevenue = stats?._sum.totalAmount ?? new Prisma.Decimal(0);
+
+    return {
+      user,
+      totalOrders,
+      totalRevenue,
+      newTier: resolveMembershipTierForCycle(totalOrders, totalRevenue)
+    };
+  });
+
+  const updatedCount = cycleRows.filter(({ user, newTier }) => newTier !== user.membershipTier).length;
+
+  await prisma.$transaction([
+    prisma.membershipCycle.createMany({
+      data: cycleRows.map(({ user, totalOrders, totalRevenue, newTier }) => ({
+        userId: user.userId,
+        cycleStart: sixMonthsAgo,
+        cycleEnd: now,
+        totalOrders,
+        totalRevenue,
+        tierResult: newTier
+      }))
+    }),
+    ...cycleRows.map(({ user, newTier }) =>
+      prisma.user.update({
+        where: { userId: user.userId },
+        data: { membershipTier: newTier }
+      })
+    )
+  ]);
+
+  return {
+    evaluatedUsers: users.length,
+    updatedTiers: updatedCount,
+    cycleEnd: now.toISOString()
+  };
 };

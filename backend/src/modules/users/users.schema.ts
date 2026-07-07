@@ -11,12 +11,27 @@ const atLeastOneField = (value: Record<string, unknown>) =>
 
 export const updateProfileBodySchema = z
   .object({
-    fullName: z.string().trim().min(2).max(100).optional(),
-    phone: phoneSchema.nullable().optional()
+    fullName: z.string().trim().min(2).max(100).optional()
   })
   .refine(atLeastOneField, {
     message: "At least one profile field is required"
   });
+
+export const changeEmailBodySchema = z.object({
+  email: z.string().trim().email().max(255)
+});
+
+export const changePhoneBodySchema = z.object({
+  phone: phoneSchema
+});
+
+export const verifyPhoneChangeBodySchema = z.object({
+  otp: z.string().trim().regex(/^\d{6}$/, "OTP must be exactly 6 digits")
+});
+
+export const confirmEmailChangeBodySchema = z.object({
+  token: z.string().trim().min(1)
+});
 
 export const changePasswordBodySchema = z.object({
   oldPassword: z.string().min(1),
@@ -43,4 +58,8 @@ export const addressParamsSchema = z.object({
 export const loyaltyLogsQuerySchema = z.object({
   page: z.coerce.number().int().min(1).default(1),
   limit: z.coerce.number().int().min(1).max(100).default(20)
+});
+
+export const redeemRewardBodySchema = z.object({
+  rewardId: z.string().trim().min(1).max(50)
 });

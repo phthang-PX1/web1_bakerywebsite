@@ -82,71 +82,42 @@
         @if (isDelivery()) {
           <section class="form-section">
             <h2 class="form-section__title">Địa chỉ giao hàng</h2>
-            <div class="field">
-              <label class="field__label" for="street">Số nhà, đường</label>
-              <input id="street" type="text" class="field__input" formControlName="street" placeholder="Số nhà, đường..." />
-              @if (form.controls.street.invalid && form.controls.street.touched) {
-                <p class="field__error">Vui lòng nhập địa chỉ.</p>
-              }
-            </div>
-            <div class="address-selects">
-              <div class="field">
-                <select class="field__input field__select" formControlName="city">
-                  <option value="" disabled selected>Tỉnh/Thành phố</option>
-                  <option value="TP. Hồ Chí Minh">TP. Hồ Chí Minh</option>
-                  <option value="Hà Nội">Hà Nội</option>
-                  <option value="Đà Nẵng">Đà Nẵng</option>
-                  <option value="Bình Dương">Bình Dương</option>
-                  <option value="Đồng Nai">Đồng Nai</option>
-                  <option value="Khác">Khác</option>
-                </select>
-                @if (form.controls.city.invalid && form.controls.city.touched) {
-                  <p class="field__error">Chọn tỉnh/thành phố.</p>
+            @if (addresses().length > 0) {
+              <div class="saved-addresses">
+                @for (address of addresses(); track address.addressId) {
+                  <button
+                    type="button"
+                    class="saved-address"
+                    [class.saved-address--active]="selectedAddressId() === address.addressId"
+                    (click)="applyAddress(address)"
+                  >
+                    <strong>{{ address.recipientName }} · {{ address.phone }}</strong>
+                    <span>{{ address.street }}, {{ address.district }}, {{ address.city }}</span>
+                    @if (address.isDefault) {
+                      <b>Mặc định</b>
+                    }
+                  </button>
                 }
+                <button type="button" class="saved-address saved-address--add" (click)="openAddressDialog()">+ Địa chỉ giao hàng</button>
               </div>
-              <div class="field">
-                <select class="field__input field__select" formControlName="district">
-                  <option value="" disabled selected>Quận/Huyện</option>
-                  <option value="Quận 1">Quận 1</option>
-                  <option value="Quận 2">Quận 2</option>
-                  <option value="Quận 3">Quận 3</option>
-                  <option value="Quận 4">Quận 4</option>
-                  <option value="Quận 5">Quận 5</option>
-                  <option value="Quận 6">Quận 6</option>
-                  <option value="Quận 7">Quận 7</option>
-                  <option value="Quận 8">Quận 8</option>
-                  <option value="Quận 9">Quận 9</option>
-                  <option value="Quận 10">Quận 10</option>
-                  <option value="Quận 11">Quận 11</option>
-                  <option value="Quận 12">Quận 12</option>
-                  <option value="Bình Thạnh">Bình Thạnh</option>
-                  <option value="Gò Vấp">Gò Vấp</option>
-                  <option value="Phú Nhuận">Phú Nhuận</option>
-                  <option value="Tân Bình">Tân Bình</option>
-                  <option value="Tân Phú">Tân Phú</option>
-                  <option value="Thủ Đức">Thủ Đức</option>
-                  <option value="Khác">Khác</option>
-                </select>
-                @if (form.controls.district.invalid && form.controls.district.touched) {
-                  <p class="field__error">Chọn quận/huyện.</p>
-                }
+            } @else if (selectedAddress(); as address) {
+              <div class="saved-addresses">
+                <button
+                  type="button"
+                  class="saved-address saved-address--active"
+                  (click)="openAddressDialog()"
+                >
+                  <strong>{{ address.recipientName }} · {{ address.phone }}</strong>
+                  <span>{{ address.street }}, {{ address.district }}, {{ address.city }}</span>
+                </button>
+                <button type="button" class="saved-address saved-address--add" (click)="openAddressDialog()">+ Đổi địa chỉ giao hàng</button>
               </div>
-              <div class="field">
-                <select class="field__input field__select" formControlName="ward">
-                  <option value="" disabled selected>Phường/Xã</option>
-                  <option value="Phường 1">Phường 1</option>
-                  <option value="Phường 2">Phường 2</option>
-                  <option value="Phường 3">Phường 3</option>
-                  <option value="Phường 4">Phường 4</option>
-                  <option value="Phường 5">Phường 5</option>
-                  <option value="Phường 6">Phường 6</option>
-                  <option value="Phường 7">Phường 7</option>
-                  <option value="Phường 8">Phường 8</option>
-                  <option value="Phường 9">Phường 9</option>
-                  <option value="Khác">Khác</option>
-                </select>
-              </div>
-            </div>
+            } @else {
+              <button type="button" class="saved-address saved-address--add saved-address--single" (click)="openAddressDialog()">+ Địa chỉ giao hàng</button>
+            }
+            @if (addressError()) {
+              <p class="field__error address-error">Vui lòng chọn hoặc thêm địa chỉ giao hàng.</p>
+            }
           </section>
         } @else {
           <section class="form-section">
@@ -305,3 +276,12 @@
     </form>
   </div>
 </div>
+
+<app-address-form-dialog
+  [open]="addressDialogOpen()"
+  [persist]="canPersistAddress"
+  [address]="canPersistAddress ? null : selectedAddress()"
+  [defaultChecked]="addresses().length === 0"
+  (saved)="onAddressSaved($event)"
+  (dismissed)="addressDialogOpen.set(false)"
+/>

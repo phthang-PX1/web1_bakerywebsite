@@ -17,12 +17,17 @@ model User {
   authProvider     AuthProvider      @default(local) @map("auth_provider")
   googleId         String?           @unique @map("google_id") @db.VarChar(100)
   role             UserRole          @default(member)
+  isActive         Boolean           @default(false) @map("is_active")
+  otpHash          String?           @map("otp_hash") @db.VarChar(255)
+  otpExpiresAt     DateTime?         @map("otp_expires_at")
+  pendingEmail     String?           @map("pending_email") @db.VarChar(255)
+  pendingPhone     String?           @map("pending_phone") @db.VarChar(20)
   loyaltyPoints    Int               @default(0) @map("loyalty_points")
   membershipTier   MembershipTier    @default(member) @map("membership_tier")
-  isActive         Boolean           @default(false) @map("is_active")
   refreshTokenHash String?           @map("refresh_token_hash") @db.VarChar(255)
   createdAt        DateTime          @default(now()) @map("created_at")
   updatedAt        DateTime          @updatedAt @map("updated_at")
+  actionTokens     AuthActionToken[]
   addresses        Address[]
   analyticsEvents  AnalyticsEvent[]
   loyaltyLogs      LoyaltyLog[]
@@ -33,6 +38,21 @@ model User {
   @@index([email])
   @@index([phone])
   @@map("users")
+}
+
+model Banner {
+  bannerId  String   @id @default(uuid()) @map("banner_id") @db.Uuid
+  title     String   @db.VarChar(255)
+  subtitle  String?  @db.VarChar(500)
+  imageUrl  String   @map("image_url") @db.VarChar(500)
+  linkUrl   String?  @map("link_url") @db.VarChar(500)
+  sortOrder Int      @default(0) @map("sort_order")
+  isActive  Boolean  @default(true) @map("is_active")
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, sortOrder])
+  @@map("banners")
 }
 
 model Address {
@@ -75,6 +95,7 @@ model Product {
   thumbnailUrl   String?        @map("thumbnail_url") @db.VarChar(500)
   isCustomizable Boolean        @default(false) @map("is_customizable")
   avgRating      Decimal        @default(0) @map("avg_rating") @db.Decimal(3, 2)
+  soldCount      Int            @default(0) @map("sold_count")
   isActive       Boolean        @default(true) @map("is_active")
   createdAt      DateTime       @default(now()) @map("created_at")
   updatedAt      DateTime       @updatedAt @map("updated_at")
@@ -85,6 +106,7 @@ model Product {
 
   @@index([categoryId])
   @@index([slug])
+  @@index([soldCount])
   @@map("products")
 }
 
@@ -236,11 +258,11 @@ model Review {
 model LoyaltyLog {
   logId       String   @id @default(uuid()) @map("log_id") @db.Uuid
   userId      String   @map("user_id") @db.Uuid
-  orderId     String   @map("order_id") @db.Uuid
+  orderId     String?  @map("order_id") @db.Uuid
   pointsDelta Int      @map("points_delta")
   reason      String   @db.VarChar(255)
   createdAt   DateTime @default(now()) @map("created_at")
-  order       Order    @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
+  order       Order?   @relation(fields: [orderId], references: [orderId], onDelete: Cascade)
   user        User     @relation(fields: [userId], references: [userId], onDelete: Cascade)
 
   @@index([userId])
@@ -262,6 +284,21 @@ model MembershipCycle {
   @@index([userId])
   @@index([cycleStart, cycleEnd])
   @@map("membership_cycles")
+}
+
+model AuthActionToken {
+  tokenId   String    @id @default(uuid()) @map("token_id") @db.Uuid
+  userId    String    @map("user_id") @db.Uuid
+  tokenHash String    @unique @map("token_hash") @db.VarChar(64)
+  purpose   String    @db.VarChar(32)
+  expiresAt DateTime  @map("expires_at")
+  usedAt    DateTime? @map("used_at")
+  createdAt DateTime  @default(now()) @map("created_at")
+  user      User      @relation(fields: [userId], references: [userId], onDelete: Cascade)
+
+  @@index([userId, purpose])
+  @@index([expiresAt])
+  @@map("auth_action_tokens")
 }
 
 model VoucherInventory {

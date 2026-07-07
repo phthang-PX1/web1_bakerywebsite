@@ -37,6 +37,10 @@ export type OrderListQuery = {
   search?: string;
 };
 
+export type OrderTrackingQuery = {
+  token: string;
+};
+
 export type UpdateOrderStatusInput = {
   status: OrderStatus;
 };

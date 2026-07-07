@@ -1,0 +1,77 @@
+@if (open()) {
+  <div class="overlay" (click)="dismissed.emit()">
+    <div class="dialog" (click)="$event.stopPropagation()" role="dialog" aria-label="Địa chỉ giao hàng">
+      <header class="dialog__head">
+        <h3 class="dialog__title">{{ isEditing ? 'Chỉnh sửa địa chỉ' : 'Thêm địa chỉ giao hàng' }}</h3>
+        <button class="dialog__close" type="button" aria-label="Đóng" (click)="dismissed.emit()">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6 6 18"/></svg>
+        </button>
+      </header>
+
+      <form class="address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
+        <div class="field-grid">
+          <div class="field">
+            <label class="field__label" for="afd-recipientName">Tên người nhận *</label>
+            <input id="afd-recipientName" type="text" class="field__input" formControlName="recipientName" />
+            @if (form.controls.recipientName.invalid && form.controls.recipientName.touched) {
+              <p class="field__error">Vui lòng nhập tên.</p>
+            }
+          </div>
+          <div class="field">
+            <label class="field__label" for="afd-phone">Số điện thoại *</label>
+            <input id="afd-phone" type="tel" class="field__input" formControlName="phone" />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <p class="field__error">Vui lòng nhập số điện thoại.</p>
+            }
+          </div>
+          <div class="field field--full">
+            <label class="field__label" for="afd-street">Số nhà / Đường *</label>
+            <input id="afd-street" type="text" class="field__input" formControlName="street" />
+            @if (form.controls.street.invalid && form.controls.street.touched) {
+              <p class="field__error">Vui lòng nhập địa chỉ.</p>
+            }
+          </div>
+          <div class="field">
+            <label class="field__label" for="afd-city">Tỉnh / Thành phố *</label>
+            <select id="afd-city" class="field__input" formControlName="city">
+              <option value="">Chọn tỉnh/thành phố</option>
+              @for (city of cities; track city) {
+                <option [value]="city">{{ city }}</option>
+              }
+            </select>
+            @if (form.controls.city.invalid && form.controls.city.touched) {
+              <p class="field__error">Vui lòng chọn tỉnh/thành phố.</p>
+            }
+          </div>
+          <div class="field">
+            <label class="field__label" for="afd-district">Quận / Huyện *</label>
+            <select id="afd-district" class="field__input" formControlName="district">
+              <option value="">Chọn quận/huyện</option>
+              @for (district of districts(); track district) {
+                <option [value]="district">{{ district }}</option>
+              }
+            </select>
+            @if (form.controls.district.invalid && form.controls.district.touched) {
+              <p class="field__error">Vui lòng chọn quận/huyện.</p>
+            }
+          </div>
+          @if (persist()) {
+            <div class="field field--full">
+              <label class="field__checkbox">
+                <input type="checkbox" formControlName="isDefault" />
+                Đặt làm địa chỉ mặc định
+              </label>
+            </div>
+          }
+        </div>
+
+        <div class="form-actions">
+          <button type="button" class="btn-cancel" (click)="dismissed.emit()">Hủy</button>
+          <button type="submit" class="btn-save" [disabled]="saving()">
+            {{ saving() ? 'Đang lưu...' : 'Lưu địa chỉ' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+}

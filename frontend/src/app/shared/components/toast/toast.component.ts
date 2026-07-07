@@ -23,27 +23,38 @@ import { ToastService } from '../../../core/services/toast.service';
       position: fixed;
       bottom: 24px;
       right: 24px;
-      z-index: 9999;
+      z-index: 99999;
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      max-width: 360px;
-      width: 100%;
+      gap: 12px;
+      max-width: 380px;
+      width: calc(100% - 48px);
+      pointer-events: none;
     }
     .toast {
+      pointer-events: auto;
       display: flex;
       align-items: flex-start;
       gap: 12px;
-      padding: 14px 16px;
+      padding: 16px;
       border-radius: t.$r-sm;
       background: t.$surface;
       border: 1px solid t.$border;
-      box-shadow: t.$shadow-lift;
-      animation: slideIn 0.2s ease;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+      animation: toastSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: transform 0.2s ease, opacity 0.2s ease;
     }
-    @keyframes slideIn {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    @keyframes toastSlideIn {
+      from { transform: translateY(20px) scale(0.95); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
+    }
+    @media (max-width: 480px) {
+      .toast-container {
+        bottom: 16px;
+        right: 16px;
+        left: 16px;
+        width: calc(100% - 32px);
+      }
     }
     .toast--success { border-left: 3px solid t.$success; }
     .toast--error   { border-left: 3px solid t.$danger; }

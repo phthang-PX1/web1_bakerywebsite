@@ -73,9 +73,10 @@ export interface OrderListParams {
 }
 
 export interface CreateOrderResponse {
-  readonly order_id: string;
-  readonly payment_qr_url: string | null;
-  readonly transfer_content: string | null;
+  readonly orderId: string;
+  readonly paymentQrUrl: string | null;
+  readonly transferContent: string | null;
+  readonly trackingToken: string;
   readonly totalAmount?: number;
   readonly summary?: {
     readonly totalAmount: number;

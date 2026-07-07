@@ -4,7 +4,22 @@ export type SafeUser = Omit<User, "passwordHash" | "refreshTokenHash">;
 
 export type UpdateProfileInput = {
   fullName?: string;
-  phone?: string | null;
+};
+
+export type ChangeEmailInput = {
+  email: string;
+};
+
+export type ChangePhoneInput = {
+  phone: string;
+};
+
+export type VerifyPhoneChangeInput = {
+  otp: string;
+};
+
+export type ConfirmEmailChangeInput = {
+  token: string;
 };
 
 export type ChangePasswordInput = {
@@ -31,6 +46,10 @@ export type LoyaltySummary = {
 export type LoyaltyLogsQuery = {
   page: number;
   limit: number;
+};
+
+export type RedeemRewardInput = {
+  rewardId: string;
 };
 
 export type AddressResponse = Address;

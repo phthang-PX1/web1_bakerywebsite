@@ -32,7 +32,7 @@ export class CartApi {
 
   /** Clear the current cart. */
   clearCart(): Observable<CartResponse> {
-    return this.http.post<CartResponse>(`${this.baseUrl}/clear`, {}, { withCredentials: true });
+    return this.http.delete<CartResponse>(this.baseUrl, { withCredentials: true });
   }
 
   /** Merge a guest cart into the authenticated member cart. */

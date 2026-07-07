@@ -146,6 +146,7 @@ router.delete(
  *         description: Empty cart
  */
 router.delete("/", optionalAuth, clearCartController);
+router.post("/clear", optionalAuth, clearCartController);
 
 /**
  * @swagger

@@ -10,13 +10,15 @@ import {
   creditDeliveredOrderLoyaltyInTransaction,
   revokeOrderLoyaltyInTransaction
 } from "../loyalty/loyalty.service";
-import { emailTransporter } from "../../utils/email";
+import { emailTransporter, renderOrderNotificationEmail, sendEmailAsync } from "../../utils/email";
+import { toMoney } from "../../utils/money";
 import { getStaticQrUrl } from "../../utils/payment";
 import { sendSms } from "../../utils/sms";
 import type {
   OrderCreateInput,
   OrderIdentity,
   OrderListQuery,
+  OrderTrackingQuery,
   PaymentWebhookInput,
   UpdateOrderStatusInput
 } from "./orders.types";
@@ -29,10 +31,33 @@ const uuidPattern =
 
 type TransactionClient = Prisma.TransactionClient;
 
-const toMoney = (value: Prisma.Decimal | number) =>
-  Number(Number(value).toFixed(2));
-
 const getTransferContent = (orderId: string) => `DH${orderId}`;
+
+const getTrackingToken = (orderId: string) =>
+  jwt.sign(
+    { orderId, purpose: "order_tracking" },
+    env.JWT_ACCESS_SECRET,
+    { expiresIn: "7d" as SignOptions["expiresIn"] }
+  );
+
+const verifyTrackingToken = (orderId: string, token: string) => {
+  let payload: string | jwt.JwtPayload;
+
+  try {
+    payload = jwt.verify(token, env.JWT_ACCESS_SECRET);
+  } catch {
+    throw new AppError(401, "Invalid or expired tracking token");
+  }
+
+  if (!payload || typeof payload !== "object") {
+    throw new AppError(401, "Invalid or expired tracking token");
+  }
+
+  const candidate = payload as { orderId?: unknown; purpose?: unknown };
+  if (candidate.purpose !== "order_tracking" || candidate.orderId !== orderId) {
+    throw new AppError(401, "Invalid or expired tracking token");
+  }
+};
 
 const getActivationUrl = (userId: string) => {
   const token = jwt.sign(
@@ -144,6 +169,15 @@ const formatOrderSummary = (order: {
   updatedAt: order.updatedAt
 });
 
+const getPaymentFields = (order: { orderId: string; paymentMethod: "cash" | "transfer" | "card" }) => {
+  const isTransfer = order.paymentMethod === "transfer";
+
+  return {
+    paymentQrUrl: isTransfer ? getStaticQrUrl() : null,
+    transferContent: isTransfer ? getTransferContent(order.orderId) : null
+  };
+};
+
 const formatOrderDetail = (order: Parameters<typeof formatOrderSummary>[0] & {
   items: Parameters<typeof formatOrderItem>[0][];
   user?: {
@@ -160,6 +194,7 @@ const formatOrderDetail = (order: Parameters<typeof formatOrderSummary>[0] & {
   } | null;
 }) => ({
   ...formatOrderSummary(order),
+  ...getPaymentFields(order),
   user: order.user ?? undefined,
   coupon: order.coupon
     ? {
@@ -301,10 +336,20 @@ const resolveCoupon = async (
     throw new AppError(400, "Order value does not meet coupon minimum");
   }
 
-  await tx.coupon.update({
-    where: { couponId: coupon.couponId },
+  const claimedCoupon = await tx.coupon.updateMany({
+    where: {
+      couponId: coupon.couponId,
+      OR: [
+        { usageLimit: null },
+        { usedCount: { lt: coupon.usageLimit ?? 0 } }
+      ]
+    },
     data: { usedCount: { increment: 1 } }
   });
+
+  if (claimedCoupon.count !== 1) {
+    throw new AppError(400, "Coupon usage limit reached");
+  }
 
   return {
     couponId: coupon.couponId,
@@ -349,22 +394,20 @@ const sendOrderNotification = async (data: {
   const message = `WeBee order ${data.orderId} total ${data.totalAmount}. ${paymentInfo}`;
 
   if (data.email) {
-    await emailTransporter.sendMail({
+    await sendEmailAsync({
       from: env.EMAIL_USER,
       to: data.email,
       subject: `WeBee order ${data.orderId}`,
       text: `${message}${activationUrl ? ` Activate account: ${activationUrl}` : ""}`,
-      html: `
-        <p>Hi ${data.buyerName},</p>
-        <p>Your WeBee order has been created.</p>
-        <p>Total: <strong>${data.totalAmount}</strong></p>
-        ${isCash
-          ? `<p>Phương thức thanh toán: <strong>Thanh toán khi nhận hàng (COD)</strong></p>`
-          : `<p>Transfer content: <strong>${data.transferContent}</strong></p>
-             <p><img src="${data.paymentQrUrl}" alt="Payment QR" /></p>`
-        }
-        ${activationUrl ? `<p>Activate your account: <a href="${activationUrl}">${activationUrl}</a></p>` : ""}
-      `
+      html: renderOrderNotificationEmail({
+        buyerName: data.buyerName,
+        orderId: data.orderId,
+        totalAmount: data.totalAmount,
+        isCash,
+        transferContent: data.transferContent,
+        paymentQrUrl: data.paymentQrUrl,
+        activationUrl
+      })
     });
     return;
   }
@@ -455,7 +498,7 @@ export const createOrder = async (
         items: {
           create: buildOrderItems(cart.items)
         }
-      } as any
+      }
     });
 
     return { order, activationUserId };
@@ -484,11 +527,18 @@ export const createOrder = async (
     console.warn("Order notification failed", error);
   }
 
+  const trackingToken = getTrackingToken(createdOrder.order.orderId);
+
   return {
+    orderId: createdOrder.order.orderId,
     order_id: createdOrder.order.orderId,
     summary: formatOrderSummary(createdOrder.order),
+    paymentQrUrl,
     payment_qr_url: paymentQrUrl,
-    transfer_content: transferContent
+    transferContent,
+    transfer_content: transferContent,
+    trackingToken,
+    tracking_token: trackingToken
   };
 };
 
@@ -553,8 +603,37 @@ export const getMyOrderDetail = async (
 
   return {
     ...formatOrderSummary(order),
-    payment_qr_url: getStaticQrUrl(),
-    transfer_content: getTransferContent(order.orderId),
+    ...getPaymentFields(order),
+    items: order.items.map(formatOrderItem)
+  };
+};
+
+export const getTrackedOrderDetail = async (
+  orderId: string,
+  query: OrderTrackingQuery
+) => {
+  verifyTrackingToken(orderId, query.token);
+
+  const order = await prisma.order.findUnique({
+    where: { orderId },
+    include: {
+      items: {
+        include: {
+          options: true,
+          review: { select: { reviewId: true, rating: true, comment: true } }
+        },
+        orderBy: { orderItemId: "asc" }
+      }
+    }
+  });
+
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+
+  return {
+    ...formatOrderSummary(order),
+    ...getPaymentFields(order),
     items: order.items.map(formatOrderItem)
   };
 };
@@ -765,6 +844,21 @@ export const updateAdminOrderStatus = async (
 
     if (input.status === "delivered") {
       await creditDeliveredOrderLoyaltyInTransaction(tx, updated.orderId);
+
+      const deliveredItems = await tx.orderItem.groupBy({
+        by: ["productId"],
+        where: { orderId: updated.orderId },
+        _sum: { quantity: true }
+      });
+
+      await Promise.all(
+        deliveredItems.map((item) =>
+          tx.product.update({
+            where: { productId: item.productId },
+            data: { soldCount: { increment: item._sum.quantity ?? 0 } }
+          })
+        )
+      );
     }
 
     if (input.status === "cancelled") {

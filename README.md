@@ -37,9 +37,9 @@ Một nền tảng thương mại điện tử hiện đại được xây dựn
 
 ### 🎁 Chương Trình Thành Viên
 - Tích điểm từ mỗi đơn hàng
-- Xếp hạng thành viên (Bronze, Silver, Gold)
+- Xếp hạng thành viên (Bronze, Silver, Gold, Diamond)
+- Đánh giá và nâng cấp hạng thành viên định kỳ theo chu kỳ 6 tháng (`POST /admin/loyalty/cycles/evaluate`)
 - Ưu đãi đặc biệt cho từng cấp độ
-- Chu kỳ nạp lại điểm hàng tháng
 
 ### 📦 Quản Lý Sản Phẩm
 - Danh mục sản phẩm được tổ chức
@@ -47,7 +47,12 @@ Một nền tảng thương mại điện tử hiện đại được xây dựn
 - Đánh giá và bình luận từ khách hàng
 - Ảnh sản phẩm từ Cloudinary
 
-### 📊 Phân Tích & Báo Cáo
+### 📊 Hệ Thống & Bảo Mật (Production-Ready)
+- Bộ theo dõi yêu cầu (Request tracking) với ID định danh và logging cấu trúc JSON
+- Kiểm tra sức khỏe hệ thống theo thời gian thực (`GET /health` kiểm tra Database và Redis)
+- Tự động hóa chiến lược kết nối lại Redis với exponential backoff
+- Gửi thông báo và email mẫu HTML chuyên nghiệp
+- Bộ kiểm thử tự động toàn diện (`npm test` với 11 kịch bản E2E integration test)
 - Google Analytics 4
 - Microsoft Clarity (người dùng)
 - Endpoint phân tích nội bộ

@@ -65,7 +65,7 @@
 - `DELETE /coupons/:id` — Delete coupon (Admin)
 
 ### Orders Module (`/orders`)
-- `POST /orders` — Create a new order (`{ recipient_name, phone, fulfillment_type, delivery_address, delivery_date, delivery_time_slot, payment_method: 'transfer' | 'cod', coupon_code?, note? }`) — *Lưu ý: COD cần Backend bổ sung vào schema*
+- `POST /orders` — Create a new order (`{ recipient_name, phone, fulfillment_type, delivery_address, delivery_date, delivery_time_slot, payment_method: 'transfer' | 'cash' | 'cod', coupon_code?, note? }`) — *Hỗ trợ thanh toán chuyển khoản và COD/cash*
 - `GET /orders/me` — List current user's order history
 - `GET /orders/me/:id` — Get specific order details (includes QR tracking info)
 - `PATCH /orders/me/:id/cancel` — Cancel pending order
@@ -79,20 +79,26 @@
 - `GET /reviews` — List reviews (Admin)
 - `PATCH /reviews/:id/status` — Approve/hide review (Admin)
 
+### Loyalty Module (`/loyalty` & `/admin/loyalty`)
+- `POST /admin/loyalty/cycles/evaluate` — Evaluate membership tiers based on 6-month order volume/revenue (Admin)
+- `GET /internal/loyalty/...` — Internal loyalty point hooks for order delivery/cancellation
+
 ### Analytics Module (`/analytics`)
 - `POST /analytics/events/batch` — Record frontend telemetry/pageviews
 - `GET /analytics/overview` — Get business metrics (Admin)
 - `GET /analytics/behavior` — Get user behavior logs (Admin)
 
+### System & Health (`/health`)
+- `GET /health` — Check database and Redis health status
+
 ---
 
-## Part 2: PROPOSED & TODO_BACKEND Endpoints (Missing from Source Code)
+## Part 2: PROPOSED & TODO_BACKEND Endpoints (Future Sprints)
 
 ### DO NOT USE IN MVP FRONTEND UNTIL IMPLEMENTED IN BACKEND
 
-- `TODO_BACKEND` `POST /orders` với `payment_method: 'cod'` — Bổ sung hỗ trợ thanh toán khi nhận hàng (COD) vào Zod schema (`z.enum(["transfer", "cod"])`).
-- `TODO_BACKEND` `GET /products?sort=sold_desc` — Sort products by sales volume (currently missing `soldCount` field).
-- `TODO_BACKEND` `GET /users/me/vouchers` — List personalized coupons available for current member.
+- `TODO_BACKEND` `GET /products?sort=sold_desc` — Sort products by sales volume (currently using rating/newest as proxy).
+- `TODO_BACKEND` `GET /users/me/vouchers` — List personalized coupons available for current member (VoucherInventory deferred to future loyalty catalog sprint).
 - `TODO_BACKEND` `POST /shipping/estimate` — Dynamic shipping fee calculation (currently hardcoded to `0`).
 - `TODO_BACKEND` `GET /blog/posts` & `GET /blog/posts/:slug` — Blog CMS endpoints (entire blog module missing).
 - `TODO_BACKEND` `GET /locations/provinces` — Vietnam administrative address hierarchy APIs (frontend uses static JSON instead).
@@ -105,7 +111,8 @@
 | Frontend Expectation | Confirmed Backend Contract | Conflict Resolution |
 |---|---|---|
 | `GET /auth/me` | `GET /users/me` | Call `/users/me` |
-| `payment_method: 'cod'` | `payment_method: 'transfer'` (bank transfer only) | **Giữ UI chọn COD**, yêu cầu Backend bổ sung schema (`TODO_BACKEND`) |
+| `payment_method: 'cod'` | `payment_method: 'transfer' \| 'cash' \| 'cod'` | **Resolved:** Schema accepts both `cash` and `cod` |
 | `X-Session-Id` header for cart | HTTP-only cookie `session_id` | Enable `withCredentials: true`, remove header |
 | 3 address fields (province/district/ward) | 1 string `delivery_address` | Concatenate string on frontend before `POST /orders` |
 | Optional delivery date/time | `delivery_date` & `delivery_time_slot` required | Validate as required in form |
+

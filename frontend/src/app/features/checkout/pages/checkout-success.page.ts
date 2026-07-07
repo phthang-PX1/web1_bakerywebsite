@@ -1,11 +1,14 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
-import { Router, RouterLink } from '@angular/router';
+import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
+import { OrdersApi } from '../../../core/api/orders.api';
+import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 interface SuccessState {
   orderId: string;
   paymentQrUrl: string | null;
   transferContent: string | null;
+  trackingToken?: string;
   paymentMethod: 'transfer' | 'cash';
   totalAmount: number;
   recipientName: string;
@@ -14,11 +17,16 @@ interface SuccessState {
 @Component({
   selector: 'app-checkout-success-page',
   standalone: true,
-  imports: [RouterLink, CurrencyVndPipe],
+  imports: [RouterLink, CurrencyVndPipe, LoadingSpinnerComponent],
   template: `
     <div class="success-page">
       <div class="success-page__inner">
-        @if (state()) {
+        @if (loading()) {
+          <div class="no-order">
+            <app-loading-spinner />
+            <p>Đang tải thông tin đơn hàng...</p>
+          </div>
+        } @else if (state()) {
           <div class="success-card">
             <div class="success-header">
               <h1 class="success-title">Cảm ơn bạn!</h1>
@@ -59,6 +67,11 @@ interface SuccessState {
 
             <div class="success-actions">
               <a class="btn btn--primary" routerLink="/products">Tiếp tục mua sắm</a>
+              <a
+                class="btn btn--outline"
+                [routerLink]="['/orders', state()!.orderId, 'track']"
+                [queryParams]="state()!.trackingToken ? { token: state()!.trackingToken } : null"
+              >Theo dõi đơn hàng</a>
               <a class="btn btn--outline" routerLink="/account/orders">Lịch sử đơn hàng</a>
             </div>
           </div>
@@ -211,13 +224,45 @@ interface SuccessState {
 })
 export class CheckoutSuccessPage implements OnInit {
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly ordersApi = inject(OrdersApi);
+
   readonly state = signal<SuccessState | null>(null);
+  readonly loading = signal(false);
 
   ngOnInit(): void {
     // history.state is populated by Router when navigating with { state: {...} }
     const s = history.state as SuccessState | undefined;
     if (s?.orderId) {
       this.state.set(s);
+      return;
+    }
+
+    const orderId = this.route.snapshot.queryParamMap.get('orderId');
+    const trackingToken = this.route.snapshot.queryParamMap.get('trackingToken');
+    if (orderId) {
+      this.loading.set(true);
+      const request = trackingToken
+        ? this.ordersApi.getTrackedOrder(orderId, trackingToken)
+        : this.ordersApi.getMyOrder(orderId);
+
+      request.subscribe({
+        next: (order) => {
+          this.loading.set(false);
+          this.state.set({
+            orderId: order.orderId,
+            paymentQrUrl: order.paymentQrUrl,
+            transferContent: order.transferContent,
+            trackingToken: trackingToken ?? undefined,
+            paymentMethod: order.paymentMethod,
+            totalAmount: order.totalAmount,
+            recipientName: order.recipientName,
+          });
+        },
+        error: () => {
+          this.loading.set(false);
+        },
+      });
     }
   }
 }

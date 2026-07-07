@@ -3,6 +3,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { redis } from "../../config/redis";
 import { AppError } from "../../middlewares/errorHandler";
+import { toMoney } from "../../utils/money";
 import type {
   CartIdentity,
   CartItemInput,
@@ -52,9 +53,6 @@ const getCartKey = (identity: CartIdentity) =>
   identity.type === "user"
     ? `cart:user:${identity.id}`
     : `cart:session:${identity.id}`;
-
-const toMoney = (value: Prisma.Decimal | number) =>
-  Number(Number(value).toFixed(2));
 
 const sortOptionIds = (optionItemIds: string[]) => [...optionItemIds].sort();
 

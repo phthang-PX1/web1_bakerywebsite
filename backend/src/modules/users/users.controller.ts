@@ -1,22 +1,33 @@
 import type { RequestHandler } from "express";
 import {
+  confirmEmailChange,
   changePassword,
   createAddress,
+  deactivateAccount,
   deleteAddress,
   getAddresses,
   getLoyaltyLogs,
   getLoyaltySummary,
   getProfile,
+  redeemLoyaltyReward,
+  requestEmailChange,
+  requestPhoneChange,
   updateAddress,
   updateProfile,
-  uploadAvatar
+  uploadAvatar,
+  verifyPhoneChange
 } from "./users.service";
 import type {
   AddressInput,
+  ChangeEmailInput,
   ChangePasswordInput,
+  ChangePhoneInput,
+  ConfirmEmailChangeInput,
   LoyaltyLogsQuery,
+  RedeemRewardInput,
   UpdateAddressInput,
-  UpdateProfileInput
+  UpdateProfileInput,
+  VerifyPhoneChangeInput
 } from "./users.types";
 
 export const getProfileController: RequestHandler = async (req, res, next) => {
@@ -49,6 +60,51 @@ export const uploadAvatarController: RequestHandler = async (req, res, next) => 
 export const changePasswordController: RequestHandler = async (req, res, next) => {
   try {
     const result = await changePassword(req.user?.userId, req.body as ChangePasswordInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestPhoneChangeController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await requestPhoneChange(req.user?.userId, req.body as ChangePhoneInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifyPhoneChangeController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await verifyPhoneChange(req.user?.userId, req.body as VerifyPhoneChangeInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const requestEmailChangeController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await requestEmailChange(req.user?.userId, req.body as ChangeEmailInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const confirmEmailChangeController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await confirmEmailChange(req.body as ConfirmEmailChangeInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deactivateAccountController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await deactivateAccount(req.user?.userId);
     res.status(200).json(result);
   } catch (error) {
     next(error);
@@ -107,6 +163,18 @@ export const getLoyaltySummaryController: RequestHandler = async (req, res, next
 export const getLoyaltyLogsController: RequestHandler = async (req, res, next) => {
   try {
     const result = await getLoyaltyLogs(req.user?.userId, req.query as unknown as LoyaltyLogsQuery);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const redeemRewardController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await redeemLoyaltyReward(
+      req.user?.userId,
+      req.body as RedeemRewardInput
+    );
     res.status(200).json(result);
   } catch (error) {
     next(error);

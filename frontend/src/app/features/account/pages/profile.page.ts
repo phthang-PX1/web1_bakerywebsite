@@ -26,7 +26,6 @@ export class ProfilePage implements OnInit {
 
   readonly profileForm = new FormGroup({
     fullName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
-    phone: new FormControl(''),
   });
 
   readonly passwordForm = new FormGroup({
@@ -37,7 +36,7 @@ export class ProfilePage implements OnInit {
   ngOnInit(): void {
     const user = this.authService.currentUser$.value;
     if (user) {
-      this.profileForm.patchValue({ fullName: user.fullName, phone: user.phone ?? '' });
+      this.profileForm.patchValue({ fullName: user.fullName });
     }
   }
 
@@ -47,7 +46,6 @@ export class ProfilePage implements OnInit {
     this.savingProfile.set(true);
     this.usersApi.updateProfile({
       fullName: this.profileForm.value.fullName!,
-      phone: this.profileForm.value.phone || undefined,
     }).subscribe({
       next: (user) => {
         this.savingProfile.set(false);
