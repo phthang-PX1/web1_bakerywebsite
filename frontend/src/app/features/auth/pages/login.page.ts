@@ -113,10 +113,15 @@ export class LoginPage {
 
     const { phone, password } = this.form.value;
     this.authService.login({ phone: phone!, password: password! }).subscribe({
-      next: () => {
+      next: (response) => {
         this.cartService.mergeGuestCart();
-        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
-        this.router.navigateByUrl(redirect);
+        // Admin users go to the admin dashboard, regular users follow the redirect
+        if (response.user?.role === 'admin') {
+          this.router.navigate(['/admin']);
+        } else {
+          const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
+          this.router.navigateByUrl(redirect);
+        }
       },
       error: (err) => {
         this.loading.set(false);

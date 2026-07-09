@@ -763,7 +763,8 @@ export const getAdminOrders = async (query: OrderListQuery) => {
             email: true,
             phone: true
           }
-        }
+        },
+        items: true
       },
       orderBy: { createdAt: "desc" },
       skip,
@@ -774,7 +775,16 @@ export const getAdminOrders = async (query: OrderListQuery) => {
   return {
     items: items.map((order) => ({
       ...formatOrderSummary(order),
-      user: order.user
+      user: order.user,
+      items: order.items.map((item) => ({
+        orderItemId: item.orderItemId,
+        productId: item.productId,
+        productName: item.productNameSnapshot,
+        quantity: item.quantity,
+        unitPrice: toMoney(item.unitPriceSnapshot),
+        itemTotal: toMoney(item.itemTotal),
+        options: []
+      }))
     })),
     pagination: {
       page: query.page,
@@ -791,7 +801,8 @@ export const getAdminOrderDetail = async (orderId: string) =>
 const assertValidStatusTransition = (
   current: OrderStatus,
   next: OrderStatus,
-  paymentStatus: "pending" | "paid" | "failed"
+  paymentStatus: "pending" | "paid" | "failed",
+  paymentMethod: string
 ) => {
   if (current === next) return;
 
@@ -811,6 +822,10 @@ const assertValidStatusTransition = (
 
   if (current === "cancelled" || currentIndex === -1 || nextIndex !== currentIndex + 1) {
     throw new AppError(400, "Invalid order status transition");
+  }
+
+  if (paymentMethod === "cash") {
+    return;
   }
 
   if (next === "confirmed" && paymentStatus !== "paid") {
@@ -833,13 +848,21 @@ export const updateAdminOrderStatus = async (
   assertValidStatusTransition(
     order.orderStatus,
     input.status,
-    order.paymentStatus
+    order.paymentStatus,
+    order.paymentMethod
   );
 
   const updatedOrder = await prisma.$transaction(async (tx) => {
     const updated = await tx.order.update({
       where: { orderId },
-      data: { orderStatus: input.status }
+      data: {
+        orderStatus: input.status,
+        ...(input.cancelReason && {
+          note: order.note
+            ? `${order.note} | Lý do hủy: ${input.cancelReason}`
+            : `Lý do hủy: ${input.cancelReason}`
+        })
+      }
     });
 
     if (input.status === "delivered") {

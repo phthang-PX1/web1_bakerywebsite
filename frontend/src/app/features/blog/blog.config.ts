@@ -5,6 +5,7 @@ export interface BlogPost {
   coverImage: string;
   publishedAt: string;
   content: string;
+  isActive?: boolean;
 }
 
 export const BLOG_POSTS: BlogPost[] = [

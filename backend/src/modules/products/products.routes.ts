@@ -6,6 +6,7 @@ import { upload } from "../../utils/upload";
 import {
   addProductImagesController,
   createProductController,
+  deleteProductController,
   deleteProductImageController,
   getAdminProductByIdController,
   getAdminProductsController,
@@ -286,6 +287,13 @@ adminRouter.put(
   ...adminAccess,
   validate({ params: productIdParamsSchema, body: updateProductBodySchema }),
   updateProductController
+);
+
+adminRouter.delete(
+  "/:id",
+  ...adminAccess,
+  validate({ params: productIdParamsSchema }),
+  deleteProductController
 );
 
 /**

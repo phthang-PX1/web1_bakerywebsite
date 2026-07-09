@@ -124,7 +124,19 @@ export const paymentWebhookController: RequestHandler = async (req, res, next) =
 
 export const getAdminOrdersController: RequestHandler = async (req, res, next) => {
   try {
-    const result = await getAdminOrders(req.query as unknown as OrderListQuery);
+    const query = req.query as any;
+    const dateFrom = query.dateFrom || query.date_from ? new Date(query.dateFrom || query.date_from) : undefined;
+    const dateTo = query.dateTo || query.date_to ? new Date(query.dateTo || query.date_to) : undefined;
+    
+    const result = await getAdminOrders({
+      page: query.page ? Number(query.page) : 1,
+      limit: query.limit ? Number(query.limit) : 20,
+      status: query.status,
+      paymentStatus: query.paymentStatus || query.payment_status,
+      dateFrom,
+      dateTo,
+      search: query.search
+    });
     res.status(200).json(result);
   } catch (error) {
     next(error);

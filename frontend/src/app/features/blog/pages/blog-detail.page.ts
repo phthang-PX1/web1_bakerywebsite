@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BLOG_POSTS, type BlogPost } from '../blog.config';
+import { BlogService } from '../../../core/services/blog.service';
+import type { BlogPost } from '../blog.config';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 
 @Component({
@@ -15,7 +16,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
           <p class="blog-detail__date">{{ p.publishedAt }}</p>
           <h1 class="content-page__title">{{ p.title }}</h1>
           <img class="blog-detail__cover" [src]="p.coverImage" [alt]="p.title" appImgFallback />
-          <div class="blog-detail__content">{{ p.content }}</div>
+          <div class="blog-detail__content" style="white-space: pre-line; line-height: 1.7; color: #2b1a0f;">{{ p.content }}</div>
         </div>
       </div>
     } @else {
@@ -31,10 +32,11 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
 })
 export class BlogDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly blogService = inject(BlogService);
   readonly post = signal<BlogPost | null>(null);
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug')!;
-    this.post.set(BLOG_POSTS.find((p) => p.slug === slug) ?? null);
+    this.post.set(this.blogService.posts().find((p) => p.slug === slug && p.isActive !== false) ?? null);
   }
 }

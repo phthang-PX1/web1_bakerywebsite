@@ -119,6 +119,11 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/pages/dashboard.page').then((m) => m.DashboardPage),
       },
       {
+        // Alias /admin/dashboard → same component
+        path: 'dashboard',
+        loadComponent: () => import('./features/admin/pages/dashboard.page').then((m) => m.DashboardPage),
+      },
+      {
         path: 'products',
         loadComponent: () => import('./features/admin/pages/products-list.page').then((m) => m.AdminProductsListPage),
       },
@@ -127,8 +132,20 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/pages/product-form.page').then((m) => m.AdminProductFormPage),
       },
       {
+        path: 'products/:id',
+        loadComponent: () => import('./features/admin/pages/product-detail.page').then((m) => m.AdminProductDetailPage),
+      },
+      {
         path: 'products/:id/edit',
         loadComponent: () => import('./features/admin/pages/product-form.page').then((m) => m.AdminProductFormPage),
+      },
+      {
+        path: 'custom-cake',
+        loadComponent: () => import('./features/admin/pages/custom-cake-list.page').then((m) => m.AdminCustomCakeListPage),
+      },
+      {
+        path: 'custom-cake/:id',
+        loadComponent: () => import('./features/admin/pages/custom-cake-detail.page').then((m) => m.AdminCustomCakeDetailPage),
       },
       {
         path: 'orders',
@@ -139,12 +156,80 @@ export const routes: Routes = [
         loadComponent: () => import('./features/admin/pages/order-detail.page').then((m) => m.AdminOrderDetailPage),
       },
       {
+        path: 'cancel-reasons',
+        loadComponent: () => import('./features/admin/pages/orders-list.page').then((m) => m.AdminOrdersListPage),
+      },
+      {
+        // /admin/vouchers → alias of coupons-list
+        path: 'vouchers',
+        loadComponent: () => import('./features/admin/pages/coupons-list.page').then((m) => m.AdminCouponsListPage),
+      },
+      {
+        // /admin/vouchers/:id → alias of coupon-detail
+        path: 'vouchers/:id',
+        loadComponent: () => import('./features/admin/pages/coupon-detail.page').then((m) => m.AdminCouponDetailPage),
+      },
+      {
         path: 'coupons',
         loadComponent: () => import('./features/admin/pages/coupons-list.page').then((m) => m.AdminCouponsListPage),
       },
       {
+        path: 'coupons/:id',
+        loadComponent: () => import('./features/admin/pages/coupon-detail.page').then((m) => m.AdminCouponDetailPage),
+      },
+      {
         path: 'banners',
         loadComponent: () => import('./features/admin/pages/banners-list.page').then((m) => m.AdminBannersListPage),
+      },
+      {
+        path: 'categories',
+        loadComponent: () => import('./features/admin/pages/categories.page').then((m) => m.AdminCategoriesPage),
+      },
+      {
+        path: 'customers',
+        loadComponent: () => import('./features/admin/pages/customers.page').then((m) => m.AdminCustomersPage),
+      },
+      {
+        path: 'customers/:id',
+        loadComponent: () => import('./features/admin/pages/customer-detail.page').then((m) => m.AdminCustomerDetailPage),
+      },
+      {
+        // /admin/blog → main blog management page (tabs: posts / subscribers)
+        path: 'blog',
+        loadComponent: () => import('./features/admin/pages/blog.page').then((m) => m.AdminBlogPage),
+      },
+      {
+        // /admin/blog/posts → alias
+        path: 'blog/posts',
+        loadComponent: () => import('./features/admin/pages/blog.page').then((m) => m.AdminBlogPage),
+      },
+      {
+        // /admin/blog/posts/new → alias
+        path: 'blog/posts/new',
+        loadComponent: () => import('./features/admin/pages/blog.page').then((m) => m.AdminBlogPage),
+      },
+      {
+        // /admin/blog/posts/:id/edit → alias
+        path: 'blog/posts/:id/edit',
+        loadComponent: () => import('./features/admin/pages/blog.page').then((m) => m.AdminBlogPage),
+      },
+      {
+        // /admin/blog/subscribers → alias
+        path: 'blog/subscribers',
+        loadComponent: () => import('./features/admin/pages/blog.page').then((m) => m.AdminBlogPage),
+      },
+      {
+        path: 'loyalty',
+        loadComponent: () => import('./features/admin/pages/loyalty.page').then((m) => m.AdminLoyaltyPage),
+      },
+      {
+        // /admin/member-points → alias of loyalty
+        path: 'member-points',
+        loadComponent: () => import('./features/admin/pages/loyalty.page').then((m) => m.AdminLoyaltyPage),
+      },
+      {
+        path: 'reports',
+        loadComponent: () => import('./features/admin/pages/reports.page').then((m) => m.AdminReportsPage),
       },
     ],
   },
