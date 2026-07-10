@@ -43,6 +43,7 @@ export type OrderTrackingQuery = {
 
 export type UpdateOrderStatusInput = {
   status: OrderStatus;
+  cancelReason?: string;
 };
 
 export type OrderIdentity = {

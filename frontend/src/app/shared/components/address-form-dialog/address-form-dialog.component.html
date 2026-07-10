@@ -10,6 +10,20 @@
 
       <form class="address-form" [formGroup]="form" (ngSubmit)="save()" novalidate>
         <div class="field-grid">
+          <div class="field">
+            <label class="field__label" for="afd-recipientName">Tên người nhận *</label>
+            <input id="afd-recipientName" type="text" class="field__input" formControlName="recipientName" />
+            @if (form.controls.recipientName.invalid && form.controls.recipientName.touched) {
+              <p class="field__error">Vui lòng nhập tên.</p>
+            }
+          </div>
+          <div class="field">
+            <label class="field__label" for="afd-phone">Số điện thoại *</label>
+            <input id="afd-phone" type="tel" class="field__input" formControlName="phone" />
+            @if (form.controls.phone.invalid && form.controls.phone.touched) {
+              <p class="field__error">Vui lòng nhập số điện thoại.</p>
+            }
+          </div>
           <div class="field field--full">
             <label class="field__label" for="afd-street">Số nhà / Đường *</label>
             <input id="afd-street" type="text" class="field__input" formControlName="street" />

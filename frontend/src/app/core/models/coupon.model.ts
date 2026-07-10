@@ -8,7 +8,14 @@ export interface Coupon {
   readonly minOrderValue: number;
   readonly maxDiscountAmount: number | null;
   readonly isActive: boolean;
+  /** Legacy field — maps to endDate in backend */
   readonly expiresAt: string | null;
+  /** Admin-only fields from backend */
+  readonly startDate?: string | null;
+  readonly endDate?: string | null;
+  readonly usageLimit?: number | null;
+  readonly usageCount?: number;
+
 }
 
 /** Snake_case body as required by POST /api/coupons/validate schema */

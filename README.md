@@ -379,6 +379,9 @@ Dự án sử dụng:
 - [ERD Diagram](document/erd.md)
 - [DFD Diagram](document/dfd.md)
 - [Quy Tắc Thành Viên Trung Thành](document/loyalty_rule.md)
+- [Kế Hoạch UI/UX](document/ui_improvement_plan.md)
+- [Audit Report](document/audit_report.md)
+
 
 ---
 

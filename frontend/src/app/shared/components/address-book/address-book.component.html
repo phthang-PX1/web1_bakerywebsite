@@ -19,11 +19,12 @@
         <article class="address-card" [class.address-card--default]="addr.isDefault">
           <div class="address-card__body">
             <p class="address-card__name">
-              {{ addr.street }}, {{ addr.district }}, {{ addr.city }}
+              {{ addr.recipientName }} · {{ addr.phone }}
               @if (addr.isDefault) {
                 <span class="address-card__badge">Mặc định</span>
               }
             </p>
+            <p class="address-card__addr">{{ addr.street }}, {{ addr.district }}, {{ addr.city }}</p>
           </div>
           <div class="address-card__actions">
             @if (!addr.isDefault) {

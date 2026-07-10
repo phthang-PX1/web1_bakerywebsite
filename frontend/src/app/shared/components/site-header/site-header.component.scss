@@ -2,7 +2,9 @@
 @use "mixins" as m;
 
 .site-header {
-  position: relative;
+  position: sticky;
+  top: 0;
+
   z-index: 50;
   background: t.$paper;
   @include m.hairline(bottom);

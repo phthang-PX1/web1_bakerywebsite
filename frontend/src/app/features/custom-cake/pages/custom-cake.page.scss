@@ -1,149 +1,109 @@
 @use "tokens" as t;
 @use "mixins" as m;
 
-// The page fills the viewport below the fixed site header (72px). It never
-// scrolls itself — the preview column is fixed and only .options__scroll moves.
-.custom-cake {
-  height: 100%;
-  min-height: 0;
+.configurator {
+  width: min(1760px, calc(100vw - 128px));
+  margin-inline: auto;
   display: grid;
-  grid-template-columns: minmax(360px, 42fr) minmax(480px, 58fr);
-  background: t.$paper;
-  overflow: hidden;
-}
-
-// --- Left: fixed preview ---------------------------------------------------
-.preview {
+  grid-template-columns: 1fr 1fr;
   height: 100%;
   min-height: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: clamp(24px, 4vh, 56px);
-  background: t.$sand;
-  border-right: 1px solid t.$border;
+  padding: t.$sp-5 0;
   overflow: hidden;
+  box-sizing: border-box;
 }
 
-.preview__inner {
-  width: min(100%, 460px);
+.configurator__preview {
+  background: t.$sand;
   display: flex;
   flex-direction: column;
   align-items: center;
-  text-align: center;
-  gap: clamp(12px, 2.4vh, 22px);
+  justify-content: center;
+  padding: t.$sp-6;
+  gap: t.$sp-5;
+  border-right: 1px solid t.$border;
+  height: 100%;
   min-height: 0;
+  box-sizing: border-box;
 }
 
-.preview__eyebrow {
-  @include m.eyebrow;
-  margin: 0;
+.preview-image {
+  width: clamp(260px, 24vw, 420px);
+  max-width: 100%;
+  aspect-ratio: 4 / 5;
+  @include m.arch-media;
+  border: 1px solid rgba(43, 26, 15, 0.15);
 }
 
-.preview__image {
-  width: min(52vh, 100%);
-  aspect-ratio: 1;
-  border-radius: 50%;
-  overflow: hidden;
-  background: t.$surface;
-  box-shadow: t.$shadow-lift;
-}
-
-.preview__img {
+.preview-image__img {
   width: 100%;
   height: 100%;
   object-fit: cover;
 }
 
-.preview__name {
-  @include m.display(3);
-  margin: 0;
+.preview-info {
+  text-align: center;
 }
 
-.preview__summary {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  gap: 6px;
-  max-height: 22vh;
-  overflow-y: auto;
-}
-
-.preview-chip {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 6px 12px;
-  border: 1px solid t.$border;
-  border-radius: t.$r-pill;
-  background: t.$surface;
-  font-size: t.$fs-micro;
-  color: t.$ink;
-  line-height: 1.2;
-
-  strong {
-    color: t.$caramel;
-    font-weight: 700;
-  }
-}
-
-.preview__placeholder {
-  max-width: 32ch;
+.preview-info__name {
   font-family: t.$font-display;
-  font-style: italic;
-  color: t.$muted;
-  font-size: t.$fs-body-sm;
-  line-height: 1.5;
-}
-
-// --- Right: scrollable options ---------------------------------------------
-.options {
-  height: 100%;
-  min-height: 0;
-  display: flex;
-  flex-direction: column;
-  background: t.$paper;
-}
-
-.options__scroll {
-  flex: 1;
-  min-height: 0;
-  overflow-y: auto;
-  padding: clamp(28px, 4vh, 52px) clamp(24px, 3.5vw, 56px);
-  display: flex;
-  flex-direction: column;
-  gap: t.$sp-6;
-}
-
-.options__header {
-  padding-bottom: t.$sp-4;
-  @include m.hairline(bottom);
-}
-
-.options__title {
-  @include m.display(2);
+  font-size: 1.4rem;
+  font-weight: 550;
+  color: t.$ink;
   margin: 0 0 t.$sp-2;
 }
 
-.options__lead {
-  font-size: t.$fs-body-sm;
-  line-height: 1.6;
-  color: t.$muted;
-  margin: 0;
+.preview-info__price {
+  font-family: t.$font-display;
+  font-size: 1.8rem;
+  font-weight: 600;
+  color: t.$ink;
+  font-variant-numeric: tabular-nums;
+  margin: 0 0 t.$sp-3;
 }
 
-// --- Option group ----------------------------------------------------------
-.option-group {
+.preview-info__options {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  font-size: t.$fs-micro;
+  color: t.$muted;
+  // Reserve space so selecting/deselecting options never shifts the layout.
+  min-height: 96px;
+
+  li {
+    padding: 2px 0;
+  }
+
+  span {
+    color: t.$caramel;
+    margin-left: 4px;
+  }
+}
+
+.preview-info__placeholder {
+  font-style: italic;
+  font-family: t.$font-display;
+}
+
+// --- Options column -------------------------------------------------------
+.configurator__options {
+  padding: t.$sp-5 t.$sp-6;
   display: flex;
   flex-direction: column;
   gap: t.$sp-4;
+  height: 100%;
+  min-height: 0;
+  overflow-y: auto;
+  background: t.$paper;
+  box-sizing: border-box;
 }
 
-.option-group__head {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  gap: t.$sp-3;
+.configurator__title {
+  @include m.display(3);
+  margin: 0;
+  padding-bottom: t.$sp-3;
+  @include m.hairline(bottom);
 }
 
 .option-group__title {
@@ -152,15 +112,7 @@
   letter-spacing: t.$tracking-wide;
   text-transform: uppercase;
   color: t.$ink;
-  margin: 0;
-}
-
-.option-group__note {
-  margin: 0;
-  color: t.$muted;
-  font-size: t.$fs-micro;
-  line-height: 1.35;
-  text-align: right;
+  margin: 0 0 t.$sp-3;
 }
 
 .required {
@@ -168,172 +120,55 @@
   margin-left: 4px;
 }
 
-// --- Size etc. as pills ----------------------------------------------------
-.option-pills {
+.option-group__items {
   display: flex;
   flex-wrap: wrap;
   gap: t.$sp-2;
 }
 
-.option-pill {
-  display: inline-flex;
+.option-item {
+  display: flex;
   align-items: center;
-  gap: 6px;
-  padding: 10px 18px;
+  gap: t.$sp-2;
+  padding: 9px 16px;
   border: 1px solid t.$border;
   border-radius: t.$r-pill;
-  background: t.$surface;
+  background: none;
+  cursor: pointer;
   font-size: t.$fs-micro;
   font-weight: 600;
   color: t.$ink;
-  cursor: pointer;
-  transition: border-color 0.15s ease, color 0.15s ease, background-color 0.15s ease;
+  transition: border-color 0.15s ease, color 0.15s ease;
 
-  &:hover:not(:disabled) {
+  &:hover {
     border-color: t.$primary;
   }
 
   &--selected {
     border-color: t.$primary;
     color: t.$primary;
-    background: t.$surface-warm;
-  }
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
   }
 }
 
-.option-pill__extra {
-  font-size: 11px;
-  color: t.$muted;
-}
-
-// --- Image options as clean swatch cards -----------------------------------
-.option-circles {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
-  gap: t.$sp-4;
-}
-
-.option-circle {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: t.$sp-2;
-  padding: 0;
-  border: none;
-  background: none;
-  cursor: pointer;
-
-  &:disabled {
-    opacity: 0.4;
-    cursor: not-allowed;
-  }
-}
-
-.option-circle__media {
-  position: relative;
-  width: 76px;
-  height: 76px;
-  border: 1px solid t.$border;
+.option-item__img {
+  width: 28px;
+  height: 28px;
   border-radius: 50%;
-  overflow: hidden;
-  background: t.$surface;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-
-  img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-  }
+  object-fit: cover;
 }
 
-.option-circle:hover:not(:disabled) .option-circle__media {
-  border-color: t.$primary;
-}
-
-.option-circle--selected .option-circle__media {
-  border-color: t.$primary;
-  box-shadow: 0 0 0 3px rgba(201, 106, 46, 0.16);
-}
-
-// Selected check overlay — subtle, appears only when picked.
-.option-circle__check {
-  position: absolute;
-  inset: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(201, 106, 46, 0.32);
-  color: t.$paper;
-  opacity: 0;
-  transition: opacity 0.15s ease;
-
-  svg {
-    width: 30px;
-    height: 30px;
-  }
-}
-
-.option-circle--selected .option-circle__check {
-  opacity: 1;
-}
-
-.option-circle__name {
+.option-item__extra {
   font-size: 11px;
-  color: t.$ink;
-  text-align: center;
-  line-height: 1.3;
-  transition: color 0.15s ease;
-}
-
-.option-circle--selected .option-circle__name {
-  color: t.$primary;
-  font-weight: 600;
-}
-
-.option-circle__price {
-  font-size: 10px;
-  color: t.$caramel;
-}
-
-// --- Bottom bar: total + quantity + CTA (fixed to options column) ----------
-.options__bar {
-  flex-shrink: 0;
-  padding: t.$sp-4 clamp(24px, 3.5vw, 56px);
-  background: t.$surface;
-  @include m.hairline(top);
-}
-
-.options__cta {
-  display: flex;
-  align-items: center;
-  gap: t.$sp-4;
-}
-
-.options__total {
-  display: flex;
-  flex-direction: column;
-  gap: 2px;
-  white-space: nowrap;
-}
-
-.options__total-label {
-  font-size: t.$fs-eyebrow;
-  letter-spacing: t.$tracking-wide;
-  text-transform: uppercase;
   color: t.$muted;
 }
 
-.options__total-value {
-  font-family: t.$font-display;
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: t.$ink;
-  font-variant-numeric: tabular-nums;
-  line-height: 1;
+.configurator__footer {
+  display: flex;
+  gap: t.$sp-3;
+  align-items: center;
+  margin-top: auto;
+  padding-top: t.$sp-3;
+  @include m.hairline(top);
 }
 
 .btn-add {
@@ -341,30 +176,18 @@
   flex: 1;
 }
 
-.options__hint {
-  min-height: 18px;
-  margin: 0 0 t.$sp-2;
+.configurator__hint {
   font-size: t.$fs-micro;
   color: t.$danger;
+  margin: 0;
 
+  // Keep the line's space when satisfied so the footer doesn't shift.
   &--hidden {
     visibility: hidden;
   }
 }
 
-// --- States ----------------------------------------------------------------
-.loading-page {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.custom-cake-empty {
-  height: 100%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+.configurator-empty {
   padding: t.$sp-8 t.$sp-5;
   text-align: center;
 
@@ -377,48 +200,40 @@
   }
 }
 
-// --- Responsive: stack + let the page scroll on small screens --------------
+.loading-page {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+// --- Responsive ---------------------------------------------------------------
 @include m.mq-down(md) {
-  .custom-cake {
+  .configurator {
     grid-template-columns: 1fr;
+    width: min(100% - t.$sp-4, 760px);
     height: auto;
     min-height: 100%;
-    overflow: visible;
+    overflow: auto;
+    padding: t.$sp-4 0;
   }
 
-  .preview {
+  .configurator__preview {
     height: auto;
+    min-height: 0;
     border-right: none;
     border-bottom: 1px solid t.$border;
-    padding: t.$sp-6;
+    padding: t.$sp-5;
   }
 
-  .preview__image {
-    width: min(280px, 70%);
-  }
-
-  .options {
+  .configurator__options {
     height: auto;
-  }
-
-  .options__scroll {
+    min-height: 0;
     overflow: visible;
-    padding: t.$sp-6 t.$sp-5;
+    padding: t.$sp-5;
   }
 
-  .options__bar {
-    position: sticky;
-    bottom: 0;
-    padding: t.$sp-4 t.$sp-5;
-  }
-
-  .option-group__head {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 4px;
-  }
-
-  .option-group__note {
-    text-align: left;
+  .preview-image {
+    width: 230px;
   }
 }
