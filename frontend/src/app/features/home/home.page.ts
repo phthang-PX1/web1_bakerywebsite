@@ -121,13 +121,26 @@ export class HomePage {
 
   private mapCategory(category: Category): HomeCategoryItem {
     const fallback = HOME_CATEGORIES.find((item) => item.slug === category.slug);
+    const fallbackIcon = this.getCategoryFallbackIcon(category.name, category.slug);
 
     return {
       id: category.categoryId,
       name: category.name,
-      image: fallback?.image ?? '/assets/categories/banh-gato.svg',
+      image: category.imageUrl || fallback?.image || fallbackIcon,
       slug: category.slug
     };
+  }
+
+  private getCategoryFallbackIcon(name: string, slug?: string): string {
+    const n = (name || '').toLowerCase();
+    const s = (slug || '').toLowerCase();
+    if (n.includes('entremet') || s.includes('entremet')) return '/assets/categories/banh-entremet.svg';
+    if (n.includes('gato') || n.includes('kem') || s.includes('gato') || s.includes('kem')) return '/assets/categories/banh-gato.svg';
+    if (n.includes('mousse') || s.includes('mousse')) return '/assets/categories/banh-mousse.svg';
+    if (n.includes('nướng') || n.includes('baked') || n.includes('nuong') || s.includes('nuong') || s.includes('baked')) return '/assets/categories/banh-nuong.svg';
+    if (n.includes('mini') || s.includes('mini')) return '/assets/categories/mini-cakes.svg';
+    if (n.includes('tiramisu') || s.includes('tiramisu')) return '/assets/categories/tiramisu.svg';
+    return '/assets/categories/banh-gato.svg';
   }
 
   private mapProduct(product: Product): HomeProductCard {

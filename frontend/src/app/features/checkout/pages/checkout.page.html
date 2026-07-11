@@ -91,7 +91,8 @@
                     [class.saved-address--active]="selectedAddressId() === address.addressId"
                     (click)="applyAddress(address)"
                   >
-                    <strong>{{ addressLine(address) }}</strong>
+                    <strong>{{ address.recipientName }} · {{ address.phone }}</strong>
+                    <span>{{ address.street }}, {{ address.district }}, {{ address.city }}</span>
                     @if (address.isDefault) {
                       <b>Mặc định</b>
                     }
@@ -106,7 +107,8 @@
                   class="saved-address saved-address--active"
                   (click)="openAddressDialog()"
                 >
-                  <strong>{{ addressLine(address) }}</strong>
+                  <strong>{{ address.recipientName }} · {{ address.phone }}</strong>
+                  <span>{{ address.street }}, {{ address.district }}, {{ address.city }}</span>
                 </button>
                 <button type="button" class="saved-address saved-address--add" (click)="openAddressDialog()">+ Đổi địa chỉ giao hàng</button>
               </div>
@@ -280,8 +282,6 @@
   [persist]="canPersistAddress"
   [address]="canPersistAddress ? null : selectedAddress()"
   [defaultChecked]="addresses().length === 0"
-  [contactName]="addressContactName()"
-  [contactPhone]="addressContactPhone()"
   (saved)="onAddressSaved($event)"
   (dismissed)="addressDialogOpen.set(false)"
 />

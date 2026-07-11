@@ -155,6 +155,7 @@ const productInclude = {
 
 const productListSelect = {
   productId: true,
+  categoryId: true,
   name: true,
   slug: true,
   description: true,
@@ -250,7 +251,10 @@ export const getProducts = async (
   ]);
 
   const items = rawItems.map((p) => ({
+
     productId: p.productId,
+    categoryId: p.categoryId,
+
     name: p.name,
     slug: p.slug,
     description: p.description,
@@ -539,4 +543,39 @@ export const deleteProductImage = async (productId: string, imageId: string) => 
   });
 
   return { message: "Product image deleted successfully" };
+};
+
+export const deleteProduct = async (productId: string) => {
+  const product = await prisma.product.findUnique({
+    where: { productId }
+  });
+  if (!product) {
+    throw new AppError(404, "Product not found");
+  }
+  try {
+    await prisma.$transaction(async (tx) => {
+      // Delete product images
+      await tx.productImage.deleteMany({ where: { productId } });
+      
+      // Delete option items related to this product's option groups
+      const optionGroups = await tx.optionGroup.findMany({
+        where: { productId },
+        select: { groupId: true }
+      });
+      const groupIds = optionGroups.map(g => g.groupId);
+      await tx.optionItem.deleteMany({ where: { groupId: { in: groupIds } } });
+      await tx.optionGroup.deleteMany({ where: { productId } });
+      
+      // Delete the product itself
+      await tx.product.delete({ where: { productId } });
+    });
+    return { message: "Product deleted successfully" };
+  } catch (error) {
+    console.warn(`Product ${productId} cannot be hard deleted, performing soft delete instead.`, error);
+    await prisma.product.update({
+      where: { productId },
+      data: { isActive: false }
+    });
+    return { message: "Product referenced by orders, soft deleted (marked inactive)" };
+  }
 };

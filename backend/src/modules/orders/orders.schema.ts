@@ -107,8 +107,10 @@ export const orderListQuerySchema = z
 
 export const updateOrderStatusBodySchema = z
   .object({
-    status: orderStatusSchema
+    status: orderStatusSchema,
+    cancelReason: z.string().optional()
   })
   .transform((value) => ({
-    status: value.status
+    status: value.status,
+    cancelReason: value.cancelReason
   }));

@@ -21,11 +21,22 @@ export interface OrderItem {
   readonly review?: OrderItemReview | null;
 }
 
+/** Sub-object present only on Admin order list/detail responses */
+export interface OrderUser {
+  readonly userId: string;
+  readonly fullName: string;
+  readonly email: string | null;
+  readonly phone: string | null;
+}
+
 export interface Order {
   readonly orderId: string;
   readonly userId: string | null;
   readonly buyerName: string | null;
   readonly buyerPhone: string | null;
+  /** Available in admin responses: the linked member account, if any */
+  readonly user?: OrderUser | null;
+
   readonly orderStatus: OrderStatus;
   readonly paymentStatus: PaymentStatus;
   readonly paymentMethod: PaymentMethod;

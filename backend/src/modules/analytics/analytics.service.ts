@@ -93,6 +93,22 @@ export const getAnalyticsOverview = async (query: AnalyticsRangeQuery) => {
     })
   ]);
 
+  const productIds = topProductRows.map((row) => row.productId);
+  const products = await prisma.product.findMany({
+    where: { productId: { in: productIds } },
+    select: {
+      productId: true,
+      thumbnailUrl: true,
+      category: {
+        select: {
+          name: true
+        }
+      }
+    }
+  });
+
+  const productMap = new Map(products.map((p) => [p.productId, p]));
+
   return {
     range: {
       dateFrom: query.dateFrom,
@@ -101,12 +117,17 @@ export const getAnalyticsOverview = async (query: AnalyticsRangeQuery) => {
     revenue: toMoney(revenueAggregate._sum.totalAmount),
     totalOrders,
     newCustomers,
-    topProducts: topProductRows.map((row) => ({
-      productId: row.productId,
-      productName: row.productNameSnapshot,
-      quantitySold: row._sum?.quantity ?? 0,
-      revenue: toMoney(row._sum?.itemTotal)
-    }))
+    topProducts: topProductRows.map((row) => {
+      const productInfo = productMap.get(row.productId);
+      return {
+        productId: row.productId,
+        productName: row.productNameSnapshot,
+        quantitySold: row._sum?.quantity ?? 0,
+        revenue: toMoney(row._sum?.itemTotal),
+        imageUrl: productInfo?.thumbnailUrl || "",
+        category: productInfo?.category?.name || "--"
+      };
+    })
   };
 };
 

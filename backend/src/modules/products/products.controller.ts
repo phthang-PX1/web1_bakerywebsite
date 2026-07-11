@@ -2,6 +2,7 @@ import type { RequestHandler } from "express";
 import {
   addProductImages,
   createProduct,
+  deleteProduct,
   deleteProductImage,
   getProductById,
   getProductBySlug,
@@ -87,6 +88,15 @@ export const createProductController: RequestHandler = async (req, res, next) =>
 export const updateProductController: RequestHandler = async (req, res, next) => {
   try {
     const result = await updateProduct(req.params.id, req.body as UpdateProductInput);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const deleteProductController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await deleteProduct(req.params.id);
     res.status(200).json(result);
   } catch (error) {
     next(error);
