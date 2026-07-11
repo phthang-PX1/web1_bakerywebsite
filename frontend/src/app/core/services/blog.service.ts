@@ -1,12 +1,17 @@
 import { Injectable, signal } from '@angular/core';
 import { BLOG_POSTS, type BlogPost } from '../../features/blog/blog.config';
 
+export type ManagedBlogPost = Omit<BlogPost, 'content'> & {
+  content: string | string[];
+  isActive?: boolean;
+};
+
 @Injectable({
   providedIn: 'root'
 })
 export class BlogService {
   private readonly STORAGE_KEY = 'webee_blog_posts';
-  readonly posts = signal<BlogPost[]>([]);
+  readonly posts = signal<ManagedBlogPost[]>([]);
 
   constructor() {
     this.loadPosts();
@@ -35,12 +40,12 @@ export class BlogService {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(initial));
   }
 
-  savePosts(list: BlogPost[]) {
+  savePosts(list: ManagedBlogPost[]) {
     this.posts.set([...list]);
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(list));
   }
 
-  addPost(post: BlogPost): boolean {
+  addPost(post: ManagedBlogPost): boolean {
     const current = this.posts();
     if (current.some(p => p.slug === post.slug)) {
       return false;
@@ -50,7 +55,7 @@ export class BlogService {
     return true;
   }
 
-  updatePost(slug: string, updated: BlogPost): boolean {
+  updatePost(slug: string, updated: ManagedBlogPost): boolean {
     const current = this.posts();
     const index = current.findIndex(p => p.slug === slug);
     if (index === -1) return false;
@@ -80,7 +85,7 @@ export class BlogService {
     const newList = [...current];
     newList[index] = {
       ...newList[index],
-      isActive: !newList[index].isActive
+      isActive: newList[index].isActive === false
     };
     this.savePosts(newList);
     return true;

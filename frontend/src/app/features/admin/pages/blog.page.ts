@@ -1,8 +1,7 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { BlogService } from '../../../core/services/blog.service';
+import { BlogService, type ManagedBlogPost } from '../../../core/services/blog.service';
 import { ToastService } from '../../../core/services/toast.service';
-import type { BlogPost } from '../../blog/blog.config';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 
 @Component({
@@ -322,7 +321,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
             <div style="width: 100%; border-radius: 12px; overflow: hidden; border: 1.5px solid #ede8e2; margin-bottom: 20px; aspect-ratio: 16/9; background: #fffbf7;">
               <img [src]="p.coverImage" [alt]="p.title" style="width: 100%; height: 100%; object-fit: cover;" appImgFallback />
             </div>
-            <div style="font-size: 15.5px; line-height: 1.7; color: #2b1a0f; white-space: pre-line;">{{ p.content }}</div>
+            <div style="font-size: 15.5px; line-height: 1.7; color: #2b1a0f; white-space: pre-line;">{{ contentText(p) }}</div>
           </div>
           
           <!-- Modal Footer -->
@@ -349,7 +348,7 @@ export class AdminBlogPage implements OnInit {
   readonly postForm: FormGroup;
   readonly panelMode = signal<'create' | 'edit' | 'none'>('none');
   readonly editingSlug = signal<string | null>(null);
-  readonly selectedPost = signal<BlogPost | null>(null);
+  readonly selectedPost = signal<ManagedBlogPost | null>(null);
   readonly slugError = signal(false);
   readonly saving = signal(false);
 
@@ -392,7 +391,7 @@ export class AdminBlogPage implements OnInit {
         const matchesTitle = p.title.toLowerCase().includes(query);
         const matchesSlug = p.slug.toLowerCase().includes(query);
         const matchesExcerpt = p.excerpt.toLowerCase().includes(query);
-        const matchesContent = p.content.toLowerCase().includes(query);
+        const matchesContent = this.contentText(p).toLowerCase().includes(query);
         return matchesTitle || matchesSlug || matchesExcerpt || matchesContent;
       }
 
@@ -432,13 +431,13 @@ export class AdminBlogPage implements OnInit {
     this.panelMode.set('create');
   }
 
-  startEdit(post: BlogPost): void {
+  startEdit(post: ManagedBlogPost): void {
     this.postForm.patchValue({
       title: post.title,
       slug: post.slug,
       coverImage: post.coverImage,
       excerpt: post.excerpt,
-      content: post.content,
+      content: this.contentText(post),
       publishedAt: post.publishedAt || new Date().toISOString().split('T')[0],
       isActive: post.isActive !== false
     });
@@ -457,7 +456,12 @@ export class AdminBlogPage implements OnInit {
     if (this.postForm.invalid) return;
     this.saving.set(true);
 
-    const postData: BlogPost = this.postForm.value;
+    const postData: ManagedBlogPost = {
+      ...this.postForm.value,
+      galleryImages: [],
+      category: 'Tin tức',
+      readingTime: '3 phút đọc',
+    };
     const mode = this.panelMode();
     const editSlug = this.editingSlug();
 
@@ -483,7 +487,7 @@ export class AdminBlogPage implements OnInit {
     this.saving.set(false);
   }
 
-  toggleActive(post: BlogPost): void {
+  toggleActive(post: ManagedBlogPost): void {
     const success = this.blogService.togglePostActive(post.slug);
     if (success) {
       const isNowActive = this.blogService.posts().find(p => p.slug === post.slug)?.isActive !== false;
@@ -494,7 +498,7 @@ export class AdminBlogPage implements OnInit {
     }
   }
 
-  deletePost(post: BlogPost): void {
+  deletePost(post: ManagedBlogPost): void {
     if (confirm(`Bạn có chắc chắn muốn xóa bài viết "${post.title}" không?`)) {
       const success = this.blogService.deletePost(post.slug);
       if (success) {
@@ -506,7 +510,7 @@ export class AdminBlogPage implements OnInit {
   }
 
   // Previews
-  previewPost(post: BlogPost): void {
+  previewPost(post: ManagedBlogPost): void {
     this.selectedPost.set(post);
   }
 
@@ -521,5 +525,9 @@ export class AdminBlogPage implements OnInit {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const year = date.getFullYear();
     return `${day}/${month}/${year}`;
+  }
+
+  contentText(post: ManagedBlogPost): string {
+    return Array.isArray(post.content) ? post.content.join('\n\n') : post.content;
   }
 }
