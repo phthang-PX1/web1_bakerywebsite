@@ -11,7 +11,7 @@ import { ToastComponent } from '../../shared/components/toast/toast.component';
       <!-- Brand panel -->
       <aside class="auth-brand">
         <a class="auth-brand__logo" routerLink="/" aria-label="Về trang chủ WeBee">
-          <img src="/assets/webee-logo.png" alt="" />
+          <img src="/assets/icons/webee-logo.png" alt="" />
           <span>WeBee</span>
         </a>
 
