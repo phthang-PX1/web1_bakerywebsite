@@ -71,21 +71,22 @@ export class AccountOrderDetailPage implements OnInit {
     return labels[tier] ?? 'Classic';
   }
 
-  /** The four-step visual tracker shown at the top of the order. */
+  /** The five-step visual tracker shown at the top of the order. */
   readonly TRACK_STEPS: TrackStep[] = [
     { key: 'pending', label: 'Chờ xác nhận', icon: 'clock' },
+    { key: 'confirmed', label: 'Đã xác nhận', icon: 'check' },
     { key: 'processing', label: 'Đang làm bánh', icon: 'chef' },
     { key: 'ready', label: 'Đang giao hàng', icon: 'truck' },
     { key: 'delivered', label: 'Hoàn thành', icon: 'check' },
   ];
 
-  /** Maps every backend status onto one of the four visible tracker steps. */
+  /** Maps every backend status onto one of the visible tracker steps. */
   private readonly STATUS_TO_STEP: Record<OrderStatus, number> = {
     pending: 0,
-    confirmed: 0,
-    processing: 1,
-    ready: 2,
-    delivered: 3,
+    confirmed: 1,
+    processing: 2,
+    ready: 3,
+    delivered: 4,
     cancelled: -1,
   };
 

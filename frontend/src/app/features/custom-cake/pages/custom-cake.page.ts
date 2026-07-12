@@ -2,13 +2,15 @@ import { Component, DestroyRef, OnDestroy, OnInit, computed, inject, signal } fr
 import { DOCUMENT } from '@angular/common';
 import { Router } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
-import { catchError, finalize, map, of, switchMap } from 'rxjs';
+import { catchError, finalize, forkJoin, map, of, switchMap } from 'rxjs';
 
 import { OptionsApi } from '../../../core/api/options.api';
 import { ProductsApi } from '../../../core/api/products.api';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
+import type { AddCartItemRequest, CartResponse } from '../../../core/models/cart.model';
 import type { OptionGroup, OptionItem, Product } from '../../../core/models/product.model';
+import { type OptionKind, optionKindFromName, getOptionImage } from '../../../core/utils/option-display.util';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { QuantityStepperComponent } from '../../../shared/components/quantity-stepper/quantity-stepper.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
@@ -21,26 +23,6 @@ interface SelectedOption {
   extraPrice: number;
 }
 
-type OptionKind = 'size' | 'filling' | 'cream' | 'topping' | 'other';
-
-const TOPPING_SURCHARGE = 15000;
-const FREE_TOPPING_COUNT = 2;
-const MAX_FILLING_COUNT = 2;
-
-const OPTION_IMAGE_BY_KEY: Record<string, string> = {
-  banhquy: '/assets/images/topping-cookie.png',
-  camtuoi: '/assets/images/topping-cam.png',
-  chocolate: '/assets/images/mut-socola.png',
-  dautuoi: '/assets/images/toppping-dau.png',
-  ganachesocola: '/assets/images/kemphu-socola.png',
-  kembo: '/assets/images/kemphu-bo.png',
-  kemphomai: '/assets/images/nhan-kemphomai.png',
-  kemtuoihong: '/assets/images/kemphu-dau.png',
-  mutdau: '/assets/images/mutdau.png',
-  nhanhatcaramel: '/assets/images/nhan-caramel.png',
-  socola: '/assets/images/topping-socola.png',
-  whippingcream: '/assets/images/topping-whipcream.png',
-};
 
 @Component({
   selector: 'app-custom-cake-page',
@@ -64,7 +46,6 @@ const OPTION_IMAGE_BY_KEY: Record<string, string> = {
                 <img [src]="imageUrl" [alt]="product.name" class="preview__img" />
               </div>
             }
-            <h2 class="preview__name">{{ product.name }}</h2>
             <div class="preview__summary">
               @for (opt of selectedOptionsWithPrices(); track opt.itemId) {
                 <span class="preview-chip">
@@ -162,12 +143,19 @@ const OPTION_IMAGE_BY_KEY: Record<string, string> = {
               </div>
               <app-quantity-stepper [quantity]="quantity()" (quantityChange)="quantity.set($event)" />
               <button
-                class="btn-add"
+                class="btn-add btn-add--compact"
                 (click)="addToCart()"
                 [disabled]="!canAddToCart() || adding()"
               >
                 @if (adding()) { Đang thêm... }
                 @else { Thêm vào giỏ }
+              </button>
+              <button
+                class="btn-buy-now"
+                (click)="buyNow()"
+                [disabled]="!canAddToCart() || adding()"
+              >
+                Mua ngay
               </button>
             </div>
           </div>
@@ -211,25 +199,44 @@ export class CustomCakePage implements OnInit, OnDestroy {
   });
 
   readonly previewImageUrl = computed(() => {
-    const images = this.productImageUrls();
-    if (images.length === 0) return '';
+    const selected = this.selectedOptions();
+    const groups = this.optionGroups();
 
-    return images[this.selectedOptions().length % images.length];
+    // Ưu tiên ảnh minh họa của lựa chọn có ảnh asset — nhân/kem phủ trước, rồi topping —
+    // để preview phản ánh đúng lựa chọn thay vì chỉ xoay ảnh theo số lượng.
+    const priority: Record<string, number> = { filling: 0, cream: 1, topping: 2, size: 3, other: 4 };
+    const withImage = selected
+      .map((opt) => {
+        const group = groups.find((g) => g.groupId === opt.groupId);
+        const item = group?.items.find((candidate) => candidate.itemId === opt.itemId);
+        return { kind: this.optionKind(group), image: item ? this.optionImageUrl(item) : getOptionImage(opt.name) };
+      })
+      .filter((x) => !!x.image)
+      .sort((a, b) => (priority[a.kind] ?? 9) - (priority[b.kind] ?? 9));
+
+    if (withImage.length > 0) return withImage[0].image as string;
+
+    // Fallback: ảnh sản phẩm.
+    const images = this.productImageUrls();
+    return images.length ? images[0] : '';
   });
 
   readonly selectedOptionsWithPrices = computed(() => {
-    const toppingSeen = new Map<string, number>();
+    const seenPerGroup = new Map<string, number>();
 
     return this.selectedOptions().map((option) => {
       const group = this.optionGroups().find((candidate) => candidate.groupId === option.groupId);
-      if (this.optionKind(group) !== 'topping') return option;
+      // Nhóm có phụ phí theo lượt vượt (cấu hình admin: freeQuantity + surchargePerExtra).
+      const surcharge = group?.surchargePerExtra ?? 0;
+      if (!group || surcharge <= 0) return option;
 
-      const count = toppingSeen.get(option.groupId) ?? 0;
-      toppingSeen.set(option.groupId, count + 1);
+      const index = seenPerGroup.get(option.groupId) ?? 0;
+      seenPerGroup.set(option.groupId, index + 1);
+      const free = group.freeQuantity ?? 0;
 
       return {
         ...option,
-        extraPrice: count >= FREE_TOPPING_COUNT ? TOPPING_SURCHARGE : 0,
+        extraPrice: index >= free ? surcharge : 0,
       };
     });
   });
@@ -260,13 +267,14 @@ export class CustomCakePage implements OnInit, OnDestroy {
 
   isOptionDisabled(group: OptionGroup, item: OptionItem): boolean {
     if (this.isSelected(group.groupId, item.itemId)) return false;
-
-    return this.optionKind(group) === 'filling' && this.selectedCountForGroup(group.groupId) >= MAX_FILLING_COUNT;
+    // Giới hạn số lượng chọn theo cấu hình admin (maxSelect); null = không giới hạn.
+    const max = group.maxSelect ?? null;
+    return max !== null && this.selectedCountForGroup(group.groupId) >= max;
   }
 
   toggleOption(group: OptionGroup, item: OptionItem): void {
     if (this.isOptionDisabled(group, item)) {
-      this.toastService.error('Nhân bánh chỉ được chọn tối đa 2 loại.');
+      this.toastService.error(`"${group.name}" chỉ được chọn tối đa ${group.maxSelect} loại.`);
       return;
     }
 
@@ -295,15 +303,10 @@ export class CustomCakePage implements OnInit, OnDestroy {
 
   addToCart(): void {
     const p = this.customProduct();
-    if (!p || !this.canAddToCart()) return;
+    if (!p || !this.canAddToCart() || this.adding()) return;
 
     this.adding.set(true);
-    this.cartService
-      .addItem({
-        product_id: p.productId,
-        quantity: this.quantity(),
-        option_item_ids: this.selectedOptions().map((s) => s.itemId),
-      })
+    this.addSelectedToCart(p)
       .pipe(finalize(() => this.adding.set(false)), takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: () => {
@@ -314,38 +317,86 @@ export class CustomCakePage implements OnInit, OnDestroy {
       });
   }
 
+  /** "Mua ngay": thêm vào giỏ rồi tới checkout (thiệp chúc mừng vẫn thu ở giỏ/checkout). */
+  buyNow(): void {
+    const p = this.customProduct();
+    if (!p || !this.canAddToCart() || this.adding()) return;
+
+    this.adding.set(true);
+    this.addSelectedToCart(p, true)
+      .pipe(finalize(() => this.adding.set(false)), takeUntilDestroyed(this.destroyRef))
+      .subscribe({
+        next: (cart) => {
+          const buyNowItem = this.findNewestMatchingCartItem(
+            cart,
+            p.productId,
+            this.selectedOptions().map((s) => s.itemId)
+          );
+          this.router.navigate(['/checkout'], {
+            queryParams: buyNowItem ? { buyNow: buyNowItem.cartItemId } : undefined,
+          });
+        },
+        error: () => this.toastService.error('Không thể xử lý. Vui lòng thử lại.'),
+      });
+  }
+
+  private addSelectedToCart(p: Product, forceNew = false) {
+    const payload: AddCartItemRequest = {
+      product_id: p.productId,
+      quantity: this.quantity(),
+      option_item_ids: this.selectedOptions().map((s) => s.itemId),
+      ...(forceNew && { force_new: true }),
+    };
+    return this.cartService.addItem(payload);
+  }
+
+  private findNewestMatchingCartItem(
+    cart: CartResponse,
+    productId: string,
+    optionItemIds: readonly string[]
+  ) {
+    const expected = [...optionItemIds].sort().join(',');
+    return [...cart.items].reverse().find((item) => {
+      const actual = [...item.optionItemIds].sort().join(',');
+      return item.productId === productId && actual === expected;
+    });
+  }
+
   protected groupNote(group: OptionGroup): string {
-    const kind = this.optionKind(group);
+    // Ghi chú theo cấu hình admin (maxSelect + freeQuantity + surchargePerExtra).
+    const max = group.maxSelect ?? null;
+    const free = group.freeQuantity ?? 0;
+    const surcharge = group.surchargePerExtra ?? 0;
 
-    if (kind === 'filling') return 'Chọn tối đa 2 loại nhân.';
-    if (kind === 'cream') return 'Chọn 1 loại kem phủ.';
-    if (kind !== 'topping') return '';
-
-    return this.selectedCountForGroup(group.groupId) >= FREE_TOPPING_COUNT
-      ? `Từ topping thứ ${FREE_TOPPING_COUNT + 1}: +${TOPPING_SURCHARGE.toLocaleString('vi-VN')} đ mỗi loại.`
-      : `Miễn phí ${FREE_TOPPING_COUNT} topping đầu tiên.`;
+    const parts: string[] = [];
+    if (max !== null) parts.push(`Chọn tối đa ${max} loại.`);
+    if (surcharge > 0) {
+      parts.push(
+        this.selectedCountForGroup(group.groupId) >= free
+          ? `Từ loại thứ ${free + 1}: +${surcharge.toLocaleString('vi-VN')}đ mỗi loại.`
+          : `Miễn phí ${free} loại đầu tiên.`
+      );
+    }
+    return parts.join(' ');
   }
 
   protected optionImageUrl(item: OptionItem): string | null {
-    return OPTION_IMAGE_BY_KEY[this.optionImageKey(item.name)] ?? null;
+    // Ưu tiên ảnh admin upload (DB), fallback ảnh asset theo tên.
+    return item.imageUrl ?? getOptionImage(item.name);
   }
 
   protected displayExtraPrice(group: OptionGroup, item: OptionItem): number {
-    if (this.optionKind(group) !== 'topping') return item.extraPrice;
-    if (!this.isSelected(group.groupId, item.itemId)) return 0;
+    const surcharge = group.surchargePerExtra ?? 0;
+    if (surcharge <= 0) return item.extraPrice;
+    if (!this.isSelected(group.groupId, item.itemId)) return item.extraPrice;
 
-    const selectedToppings = this.selectedOptions().filter((option) => option.groupId === group.groupId);
-    const index = selectedToppings.findIndex((option) => option.itemId === item.itemId);
-    return index >= FREE_TOPPING_COUNT ? TOPPING_SURCHARGE : 0;
+    const selected = this.selectedOptions().filter((option) => option.groupId === group.groupId);
+    const index = selected.findIndex((option) => option.itemId === item.itemId);
+    return index >= (group.freeQuantity ?? 0) ? surcharge : 0;
   }
 
   protected optionKind(group: OptionGroup | undefined): OptionKind {
-    const key = this.optionImageKey(group?.name ?? '');
-    if (key.includes('kichco')) return 'size';
-    if (key.includes('nhan')) return 'filling';
-    if (key.includes('kemphu')) return 'cream';
-    if (key.includes('topping')) return 'topping';
-    return 'other';
+    return optionKindFromName(group?.name);
   }
 
   private loadCustomCake(): void {
@@ -357,15 +408,24 @@ export class CustomCakePage implements OnInit, OnDestroy {
       .pipe(
         map((res) => res.items.find((p) => p.isCustomizable) ?? null),
         switchMap((product) => {
+          // Thành phần DÙNG CHUNG (quản lý ở admin) áp cho mọi bánh tùy chỉnh.
+          const shared$ = this.optionsApi.getSharedOptions();
           if (!product) {
-            return of({ product: null, groups: [] as OptionGroup[] });
+            return shared$.pipe(map((shared) => ({ product: null, groups: shared })));
           }
 
           return this.productsApi.getProduct(product.slug).pipe(
             switchMap((detailedProduct) =>
-              this.optionsApi
-                .getProductOptions(detailedProduct.productId)
-                .pipe(map((groups) => ({ product: detailedProduct, groups })))
+              forkJoin({
+                shared: shared$,
+                own: this.optionsApi.getProductOptions(detailedProduct.productId),
+              }).pipe(
+                // Ưu tiên nhóm dùng chung trước, rồi nhóm riêng của sản phẩm.
+                map(({ shared, own }) => ({
+                  product: detailedProduct,
+                  groups: [...shared, ...own],
+                }))
+              )
             )
           );
         }),
@@ -384,13 +444,5 @@ export class CustomCakePage implements OnInit, OnDestroy {
 
   private selectedCountForGroup(groupId: string): number {
     return this.selectedOptions().filter((option) => option.groupId === groupId).length;
-  }
-
-  private optionImageKey(value: string): string {
-    return value
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .toLowerCase()
-      .replace(/[^a-z0-9]/g, '');
   }
 }

@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import {
   createCategory,
+  getAllCategories,
   getCategories,
   getCategoryBySlug,
   toggleCategoryStatus,
@@ -11,6 +12,15 @@ import type { CategoryInput, UpdateCategoryInput } from "./categories.types";
 export const getCategoriesController: RequestHandler = async (_req, res, next) => {
   try {
     const result = await getCategories();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminCategoriesController: RequestHandler = async (_req, res, next) => {
+  try {
+    const result = await getAllCategories();
     res.status(200).json(result);
   } catch (error) {
     next(error);

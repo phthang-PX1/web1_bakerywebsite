@@ -6,6 +6,8 @@ import {
   deactivateAccount,
   deleteAddress,
   getAddresses,
+  getAdminCustomerDetail,
+  getAdminCustomers,
   getLoyaltyLogs,
   getLoyaltySummary,
   getProfile,
@@ -19,6 +21,7 @@ import {
 } from "./users.service";
 import type {
   AddressInput,
+  AdminCustomersQuery,
   ChangeEmailInput,
   ChangePasswordInput,
   ChangePhoneInput,
@@ -33,6 +36,24 @@ import type {
 export const getProfileController: RequestHandler = async (req, res, next) => {
   try {
     const result = await getProfile(req.user?.userId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminCustomersController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await getAdminCustomers(req.query as unknown as AdminCustomersQuery);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminCustomerDetailController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await getAdminCustomerDetail(req.params.id);
     res.status(200).json(result);
   } catch (error) {
     next(error);

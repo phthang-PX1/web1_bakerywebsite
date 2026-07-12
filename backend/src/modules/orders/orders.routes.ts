@@ -9,16 +9,19 @@ import { validate } from "../../middlewares/validate";
 import { verifyAccessToken } from "../../utils/jwt";
 import {
   cancelMyOrderController,
+  claimGuestOrderController,
   createOrderController,
   getAdminOrderDetailController,
   getAdminOrdersController,
   getMyOrderDetailController,
   getMyOrdersController,
   getTrackedOrderDetailController,
+  markOrderPaidByAdminController,
   paymentWebhookController,
   updateAdminOrderStatusController
 } from "./orders.controller";
 import {
+  claimOrderBodySchema,
   createOrderBodySchema,
   orderIdParamsSchema,
   orderListQuerySchema,
@@ -214,6 +217,38 @@ publicRouter.patch(
 
 /**
  * @swagger
+ * /orders/me/{id}/claim:
+ *   post:
+ *     summary: Claim a guest order into the logged-in account using its tracking token
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     requestBody:
+ *       required: true
+ *       content:
+ *         application/json:
+ *           example:
+ *             token: "<tracking-token>"
+ *     responses:
+ *       200:
+ *         description: Order linked to the account (points credited if delivered)
+ */
+publicRouter.post(
+  "/me/:id/claim",
+  auth,
+  validate({ params: orderIdParamsSchema, body: claimOrderBodySchema }),
+  claimGuestOrderController
+);
+
+/**
+ * @swagger
  * /webhooks/payment:
  *   post:
  *     summary: Simulate automatic bank transfer confirmation
@@ -311,6 +346,32 @@ adminRouter.patch(
   ...adminAccess,
   validate({ params: orderIdParamsSchema, body: updateOrderStatusBodySchema }),
   updateAdminOrderStatusController
+);
+
+/**
+ * @swagger
+ * /admin/orders/{id}/payment:
+ *   patch:
+ *     summary: Admin manually marks an order as paid (COD or reconciled transfer)
+ *     tags: [Admin Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Order marked as paid
+ */
+adminRouter.patch(
+  "/:id/payment",
+  ...adminAccess,
+  validate({ params: orderIdParamsSchema }),
+  markOrderPaidByAdminController
 );
 
 export { adminRouter as adminOrdersRoutes, webhookRouter as paymentWebhookRoutes };

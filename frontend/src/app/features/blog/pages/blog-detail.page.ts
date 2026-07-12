@@ -1,6 +1,7 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, RouterLink } from '@angular/router';
-import { BLOG_POSTS, type BlogPost } from '../blog.config';
+import { BlogApi } from '../../../core/api/blog.api';
+import type { BlogPost } from '../../../core/models/blog.model';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 
 @Component({
@@ -48,10 +49,14 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
 })
 export class BlogDetailPage implements OnInit {
   private readonly route = inject(ActivatedRoute);
+  private readonly blogApi = inject(BlogApi);
   readonly post = signal<BlogPost | null>(null);
 
   ngOnInit(): void {
     const slug = this.route.snapshot.paramMap.get('slug')!;
-    this.post.set(BLOG_POSTS.find((p) => p.slug === slug) ?? null);
+    this.blogApi.getBySlug(slug).subscribe({
+      next: (post) => this.post.set(post),
+      error: () => this.post.set(null),
+    });
   }
 }

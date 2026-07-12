@@ -7,9 +7,11 @@ import { AppError } from "../../middlewares/errorHandler";
 import { getFrontendUrl, issueActionToken, verifyActionToken } from "../../utils/authToken";
 import { renderEmailChangeEmail, sendEmailAsync } from "../../utils/email";
 import { sendSms } from "../../utils/sms";
+import { toMoney } from "../../utils/money";
 import { getRewardCatalog, redeemReward } from "../loyalty/loyalty.service";
 import type {
   AddressInput,
+  AdminCustomersQuery,
   ChangeEmailInput,
   ChangePasswordInput,
   ChangePhoneInput,
@@ -554,5 +556,133 @@ export const getLoyaltyLogs = async (
       total,
       totalPages: Math.ceil(total / query.limit)
     }
+  };
+};
+
+// ─── Admin: quản lý khách hàng ───────────────────────────────────────────────
+// "Khách hàng" = user có role member (không phải admin). Trước đây trang admin
+// customers chạy mock vì thiếu backend (business-problem.md D-1).
+
+const buildCustomerWhere = (query: AdminCustomersQuery): Prisma.UserWhereInput => {
+  const where: Prisma.UserWhereInput = { role: "member" };
+
+  if (query.isActive !== undefined) {
+    where.isActive = query.isActive;
+  }
+
+  if (query.search) {
+    where.OR = [
+      { fullName: { contains: query.search, mode: "insensitive" } },
+      { email: { contains: query.search, mode: "insensitive" } },
+      { phone: { contains: query.search } }
+    ];
+  }
+
+  return where;
+};
+
+/**
+ * Thống kê đơn cho NHIỀU user trong 2 truy vấn gộp (groupBy), tránh mở một
+ * transaction cho từng user (gây cạn connection pool → 500 khi limit lớn).
+ */
+const getOrderStatsForUsers = async (userIds: string[]) => {
+  const stats = new Map<string, { totalOrders: number; totalSpent: number }>();
+  if (userIds.length === 0) return stats;
+
+  const [orderCounts, spentSums] = await Promise.all([
+    prisma.order.groupBy({
+      by: ["userId"],
+      where: { userId: { in: userIds }, orderStatus: { not: "cancelled" } },
+      _count: { _all: true }
+    }),
+    prisma.order.groupBy({
+      by: ["userId"],
+      where: { userId: { in: userIds }, orderStatus: "delivered" },
+      _sum: { totalAmount: true }
+    })
+  ]);
+
+  for (const userId of userIds) {
+    stats.set(userId, { totalOrders: 0, totalSpent: 0 });
+  }
+  for (const row of orderCounts) {
+    if (!row.userId) continue;
+    const entry = stats.get(row.userId);
+    if (entry) entry.totalOrders = row._count._all;
+  }
+  for (const row of spentSums) {
+    if (!row.userId) continue;
+    const entry = stats.get(row.userId);
+    if (entry) entry.totalSpent = toMoney(row._sum.totalAmount ?? 0);
+  }
+
+  return stats;
+};
+
+export const getAdminCustomers = async (query: AdminCustomersQuery) => {
+  const where = buildCustomerWhere(query);
+  const skip = (query.page - 1) * query.limit;
+
+  const [total, users] = await prisma.$transaction([
+    prisma.user.count({ where }),
+    prisma.user.findMany({
+      where,
+      orderBy: { createdAt: "desc" },
+      skip,
+      take: query.limit
+    })
+  ]);
+
+  const stats = await getOrderStatsForUsers(users.map((u) => u.userId));
+  const items = users.map((user) => ({
+    ...toSafeUser(user),
+    ...(stats.get(user.userId) ?? { totalOrders: 0, totalSpent: 0 })
+  }));
+
+  return {
+    items,
+    pagination: {
+      page: query.page,
+      limit: query.limit,
+      total,
+      totalPages: Math.ceil(total / query.limit)
+    }
+  };
+};
+
+export const getAdminCustomerDetail = async (customerId: string) => {
+  const user = await prisma.user.findFirst({
+    where: { userId: customerId, role: "member" },
+    include: {
+      addresses: true,
+      orders: {
+        orderBy: { createdAt: "desc" },
+        take: 20,
+        select: {
+          orderId: true,
+          orderStatus: true,
+          paymentStatus: true,
+          totalAmount: true,
+          createdAt: true
+        }
+      }
+    }
+  });
+
+  if (!user) {
+    throw new AppError(404, "Customer not found");
+  }
+
+  const statsMap = await getOrderStatsForUsers([user.userId]);
+  const stats = statsMap.get(user.userId) ?? { totalOrders: 0, totalSpent: 0 };
+  const { passwordHash, refreshTokenHash, orders, ...rest } = user;
+
+  return {
+    ...rest,
+    ...stats,
+    recentOrders: orders.map((order) => ({
+      ...order,
+      totalAmount: toMoney(order.totalAmount)
+    }))
   };
 };

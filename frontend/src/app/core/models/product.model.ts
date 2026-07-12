@@ -21,10 +21,15 @@ export interface OptionItem {
 
 export interface OptionGroup {
   readonly groupId: string;
-  readonly productId: string;
+  // null = thành phần dùng chung (không thuộc sản phẩm nào).
+  readonly productId: string | null;
   readonly name: string;
   readonly isRequired: boolean;
   readonly isMultiple: boolean;
+  // Quy tắc chọn (cấu hình ở admin): tối đa được chọn, số lượng miễn phí, phụ phí mỗi cái vượt.
+  readonly maxSelect?: number | null;
+  readonly freeQuantity?: number;
+  readonly surchargePerExtra?: number;
   readonly sortOrder: number;
   readonly items: readonly OptionItem[];
 }
@@ -44,7 +49,8 @@ export interface Product {
   readonly reviewCount: number;
   readonly isActive: boolean;
   readonly createdAt: string;
-  readonly updatedAt: string;
+  // Chỉ endpoint detail trả updatedAt; list (productListSelect) không có → optional.
+  readonly updatedAt?: string;
   readonly images?: readonly ProductImage[];
   readonly optionGroups?: readonly OptionGroup[];
   readonly category?: Category;

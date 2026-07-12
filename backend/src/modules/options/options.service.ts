@@ -93,6 +93,32 @@ export const getProductOptions = async (productId: string) => {
   });
 };
 
+/** Client: thành phần DÙNG CHUNG (productId = null), chỉ item đang bật. */
+export const getSharedOptions = async () =>
+  prisma.optionGroup.findMany({
+    where: { productId: null },
+    orderBy: { sortOrder: "asc" },
+    include: {
+      items: {
+        where: { isActive: true },
+        orderBy: { sortOrder: "asc" }
+      }
+    }
+  });
+
+/**
+ * Admin "Quản lý thành phần": mặc định trả nhóm DÙNG CHUNG (productId=null),
+ * kèm CẢ item ẩn. Nếu truyền productId thì trả nhóm riêng của sản phẩm đó.
+ */
+export const getAdminOptionGroups = async (productId?: string) =>
+  prisma.optionGroup.findMany({
+    where: { productId: productId ?? null },
+    orderBy: { sortOrder: "asc" },
+    include: {
+      items: { orderBy: { sortOrder: "asc" } }
+    }
+  });
+
 export const createOptionGroup = async (
   productId: string,
   input: OptionGroupInput
@@ -105,6 +131,9 @@ export const createOptionGroup = async (
       name: input.name,
       isRequired: input.isRequired ?? false,
       isMultiple: input.isMultiple ?? false,
+      maxSelect: input.maxSelect ?? null,
+      freeQuantity: input.freeQuantity ?? 0,
+      surchargePerExtra: input.surchargePerExtra ?? 0,
       sortOrder: input.sortOrder ?? 0
     },
     include: {
@@ -114,6 +143,24 @@ export const createOptionGroup = async (
     }
   });
 };
+
+/** Tạo nhóm thành phần DÙNG CHUNG (không thuộc sản phẩm nào). */
+export const createSharedOptionGroup = async (input: OptionGroupInput) =>
+  prisma.optionGroup.create({
+    data: {
+      productId: null,
+      name: input.name,
+      isRequired: input.isRequired ?? false,
+      isMultiple: input.isMultiple ?? false,
+      maxSelect: input.maxSelect ?? null,
+      freeQuantity: input.freeQuantity ?? 0,
+      surchargePerExtra: input.surchargePerExtra ?? 0,
+      sortOrder: input.sortOrder ?? 0
+    },
+    include: {
+      items: { orderBy: { sortOrder: "asc" } }
+    }
+  });
 
 export const updateOptionGroup = async (
   groupId: string,
@@ -127,6 +174,9 @@ export const updateOptionGroup = async (
       ...(input.name !== undefined && { name: input.name }),
       ...(input.isRequired !== undefined && { isRequired: input.isRequired }),
       ...(input.isMultiple !== undefined && { isMultiple: input.isMultiple }),
+      ...(input.maxSelect !== undefined && { maxSelect: input.maxSelect }),
+      ...(input.freeQuantity !== undefined && { freeQuantity: input.freeQuantity }),
+      ...(input.surchargePerExtra !== undefined && { surchargePerExtra: input.surchargePerExtra }),
       ...(input.sortOrder !== undefined && { sortOrder: input.sortOrder })
     },
     include: {

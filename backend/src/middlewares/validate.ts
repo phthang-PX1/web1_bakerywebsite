@@ -1,11 +1,23 @@
 import type { NextFunction, Request, Response } from "express";
-import type { ZodSchema } from "zod";
+import type { ZodError, ZodSchema } from "zod";
 import { AppError } from "./errorHandler";
 
 type RequestSchemas = {
   body?: ZodSchema;
   params?: ZodSchema;
   query?: ZodSchema;
+};
+
+// Rút gọn lỗi Zod thành thông báo field-level, tránh lộ cấu trúc schema/kiểu
+// dữ liệu nội bộ ra client (không trả nguyên `error.message` là chuỗi JSON đầy đủ).
+const formatZodError = (error: ZodError): string => {
+  const flat = error.flatten();
+  const fieldMessages = Object.entries(flat.fieldErrors)
+    .map(([field, messages]) => `${field}: ${(messages ?? []).join(", ")}`)
+    .filter(Boolean);
+  const messages = [...flat.formErrors, ...fieldMessages].filter(Boolean);
+
+  return messages.length ? messages.join("; ") : "Invalid request data";
 };
 
 export const validate = (schemas: RequestSchemas) => {
@@ -15,17 +27,17 @@ export const validate = (schemas: RequestSchemas) => {
     const queryResult = schemas.query?.safeParse(req.query);
 
     if (bodyResult && !bodyResult.success) {
-      next(new AppError(400, bodyResult.error.message));
+      next(new AppError(400, formatZodError(bodyResult.error)));
       return;
     }
 
     if (paramsResult && !paramsResult.success) {
-      next(new AppError(400, paramsResult.error.message));
+      next(new AppError(400, formatZodError(paramsResult.error)));
       return;
     }
 
     if (queryResult && !queryResult.success) {
-      next(new AppError(400, queryResult.error.message));
+      next(new AppError(400, formatZodError(queryResult.error)));
       return;
     }
 

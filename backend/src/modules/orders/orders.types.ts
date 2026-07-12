@@ -20,11 +20,13 @@ export type OrderCreateInput = {
   note?: string;
   cardType: string;
   cardMessage?: string;
+  cartItemIds?: string[];
 };
 
 export type PaymentWebhookInput = {
   orderId: string;
   amount: number;
+  transferContent?: string;
 };
 
 export type OrderListQuery = {

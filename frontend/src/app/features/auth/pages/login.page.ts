@@ -113,9 +113,16 @@ export class LoginPage {
 
     const { phone, password } = this.form.value;
     this.authService.login({ phone: phone!, password: password! }).subscribe({
-      next: () => {
+      next: (response) => {
         this.cartService.mergeGuestCart();
-        const redirect = this.route.snapshot.queryParamMap.get('redirect') ?? '/';
+        const rawRedirect = this.route.snapshot.queryParamMap.get('redirect');
+        const requestedRedirect = rawRedirect
+          ? (rawRedirect.startsWith('/') ? rawRedirect : `/${rawRedirect}`)
+          : null;
+        const redirect =
+          response.user.role === 'admin'
+            ? (requestedRedirect?.startsWith('/admin') ? requestedRedirect : '/admin')
+            : (requestedRedirect ?? '/');
         this.router.navigateByUrl(redirect);
       },
       error: (err) => {

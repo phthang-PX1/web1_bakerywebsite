@@ -70,6 +70,20 @@ export class AuthService {
     localStorage.removeItem(AUTH_STORAGE_KEYS.REFRESH_TOKEN);
   }
 
+  /**
+   * Gọi khi phiên hết hạn và refresh thất bại: dọn token, xoá user và đưa về
+   * trang đăng nhập kèm returnUrl để quay lại sau khi đăng nhập. Tránh để người
+   * dùng kẹt ở trang admin trống (không hiểu vì sao "không có dữ liệu").
+   */
+  sessionExpired(): void {
+    this.clearTokens();
+    this.currentUser$.next(null);
+    const returnUrl = this.router.url;
+    this.router.navigate(['/auth/login'], {
+      queryParams: returnUrl && !returnUrl.startsWith('/auth') ? { returnUrl } : {},
+    });
+  }
+
   loadCurrentUser(): void {
     if (!this.isLoggedIn()) return;
     this.usersApi.getMe().subscribe({

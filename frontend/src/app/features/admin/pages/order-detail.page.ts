@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminApi } from '../../../core/api/admin.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Order, OrderStatus } from '../../../core/models/order.model';
+import { orderStatusLabel } from '../../../core/utils/admin-status.util';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { environment } from '../../../../environments/environment';
@@ -531,16 +532,7 @@ export class AdminOrderDetailPage implements OnInit {
   }
 
   getStatusLabelText(order: Order): string {
-    switch (order.orderStatus) {
-      case 'pending': return 'Chờ xác nhận';
-      case 'confirmed': return 'Đã xác nhận';
-      case 'processing': return 'Đang làm bánh';
-      case 'ready': 
-        return order.fulfillmentType === 'delivery' ? 'Đang giao hàng' : 'Chờ khách lấy';
-      case 'delivered': return 'Hoàn thành';
-      case 'cancelled': return 'Đã hủy';
-      default: return order.orderStatus;
-    }
+    return orderStatusLabel(order);
   }
 
   getStatusBadgeStyle(order: Order): string {
@@ -717,7 +709,7 @@ export class AdminOrderDetailPage implements OnInit {
   confirmPaymentManually(o: Order) {
     if (confirm('Bạn có chắc chắn đã nhận được thanh toán từ khách hàng cho đơn này?')) {
       this.saving.set(true);
-      this.adminApi.simulatePayment(o.orderId, o.totalAmount, '').subscribe({
+      this.adminApi.markOrderPaid(o.orderId).subscribe({
         next: () => {
           this.saving.set(false);
           this.toastService.success('Đã xác nhận thanh toán thành công!');

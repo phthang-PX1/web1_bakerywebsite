@@ -1,6 +1,7 @@
 import type { RequestHandler } from "express";
 import {
   cancelMyOrder,
+  claimGuestOrder,
   confirmPaymentWebhook,
   createOrder,
   getAdminOrderDetail,
@@ -8,6 +9,7 @@ import {
   getMyOrderDetail,
   getMyOrders,
   getTrackedOrderDetail,
+  markOrderPaidByAdmin,
   updateAdminOrderStatus
 } from "./orders.service";
 import type {
@@ -113,6 +115,16 @@ export const cancelMyOrderController: RequestHandler = async (req, res, next) =>
   }
 };
 
+export const claimGuestOrderController: RequestHandler = async (req, res, next) => {
+  try {
+    const { token } = req.body as { token: string };
+    const result = await claimGuestOrder(req.user?.userId, req.params.id, token);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
 export const paymentWebhookController: RequestHandler = async (req, res, next) => {
   try {
     const result = await confirmPaymentWebhook(req.body as PaymentWebhookInput);
@@ -166,6 +178,19 @@ export const updateAdminOrderStatusController: RequestHandler = async (
       req.params.id,
       req.body as UpdateOrderStatusInput
     );
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const markOrderPaidByAdminController: RequestHandler = async (
+  req,
+  res,
+  next
+) => {
+  try {
+    const result = await markOrderPaidByAdmin(req.params.id);
     res.status(200).json(result);
   } catch (error) {
     next(error);

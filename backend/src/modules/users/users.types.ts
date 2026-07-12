@@ -53,3 +53,15 @@ export type RedeemRewardInput = {
 };
 
 export type AddressResponse = Address;
+
+export type AdminCustomersQuery = {
+  page: number;
+  limit: number;
+  search?: string;
+  isActive?: boolean;
+};
+
+export type AdminCustomerListItem = SafeUser & {
+  totalOrders: number;
+  totalSpent: number;
+};

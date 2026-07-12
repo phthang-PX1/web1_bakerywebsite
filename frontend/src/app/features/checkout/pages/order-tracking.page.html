@@ -58,6 +58,9 @@
       </div>
 
       <div class="tracking-actions">
+        @if (canClaim()) {
+          <button class="btn-detail" type="button" (click)="claimOrder()">Nhận đơn này về tài khoản</button>
+        }
         @if (isLoggedIn() && o.orderStatus === 'pending') {
           <button class="btn-cancel" type="button" (click)="cancelOrder()">Hủy đơn hàng</button>
         }

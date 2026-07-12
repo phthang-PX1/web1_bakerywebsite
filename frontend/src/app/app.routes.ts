@@ -136,11 +136,6 @@ export const routes: Routes = [
           import('./features/admin/pages/custom-cake-list.page').then((m) => m.AdminCustomCakeListPage),
       },
       {
-        path: 'custom-cake/:id',
-        loadComponent: () =>
-          import('./features/admin/pages/custom-cake-detail.page').then((m) => m.AdminCustomCakeDetailPage),
-      },
-      {
         path: 'orders',
         loadComponent: () => import('./features/admin/pages/orders-list.page').then((m) => m.AdminOrdersListPage),
       },

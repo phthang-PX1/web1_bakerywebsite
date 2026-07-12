@@ -2,7 +2,8 @@ import { Component, OnInit, signal, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { AdminApi, AdminAnalyticsOverview } from '../../../core/api/admin.api';
+import { AdminApi, AdminAnalyticsOverview, type CategoryDistribution, type TierDistribution, type RevenueTrend, type LoyaltyStats } from '../../../core/api/admin.api';
+import { ToastService } from '../../../core/services/toast.service';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 
 interface ProductRanking {
@@ -463,11 +464,12 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
         
         <!-- Line Chart: Xu hướng Doanh thu & Đơn hàng -->
         <div class="dashboard-card" style="padding: 24px; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Biểu đồ xu hướng chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Số liệu tạm ẩn do Backend chưa hỗ trợ cung cấp API dữ liệu chuỗi thời gian (time-series).</span>
-          </div>
+          @if (!hasTrendData()) {
+            <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
+              <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chưa có dữ liệu trong kỳ này</span>
+              <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Hãy chọn khoảng thời gian có đơn hàng để xem xu hướng.</span>
+            </div>
+          }
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
             <h3 style="margin: 0; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
               Xu hướng Doanh thu & Đơn hàng
@@ -602,11 +604,12 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
 
         <!-- Donut Chart: Tỷ trọng doanh thu danh mục -->
         <div class="dashboard-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; box-sizing: border-box; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Phân bổ danh mục chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Dữ liệu tỷ trọng danh mục doanh thu tạm ẩn do Backend chưa hỗ trợ thống kê phân bổ.</span>
-          </div>
+          @if (!hasCategoryData()) {
+            <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
+              <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chưa có dữ liệu trong kỳ này</span>
+              <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Chưa có doanh thu theo danh mục trong khoảng thời gian đã chọn.</span>
+            </div>
+          }
           <h3 style="margin: 0 0 18px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
             Tỷ trọng doanh thu danh mục
           </h3>
@@ -661,11 +664,12 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
         
         <!-- Chỉ số Tích điểm thành viên -->
         <div class="dashboard-card" style="padding: 24px; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chỉ số tích điểm chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Dữ liệu tích điểm thành viên tạm ẩn do Backend chưa cung cấp API thống kê điểm thưởng.</span>
-          </div>
+          @if (!hasLoyaltyData()) {
+            <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
+              <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chưa có dữ liệu tích điểm</span>
+              <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Chưa có giao dịch tích/đổi điểm nào được ghi nhận.</span>
+            </div>
+          }
           <h3 style="margin: 0 0 20px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
             Chỉ số Tích điểm thành viên
           </h3>
@@ -700,11 +704,12 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
 
         <!-- Cơ cấu Hạng Thành viên Thân thiết (Cột) -->
         <div class="dashboard-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between; box-sizing: border-box; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Cơ cấu hạng thành viên chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Số liệu phân bổ hạng thành viên tạm ẩn do Backend chưa cung cấp API phân hạng khách hàng.</span>
-          </div>
+          @if (!hasTierData()) {
+            <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
+              <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chưa có dữ liệu hạng thành viên</span>
+              <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Chưa có khách hàng nào để phân hạng.</span>
+            </div>
+          }
           <h3 style="margin: 0 0 16px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
             Cơ cấu Hạng Thành viên Thân thiết
           </h3>
@@ -740,115 +745,6 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
         </div>
       </div>
 
-      <!-- Part 4: Charts Row 3 (Sử dụng Voucher & Kênh truyền thông) -->
-      <div style="display: grid; grid-template-columns: 1fr 1.7fr; gap: 24px; margin-bottom: 24px; align-items: start; flex-wrap: wrap;">
-        
-        <!-- Tỷ lệ sử dụng Voucher -->
-        <div class="dashboard-card" style="padding: 24px; display: flex; flex-direction: column; justify-content: space-between; height: 100%; box-sizing: border-box; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Tỷ lệ dùng Voucher chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Dữ liệu tỷ lệ sử dụng voucher tạm ẩn do Backend chưa cung cấp API thống kê voucher.</span>
-          </div>
-          <h3 style="margin: 0 0 16px; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
-            Tỷ lệ sử dụng Voucher
-          </h3>
-
-          <!-- Round Pie Representation -->
-          <div style="position: relative; width: 140px; height: 140px; margin: 0 auto 16px; display: flex; align-items: center; justify-content: center;">
-            <svg width="100%" height="100%" viewBox="0 0 160 160" style="transform: rotate(-90deg);">
-              <!-- Grey Base (Hết hạn) -->
-              <circle cx="80" cy="80" r="50" fill="none" stroke="#e5e7eb" stroke-width="32" />
-              
-              <!-- Yellow Lite (Chưa sử dụng) -->
-              <circle cx="80" cy="80" r="50" fill="none" stroke="#fff1c5" stroke-width="32" 
-                [attr.stroke-dasharray]="voucherRings().unusedDash" 
-                [attr.stroke-dashoffset]="voucherRings().unusedOffset"
-              />
-
-              <!-- Yellow Active (Đã sử dụng) -->
-              <circle cx="80" cy="80" r="50" fill="none" stroke="#f5c842" stroke-width="32" 
-                [attr.stroke-dasharray]="voucherRings().usedDash" 
-                stroke-dashoffset="0"
-              />
-            </svg>
-          </div>
-
-          <!-- Labels and descriptions -->
-          <div style="display: flex; flex-direction: column; gap: 6px; font-size: 12.5px; font-weight: 600;">
-            <div style="display: flex; justify-content: space-between;">
-              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #f5c842; display: inline-block;"></span> Đã sử dụng</span>
-              <strong>{{ voucherRings().usedPercent }}%</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #fff1c5; display: inline-block;"></span> Chưa sử dụng</span>
-              <strong>{{ voucherRings().unusedPercent }}%</strong>
-            </div>
-            <div style="display: flex; justify-content: space-between;">
-              <span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; border-radius: 50%; background: #e5e7eb; display: inline-block;"></span> Hết hạn</span>
-              <strong>{{ voucherRings().expiredPercent }}%</strong>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hiệu suất Kênh truyền thông (Line Chart) -->
-        <div class="dashboard-card" style="padding: 24px; position: relative;">
-          <!-- Overlay disclaimer -->
-          <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-            <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Biểu đồ kênh truyền thông chưa khả dụng</span>
-            <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Biểu đồ hiệu suất tiếp thị tạm ẩn do Backend chưa cung cấp API thống kê kênh marketing.</span>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h3 style="margin: 0; font-family: 'Fraunces', serif; font-size: 17px; font-weight: 800;">
-              Hiệu suất Kênh truyền thông
-            </h3>
-            
-            <div style="display: flex; gap: 14px; font-size: 12.5px; font-weight: 700;">
-              <span style="display: flex; align-items: center; gap: 6px; color: #2563eb;">
-                <span style="width: 10px; height: 10px; border-radius: 50%; background: #3b82f6; display: inline-block;"></span> Lượt xem bài viết Blog
-              </span>
-              <span style="display: flex; align-items: center; gap: 6px; color: #d97706;">
-                <span style="width: 10px; height: 10px; border-radius: 50%; background: #f5c842; display: inline-block;"></span> Đăng ký Email bản tin
-              </span>
-            </div>
-          </div>
-
-          <!-- SVG Chart Area -->
-          <div style="position: relative; height: 170px; width: 100%;">
-            <svg style="width: 100%; height: 100%; overflow: visible;">
-              <!-- Grid Horizontal Lines -->
-              <line x1="0" y1="20" x2="100%" y2="20" stroke="#f3ece3" stroke-width="1" />
-              <line x1="0" y1="70" x2="100%" y2="70" stroke="#f3ece3" stroke-width="1" />
-              <line x1="0" y1="120" x2="100%" y2="120" stroke="#f3ece3" stroke-width="1" />
-              <line x1="0" y1="150" x2="100%" y2="150" stroke="#ede8e2" stroke-width="1.5" />
-
-              <!-- Render Media lines -->
-              <path [attr.d]="mediaPath().blogLine" fill="none" stroke="#3b82f6" stroke-width="3" stroke-linecap="round" />
-              <path [attr.d]="mediaPath().emailLine" fill="none" stroke="#f5c842" stroke-width="2.5" stroke-dasharray="5,5" stroke-linecap="round" />
-
-              <!-- Dots -->
-              @for (pt of mediaPoints().blogs; track $index) {
-                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#3b82f6" />
-              }
-              @for (pt of mediaPoints().emails; track $index) {
-                <circle [attr.cx]="pt.x" [attr.cy]="pt.y" r="3.5" fill="#f5c842" />
-              }
-            </svg>
-          </div>
-
-          <!-- X axis days labels -->
-          <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: #7a6555; font-weight: 700; padding: 0 10px;">
-            <span>T2</span>
-            <span>T3</span>
-            <span>T4</span>
-            <span>T5</span>
-            <span>T6</span>
-            <span>T7</span>
-            <span>CN</span>
-          </div>
-        </div>
-
-      </div>
 
       <!-- Part 5: Top 5 Bán Chạy Nhất (Table) -->
       <div class="dashboard-card" style="padding: 24px;">
@@ -939,6 +835,7 @@ const REPORT_MOCK_DATA: Record<string, PeriodData> = {
 })
 export class AdminReportsPage implements OnInit {
   private readonly adminApi = inject(AdminApi);
+  private readonly toastService = inject(ToastService);
 
   readonly selectedPeriod = signal('month');
   showExportOptions = signal(false);
@@ -946,6 +843,17 @@ export class AdminReportsPage implements OnInit {
 
   /** Real data from GET /admin/analytics/overview — null while loading */
   apiOverview = signal<AdminAnalyticsOverview | null>(null);
+  /** Phân bổ danh mục + hạng thành viên từ API thật (Phase 2). */
+  apiCategoryDist = signal<CategoryDistribution | null>(null);
+  apiTierDist = signal<TierDistribution | null>(null);
+  apiRevenueTrend = signal<RevenueTrend | null>(null);
+  apiLoyaltyStats = signal<LoyaltyStats | null>(null);
+
+  /** Cờ hiển thị: biểu đồ dùng data thật → gỡ overlay khi có data. */
+  readonly hasTrendData = computed(() => (this.apiRevenueTrend()?.points.length ?? 0) > 0);
+  readonly hasCategoryData = computed(() => (this.apiCategoryDist()?.byCategory.length ?? 0) > 0);
+  readonly hasTierData = computed(() => (this.apiTierDist()?.total ?? 0) > 0);
+  readonly hasLoyaltyData = computed(() => this.apiLoyaltyStats() !== null);
 
   // Highlighting states
   activeCategoryText = signal('Bấm vào một lát trong biểu đồ để xem chi tiết tỷ trọng');
@@ -960,6 +868,43 @@ export class AdminReportsPage implements OnInit {
     const api = this.apiOverview();
     const base = REPORT_MOCK_DATA[period] || REPORT_MOCK_DATA['month'];
 
+    const catDist = this.apiCategoryDist();
+    const tierDist = this.apiTierDist();
+
+    // Phân bổ danh mục (donut) từ API thật.
+    const donutData =
+      catDist && catDist.totalRevenue > 0
+        ? catDist.byCategory.map((c) => ({
+            category: c.name,
+            percentage: Math.round((c.revenue / catDist.totalRevenue) * 100),
+          }))
+        : base.donutData;
+
+    // Phân bổ hạng thành viên từ API thật.
+    const tierLabels: Record<string, string> = {
+      member: 'Member', bronze: 'Bronze', silver: 'Silver', gold: 'Gold', diamond: 'Diamond',
+    };
+    const tierData =
+      tierDist && tierDist.total > 0
+        ? tierDist.byTier.map((t) => ({
+            tier: tierLabels[t.tier] ?? t.tier,
+            count: t.count,
+            percentage: Math.round((t.count / tierDist.total) * 1000) / 10,
+          }))
+        : base.tierData;
+
+    // Xu hướng doanh thu/đơn theo ngày từ API thật (lấy tối đa 7 mốc để vừa biểu đồ).
+    const trend = this.apiRevenueTrend();
+    let trendRevenue = base.trendRevenue;
+    let trendOrders = base.trendOrders;
+    if (trend && trend.points.length > 0) {
+      const pts = trend.points;
+      const step = Math.max(1, Math.ceil(pts.length / 7));
+      const sampled = pts.filter((_, i) => i % step === 0 || i === pts.length - 1).slice(-7);
+      trendRevenue = sampled.map((p) => p.revenue);
+      trendOrders = sampled.map((p) => p.orders);
+    }
+
     // If real API data is available, override the relevant stats
     if (api) {
       return {
@@ -970,6 +915,10 @@ export class AdminReportsPage implements OnInit {
           orders: api.totalOrders,
           customersCount: api.newCustomers,
         },
+        donutData,
+        tierData,
+        trendRevenue,
+        trendOrders,
         topProducts: api.topProducts.map((p, i) => ({
           rank: i + 1,
           productId: p.productId,
@@ -984,6 +933,10 @@ export class AdminReportsPage implements OnInit {
     }
     return {
       ...base,
+      donutData,
+      tierData,
+      trendRevenue,
+      trendOrders,
       topProducts: []
     };
   });
@@ -993,29 +946,36 @@ export class AdminReportsPage implements OnInit {
     const data = this.currentData();
     const width = 600; // Reference width in template
     const height = 170; // Reference height
+    const topPadding = 18;
+    const bottomPadding = 20;
+    const plotHeight = height - topPadding - bottomPadding;
 
-    // Find max value to auto-scale
-    const maxRev = Math.max(...data.trendRevenue, 100);
-    const maxOrd = Math.max(...data.trendOrders, 1000);
+    const toPoints = (values: number[]) => {
+      const cleanValues = values.length ? values.map((val) => Number(val) || 0) : [0];
+      const min = Math.min(...cleanValues);
+      const max = Math.max(...cleanValues);
+      const range = max - min;
 
-    const revenuePoints = data.trendRevenue.map((val, idx) => {
-      const x = idx * (width / 6);
-      const y = height - (val / maxRev) * (height - 30);
-      return { x, y, val };
-    });
+      return cleanValues.map((val, idx) => {
+        const x = cleanValues.length === 1 ? width / 2 : idx * (width / (cleanValues.length - 1));
+        const ratio = range === 0 ? (max > 0 ? 0.55 : 0) : (val - min) / range;
+        const y = height - bottomPadding - ratio * plotHeight;
+        return { x, y, val };
+      });
+    };
 
-    const ordersPoints = data.trendOrders.map((val, idx) => {
-      const x = idx * (width / 6);
-      const y = height - (val / maxOrd) * (height - 35);
-      return { x, y, val };
-    });
-
-    return { revenue: revenuePoints, orders: ordersPoints };
+    return { revenue: toPoints(data.trendRevenue), orders: toPoints(data.trendOrders) };
   });
 
   revenuePath = computed(() => {
     const pts = this.points().revenue;
     if (pts.length === 0) return { line: '', fill: '' };
+    if (pts.length === 1) {
+      const p = pts[0];
+      const line = `M ${p.x - 12},${p.y} L ${p.x + 12},${p.y}`;
+      const fill = `${line} L ${p.x + 12},200 L ${p.x - 12},200 Z`;
+      return { line, fill };
+    }
 
     const linePath = 'M ' + pts.map(p => `${p.x},${p.y}`).join(' L ');
     const fillPath = linePath + ` L ${pts[pts.length - 1].x},200 L ${pts[0].x},200 Z`;
@@ -1026,45 +986,17 @@ export class AdminReportsPage implements OnInit {
   ordersPath = computed(() => {
     const pts = this.points().orders;
     if (pts.length === 0) return { line: '', fill: '' };
+    if (pts.length === 1) {
+      const p = pts[0];
+      const line = `M ${p.x - 12},${p.y} L ${p.x + 12},${p.y}`;
+      const fill = `${line} L ${p.x + 12},200 L ${p.x - 12},200 Z`;
+      return { line, fill };
+    }
 
     const linePath = 'M ' + pts.map(p => `${p.x},${p.y}`).join(' L ');
     const fillPath = linePath + ` L ${pts[pts.length - 1].x},200 L ${pts[0].x},200 Z`;
 
     return { line: linePath, fill: fillPath };
-  });
-
-  // Calculate coordinates for Media channel efficiency chart
-  mediaPoints = computed(() => {
-    const data = this.currentData();
-    const width = 600;
-    const height = 150;
-
-    const maxBlogs = Math.max(...data.mediaBlogViews, 200);
-    const maxEmails = Math.max(...data.mediaEmailSubs, 100);
-
-    const blogsPts = data.mediaBlogViews.map((val, idx) => {
-      const x = idx * (width / 6);
-      const y = height - (val / maxBlogs) * (height - 20);
-      return { x, y };
-    });
-
-    const emailsPts = data.mediaEmailSubs.map((val, idx) => {
-      const x = idx * (width / 6);
-      const y = height - (val / maxEmails) * (height - 20);
-      return { x, y };
-    });
-
-    return { blogs: blogsPts, emails: emailsPts };
-  });
-
-  mediaPath = computed(() => {
-    const bPts = this.mediaPoints().blogs;
-    const ePts = this.mediaPoints().emails;
-
-    return {
-      blogLine: 'M ' + bPts.map(p => `${p.x},${p.y}`).join(' L '),
-      emailLine: 'M ' + ePts.map(p => `${p.x},${p.y}`).join(' L ')
-    };
   });
 
   // Dynamic Rings computed for Donut Chart (Categories Share)
@@ -1087,10 +1019,17 @@ export class AdminReportsPage implements OnInit {
     });
   });
 
-  // Dynamic progress stats computed for loyalty points section
+  // Dynamic progress stats computed for loyalty points section (ưu tiên API thật)
   loyaltyStats = computed(() => {
-    const data = this.currentData().loyaltyData;
-    const ratio = (data.totalRedeemed / data.totalGranted) * 100;
+    const api = this.apiLoyaltyStats();
+    const data = api
+      ? {
+          totalGranted: api.totalGranted,
+          totalRedeemed: api.totalRedeemed,
+          avgFrequency: api.avgFrequency,
+        }
+      : this.currentData().loyaltyData;
+    const ratio = data.totalGranted > 0 ? (data.totalRedeemed / data.totalGranted) * 100 : 0;
     return {
       ...data,
       ratioPercent: ratio + '%'
@@ -1113,28 +1052,6 @@ export class AdminReportsPage implements OnInit {
         border: borders[idx]
       };
     });
-  });
-
-  // Dynamic rings computed for Voucher usage pie chart
-  voucherRings = computed(() => {
-    const data = this.currentData().voucherData;
-    const circ = 2 * Math.PI * 50; // 314.15
-    
-    const usedDash = `${(data.usedPercent / 100) * circ} ${circ}`;
-    const unusedDash = `${(data.unusedPercent / 100) * circ} ${circ}`;
-    const expiredDash = `${(data.expiredPercent / 100) * circ} ${circ}`;
-    
-    const unusedOffset = -((data.usedPercent / 100) * circ);
-    const expiredOffset = -(((data.usedPercent + data.unusedPercent) / 100) * circ);
-    
-    return {
-      ...data,
-      usedDash,
-      unusedDash,
-      expiredDash,
-      unusedOffset,
-      expiredOffset
-    };
   });
 
   ngOnInit(): void {
@@ -1172,8 +1089,28 @@ export class AdminReportsPage implements OnInit {
       error: (err) => {
         console.error('[Reports] Failed to load analytics overview', err);
         this.isLoadingApi.set(false);
-        // Keep showing mock data on error
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được số liệu báo cáo.');
+        }
       }
+    });
+
+    // Phân bổ danh mục + hạng thành viên (biểu đồ thật).
+    this.adminApi.getCategoryDistribution(dateFrom, dateTo).subscribe({
+      next: (data) => this.apiCategoryDist.set(data),
+      error: () => this.apiCategoryDist.set(null),
+    });
+    this.adminApi.getTierDistribution().subscribe({
+      next: (data) => this.apiTierDist.set(data),
+      error: () => this.apiTierDist.set(null),
+    });
+    this.adminApi.getRevenueTrend(dateFrom, dateTo).subscribe({
+      next: (data) => this.apiRevenueTrend.set(data),
+      error: () => this.apiRevenueTrend.set(null),
+    });
+    this.adminApi.getLoyaltyStats().subscribe({
+      next: (data) => this.apiLoyaltyStats.set(data),
+      error: () => this.apiLoyaltyStats.set(null),
     });
   }
 
@@ -1194,24 +1131,45 @@ export class AdminReportsPage implements OnInit {
 
   triggerExport(format: 'xlsx' | 'csv'): void {
     this.showExportOptions.set(false);
-    
+
     if (format === 'xlsx') {
-      alert(`Đã chuẩn bị file Excel báo cáo cho giai đoạn: ${this.currentData().label} (${this.currentData().dateRange}). File: bao-cao-doanh-thu.xlsx`);
-    } else {
-      // Simulate real download of CSV
-      const csvContent = "data:text/csv;charset=utf-8,STT,Ten San Pham,Danh Muc,Da Ban,Doanh Thu\n"
-        + this.currentData().topProducts.map(p => `${p.rank},${p.name},${p.category},${p.soldCount},${p.revenue}`).join("\n");
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement("a");
-      link.setAttribute("href", encodedUri);
-      link.setAttribute("download", `webee_report_${this.selectedPeriod()}.csv`);
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      
-      alert(`Đã chuẩn bị và tải xuống file CSV báo cáo cho giai đoạn: ${this.currentData().label}`);
+      this.toastService.info(`File Excel cho ${this.currentData().label} đang chờ kết nối API xuất báo cáo.`);
+      return;
     }
+
+    this.downloadTextFile({
+      filename: `webee_report_${this.selectedPeriod()}.csv`,
+      content: this.buildReportCsv(),
+      mimeType: 'text/csv;charset=utf-8',
+    });
+    this.toastService.success(`Đã tải xuống file CSV báo cáo cho ${this.currentData().label}.`);
+  }
+
+  private buildReportCsv(): string {
+    const header = 'STT,Ten San Pham,Danh Muc,Da Ban,Doanh Thu';
+    const rows = this.currentData().topProducts.map((product) =>
+      [
+        product.rank,
+        product.name,
+        product.category,
+        product.soldCount,
+        product.revenue,
+      ].map((value) => `"${String(value).replace(/"/g, '""')}"`).join(',')
+    );
+    return [header, ...rows].join('\n');
+  }
+
+  private downloadTextFile(options: { filename: string; content: string; mimeType: string }): void {
+    const blob = new Blob([options.content], { type: options.mimeType });
+    const objectUrl = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+
+    link.href = objectUrl;
+    link.download = options.filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(objectUrl);
   }
 
   highlightCategory(infoText: string): void {

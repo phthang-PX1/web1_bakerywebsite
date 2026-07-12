@@ -8,6 +8,11 @@ import { verifyAccessToken } from "../../utils/jwt";
 import {
   getAnalyticsBehaviorController,
   getAnalyticsOverviewController,
+  getCategoryDistributionController,
+  getLoyaltyStatsController,
+  getOrderStatusDistributionController,
+  getRevenueTrendController,
+  getTierDistributionController,
   recordAnalyticsEventsController
 } from "./analytics.controller";
 import {
@@ -137,6 +142,81 @@ adminRouter.get(
   validate({ query: analyticsBehaviorQuerySchema }),
   getAnalyticsBehaviorController
 );
+
+/**
+ * @swagger
+ * /admin/analytics/revenue-trend:
+ *   get:
+ *     summary: Revenue & order count per day within range
+ *     tags: [Admin Analytics]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Daily revenue/orders points }
+ */
+adminRouter.get(
+  "/revenue-trend",
+  ...adminAccess,
+  validate({ query: analyticsOverviewQuerySchema }),
+  getRevenueTrendController
+);
+
+/**
+ * @swagger
+ * /admin/analytics/order-status:
+ *   get:
+ *     summary: Order count distribution by status
+ *     tags: [Admin Analytics]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Orders grouped by status }
+ */
+adminRouter.get(
+  "/order-status",
+  ...adminAccess,
+  validate({ query: analyticsOverviewQuerySchema }),
+  getOrderStatusDistributionController
+);
+
+/**
+ * @swagger
+ * /admin/analytics/category-distribution:
+ *   get:
+ *     summary: Revenue & quantity by product category
+ *     tags: [Admin Analytics]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Revenue grouped by category }
+ */
+adminRouter.get(
+  "/category-distribution",
+  ...adminAccess,
+  validate({ query: analyticsOverviewQuerySchema }),
+  getCategoryDistributionController
+);
+
+/**
+ * @swagger
+ * /admin/analytics/tier-distribution:
+ *   get:
+ *     summary: Customer count by membership tier
+ *     tags: [Admin Analytics]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Members grouped by tier }
+ */
+adminRouter.get("/tier-distribution", ...adminAccess, getTierDistributionController);
+
+/**
+ * @swagger
+ * /admin/analytics/loyalty-stats:
+ *   get:
+ *     summary: Loyalty points stats (granted / redeemed / avg per customer)
+ *     tags: [Admin Analytics]
+ *     security: [{ bearerAuth: [] }]
+ *     responses:
+ *       200: { description: Loyalty stats }
+ */
+adminRouter.get("/loyalty-stats", ...adminAccess, getLoyaltyStatsController);
 
 export { adminRouter as adminAnalyticsRoutes };
 export default publicRouter;

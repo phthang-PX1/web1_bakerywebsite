@@ -1,0 +1,14 @@
+{
+  "name": "webee-bakerywebsite",
+  "version": "1.0.0",
+  "private": true,
+  "description": "WeBee bakery full-stack workspace",
+  "scripts": {
+    "frontend": "npm --prefix frontend",
+    "backend": "npm --prefix backend",
+    "typecheck": "npm run typecheck --prefix frontend && npm run typecheck --prefix backend",
+    "build:frontend": "npm run build --prefix frontend",
+    "build:backend": "npm run build --prefix backend",
+    "verify": "npm run typecheck"
+  }
+}

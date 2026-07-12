@@ -14,9 +14,10 @@ interface MockVoucher {
   targetAudience: string; 
   minOrderValue: number; 
   discountType: 'percent' | 'fixed'; 
-  discountValue: number; 
-  maxDiscountAmount: number | null; 
-  applyCategory: string; 
+  discountValue: number;
+  maxDiscountAmount: number | null;
+  usageLimit?: number | null;
+  applyCategory: string;
   validityFrequency: string; 
   isActive: boolean; 
   status: 'active' | 'expired'; 
@@ -273,10 +274,8 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
             <tr style="background: #fffbf7; border-bottom: 1.5px solid #ede8e2;">
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Mã Voucher</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Chiến Dịch / Dịp Lễ</th>
-              <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Đối Tượng Áp Dụng</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Đơn Tối Thiểu</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Mức Giảm Giá</th>
-              <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Áp Dụng Danh Mục</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Hiệu lực & tần suất</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Trạng Thái</th>
               <th style="padding: 14px 16px; font-weight: 800; color: #7a6555;">Kích hoạt</th>
@@ -372,11 +371,6 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
                   {{ voucher.campaignName }}
                 </td>
 
-                <!-- Đối tượng -->
-                <td style="padding: 16px 14px; font-weight: 600; color: #7a6555;">
-                  {{ voucher.targetAudience }}
-                </td>
-
                 <!-- Đơn tối thiểu -->
                 <td style="padding: 16px 14px; font-weight: 600; color: #2b1a0f;">
                   {{ voucher.minOrderValue === 0 ? 'Từ 0 đ' : 'Từ ' + (voucher.minOrderValue.toLocaleString('vi-VN') + ' đ') }}
@@ -398,11 +392,6 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
                       Giảm {{ voucher.discountValue.toLocaleString('vi-VN') }} đ
                     }
                   }
-                </td>
-
-                <!-- Áp dụng danh mục -->
-                <td style="padding: 16px 14px; color: #7a6555; font-weight: 600; white-space: pre-line; line-height: 1.4;">
-                  {{ voucher.applyCategory }}
                 </td>
 
                 <!-- Hiệu lực & tần suất -->
@@ -449,7 +438,7 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
               </tr>
             } @empty {
               <tr>
-                <td colspan="10" style="text-align: center; padding: 48px; color: #7a6555; font-weight: 600;">
+                <td colspan="8" style="text-align: center; padding: 48px; color: #7a6555; font-weight: 600;">
                   Không tìm thấy voucher phù hợp.
                 </td>
               </tr>
@@ -676,6 +665,19 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
                   </div>
                 </div>
               }
+
+              <!-- Giới hạn lượt dùng -->
+              <div>
+                <label style="display: block; font-size: 13px; font-weight: 800; color: #2b1a0f; margin-bottom: 6px;">Giới hạn lượt dùng</label>
+                <input
+                  type="number"
+                  min="1"
+                  [(ngModel)]="formData.usageLimit"
+                  placeholder="Không giới hạn"
+                  style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: #2b1a0f; background: #ffffff; outline: none; box-sizing: border-box; font-family: 'Be Vietnam Pro', sans-serif;"
+                />
+                <span style="display: block; font-size: 11.5px; color: #7a6555; font-weight: 600; margin-top: 4px;">Để trống = dùng không giới hạn.</span>
+              </div>
             </div>
 
             <!-- ĐIỀU KIỆN ÁP DỤNG -->
@@ -708,26 +710,34 @@ const DEFAULT_VOUCHERS: MockVoucher[] = [
                    </div>
                  </div>
 
-                <!-- Đối tượng -->
+                <!-- Đối tượng — CHƯA áp dụng phía hệ thống (backend chưa hỗ trợ giới hạn theo hạng) -->
                 <div>
-                  <label style="display: block; font-size: 13px; font-weight: 800; color: #2b1a0f; margin-bottom: 6px;">Đối tượng</label>
-                  <input 
-                    type="text" 
+                  <label style="display: block; font-size: 13px; font-weight: 800; color: #2b1a0f; margin-bottom: 6px;">
+                    Đối tượng
+                    <span style="font-weight: 600; color: #b08a4a; font-size: 11.5px;">(sắp có — chưa áp dụng)</span>
+                  </label>
+                  <input
+                    type="text"
                     [(ngModel)]="formData.targetAudience"
-                    placeholder="VD: Tất cả khách"
-                    style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: #2b1a0f; background: #ffffff; outline: none; box-sizing: border-box; font-family: 'Be Vietnam Pro', sans-serif;"
+                    disabled
+                    placeholder="Áp dụng cho tất cả khách"
+                    style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 13.5px; font-weight: 700; color: #9c8a78; background: #f7f3ee; outline: none; box-sizing: border-box; cursor: not-allowed; font-family: 'Be Vietnam Pro', sans-serif;"
                   />
                 </div>
 
-                <!-- Sản phẩm áp dụng -->
+                <!-- Sản phẩm áp dụng — CHƯA áp dụng phía hệ thống -->
                 <div>
-                  <label style="display: block; font-size: 13px; font-weight: 800; color: #2b1a0f; margin-bottom: 6px;">Sản phẩm áp dụng</label>
+                  <label style="display: block; font-size: 13px; font-weight: 800; color: #2b1a0f; margin-bottom: 6px;">
+                    Sản phẩm áp dụng
+                    <span style="font-weight: 600; color: #b08a4a; font-size: 11.5px;">(sắp có — chưa áp dụng)</span>
+                  </label>
                   <div style="position: relative; display: flex; align-items: center; flex-wrap: wrap;">
-                    <input 
-                      type="text" 
+                    <input
+                      type="text"
                       [(ngModel)]="formData.applyCategory"
-                      placeholder="VD: Tất cả sản phẩm"
-                      style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 13px; font-weight: 700; color: #2b1a0f; background: #ffffff; outline: none; box-sizing: border-box; font-family: 'Be Vietnam Pro', sans-serif;"
+                      disabled
+                      placeholder="Áp dụng cho tất cả sản phẩm"
+                      style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 13px; font-weight: 700; color: #9c8a78; background: #f7f3ee; outline: none; box-sizing: border-box; cursor: not-allowed; font-family: 'Be Vietnam Pro', sans-serif;"
                     />
                   </div>
                 </div>
@@ -855,6 +865,7 @@ export class AdminCouponsListPage implements OnInit {
     discountType: 'percent' as 'percent' | 'fixed',
     discountValue: 0,
     maxDiscountAmount: null as number | null,
+    usageLimit: null as number | null,
     applyCategory: 'Tất cả sản phẩm',
     validityFrequency: '1 lần / Tháng \n Vô thời hạn',
     isActive: true,
@@ -945,6 +956,7 @@ export class AdminCouponsListPage implements OnInit {
             discountType: c.discountType,
             discountValue: Number(c.discountValue),
             maxDiscountAmount: c.maxDiscountAmount ? Number(c.maxDiscountAmount) : null,
+            usageLimit: c.usageLimit ?? null,
             applyCategory: 'Tất cả sản phẩm',
             validityFrequency: c.endDate ? `Đến ngày ${new Date(c.endDate).toLocaleDateString('vi-VN')}` : 'Vô thời hạn',
             isActive: c.isActive,
@@ -959,6 +971,9 @@ export class AdminCouponsListPage implements OnInit {
       },
       error: (err) => {
         console.error('[Coupons] Error loading coupons:', err);
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được danh sách voucher.');
+        }
       }
     });
   }
@@ -1000,6 +1015,7 @@ export class AdminCouponsListPage implements OnInit {
       discountType: 'percent',
       discountValue: 10,
       maxDiscountAmount: null,
+      usageLimit: null,
       applyCategory: 'Tất cả sản phẩm',
       validityFrequency: '1 lần / Tháng \n Vô thời hạn',
       isActive: true,
@@ -1035,6 +1051,7 @@ export class AdminCouponsListPage implements OnInit {
       discountType: voucher.discountType,
       discountValue: voucher.discountValue,
       maxDiscountAmount: voucher.maxDiscountAmount,
+      usageLimit: voucher.usageLimit ?? null,
       applyCategory: voucher.applyCategory,
       validityFrequency: voucher.validityFrequency,
       isActive: voucher.isActive,
@@ -1129,6 +1146,10 @@ export class AdminCouponsListPage implements OnInit {
       discountValue: this.formData.discountValue,
       minOrderValue: this.formData.minOrderValue,
       maxDiscountAmount: this.formData.maxDiscountAmount || undefined,
+      // Gửi usageLimit lên backend (trước đây bị bỏ sót → coupon luôn vô hạn lượt).
+      usageLimit: this.formData.usageLimit && this.formData.usageLimit > 0
+        ? this.formData.usageLimit
+        : undefined,
       startDate: startDateStr,
       endDate: endDateStr,
       isActive: this.formData.isActive

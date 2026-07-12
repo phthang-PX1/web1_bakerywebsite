@@ -6,8 +6,11 @@ import { upload } from "../../utils/upload";
 import {
   createOptionGroupController,
   createOptionItemController,
+  createSharedOptionGroupController,
   deleteOptionGroupController,
+  getAdminOptionGroupsController,
   getProductOptionsController,
+  getSharedOptionsController,
   toggleOptionItemStatusController,
   updateOptionGroupController,
   updateOptionItemController
@@ -23,9 +26,22 @@ import {
 } from "./options.schema";
 
 const productOptionsRouter = Router();
+const publicOptionsRouter = Router();
 const adminProductOptionsRouter = Router();
 const adminOptionsRouter = Router();
 const adminAccess = [auth, requireRole("admin")];
+
+/**
+ * @swagger
+ * /options/shared:
+ *   get:
+ *     summary: Get shared customization option groups (productId = null)
+ *     tags: [Options]
+ *     responses:
+ *       200:
+ *         description: Shared option groups tree
+ */
+publicOptionsRouter.get("/shared", getSharedOptionsController);
 
 /**
  * @swagger
@@ -115,6 +131,27 @@ adminProductOptionsRouter.post(
  *       200:
  *         description: Option group updated
  */
+/**
+ * @swagger
+ * /admin/option-groups:
+ *   get:
+ *     summary: List option groups for admin (shared by default; ?productId= for a product)
+ *     tags: [Admin Options]
+ *     security: [{ bearerAuth: [] }]
+ *   post:
+ *     summary: Create a SHARED option group (not tied to a product)
+ *     tags: [Admin Options]
+ *     security: [{ bearerAuth: [] }]
+ */
+adminOptionsRouter.get("/option-groups", ...adminAccess, getAdminOptionGroupsController);
+
+adminOptionsRouter.post(
+  "/option-groups",
+  ...adminAccess,
+  validate({ body: createOptionGroupBodySchema }),
+  createSharedOptionGroupController
+);
+
 adminOptionsRouter.put(
   "/option-groups/:id",
   ...adminAccess,
@@ -281,5 +318,5 @@ adminOptionsRouter.patch(
   toggleOptionItemStatusController
 );
 
-export { adminOptionsRouter, adminProductOptionsRouter };
+export { adminOptionsRouter, adminProductOptionsRouter, publicOptionsRouter };
 export default productOptionsRouter;

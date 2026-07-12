@@ -354,6 +354,16 @@
     border-color: t.$primary;
   }
 
+  &:disabled {
+    opacity: 0.42;
+    cursor: not-allowed;
+    text-decoration: line-through;
+
+    &:hover {
+      border-color: t.$border;
+    }
+  }
+
   &--active {
     border-color: t.$primary;
     background: t.$surface-warm;

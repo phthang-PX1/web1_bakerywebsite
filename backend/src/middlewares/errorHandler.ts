@@ -17,13 +17,16 @@ export class AppError extends Error {
 export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   const statusCode = error instanceof AppError ? error.statusCode : 500;
   const message = error instanceof AppError ? error.message : "Internal server error";
+  const isOperational = error instanceof AppError ? error.isOperational : false;
+  const stack = error instanceof Error ? error.stack : undefined;
+  const rawMessage = error instanceof Error ? error.message : String(error);
 
-  if (statusCode >= 500 || !error.isOperational) {
+  if (statusCode >= 500 || !isOperational) {
     logger.error("Server Error", {
       reqId: req.reqId,
       statusCode,
-      message: error.message,
-      stack: error.stack,
+      message: rawMessage,
+      stack,
       url: req.originalUrl,
       method: req.method
     });
@@ -40,6 +43,6 @@ export const errorHandler: ErrorRequestHandler = (error, req, res, _next) => {
   res.status(statusCode).json({
     status: "error",
     message,
-    ...(env.NODE_ENV !== "production" && { stack: error.stack })
+    ...(env.NODE_ENV !== "production" && stack ? { stack } : {})
   });
 };

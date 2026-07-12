@@ -1,113 +1,9 @@
-import { Component, OnInit, signal, computed, inject } from '@angular/core';
+import { Component, OnInit, signal, inject } from '@angular/core';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-export interface MockCustomer {
-  id: string;
-  numId: number;
-  fullName: string;
-  initials: string;
-  avatarColor: string;
-  phone: string;
-  joinedDate: string;
-  tier: 'Diamond' | 'Gold' | 'Silver' | 'Bronze' | 'Member';
-  points: number;
-  totalSpent: number;
-  isActive: boolean;
-}
-
-export const MOCK_CUSTOMERS: MockCustomer[] = [
-  {
-    id: '1', numId: 1,
-    fullName: 'Nguyễn Thanh Thảo', initials: 'NT', avatarColor: '#f5c842',
-    phone: '0901234567', joinedDate: '24/05/2025',
-    tier: 'Diamond', points: 328, totalSpent: 3284000, isActive: true,
-  },
-  {
-    id: '2', numId: 2,
-    fullName: 'Trần Minh Quân', initials: 'TM', avatarColor: '#f5c842',
-    phone: '0987654321', joinedDate: '12/01/2026',
-    tier: 'Gold', points: 185, totalSpent: 1850000, isActive: true,
-  },
-  {
-    id: '3', numId: 3,
-    fullName: 'Lê Thị Mai', initials: 'LM', avatarColor: '#d4edda',
-    phone: '0912345678', joinedDate: '05/11/2025',
-    tier: 'Silver', points: 148, totalSpent: 1485000, isActive: true,
-  },
-  {
-    id: '4', numId: 4,
-    fullName: 'Phạm Thanh Nam', initials: 'PN', avatarColor: '#f3f4f6',
-    phone: '0356789012', joinedDate: '15/02/2026',
-    tier: 'Silver', points: 68, totalSpent: 683000, isActive: false,
-  },
-  {
-    id: '5', numId: 5,
-    fullName: 'Hoàng Lan', initials: 'HL', avatarColor: '#d4edda',
-    phone: '0934567890', joinedDate: '10/03/2026',
-    tier: 'Silver', points: 53, totalSpent: 536000, isActive: true,
-  },
-  {
-    id: '6', numId: 6,
-    fullName: 'Vũ Duy', initials: 'VD', avatarColor: '#fff3cd',
-    phone: '0976123456', joinedDate: '02/04/2026',
-    tier: 'Bronze', points: 49, totalSpent: 497000, isActive: true,
-  },
-  {
-    id: '7', numId: 7,
-    fullName: 'Đặng Thu Hà', initials: 'ĐH', avatarColor: '#fff3cd',
-    phone: '0988111222', joinedDate: '18/04/2026',
-    tier: 'Bronze', points: 21, totalSpent: 218000, isActive: true,
-  },
-  {
-    id: '8', numId: 8,
-    fullName: 'Ngô Quốc Anh', initials: 'NA', avatarColor: '#fff3cd',
-    phone: '0911222333', joinedDate: '30/04/2026',
-    tier: 'Bronze', points: 19, totalSpent: 198000, isActive: true,
-  },
-  {
-    id: '9', numId: 9,
-    fullName: 'Bùi Thùy Linh', initials: 'BL', avatarColor: '#f5e6d3',
-    phone: '0966333444', joinedDate: '05/05/2026',
-    tier: 'Member', points: 8, totalSpent: 86000, isActive: true,
-  },
-  {
-    id: '10', numId: 10,
-    fullName: 'Đỗ Hoàng Long', initials: 'ĐL', avatarColor: '#f5e6d3',
-    phone: '0922444555', joinedDate: '12/05/2026',
-    tier: 'Member', points: 5, totalSpent: 50000, isActive: true,
-  },
-  {
-    id: '11', numId: 11,
-    fullName: 'Phạm Minh Trí', initials: 'MT', avatarColor: '#d4edda',
-    phone: '0944123987', joinedDate: '15/05/2026',
-    tier: 'Silver', points: 95, totalSpent: 950000, isActive: true,
-  },
-  {
-    id: '12', numId: 12,
-    fullName: 'Trần Thu Trang', initials: 'TT', avatarColor: '#fef3c7',
-    phone: '0977456123', joinedDate: '20/05/2026',
-    tier: 'Gold', points: 210, totalSpent: 2100000, isActive: true,
-  },
-  {
-    id: '13', numId: 13,
-    fullName: 'Lê Văn Đạt', initials: 'VĐ', avatarColor: '#f5e6d3',
-    phone: '0988654321', joinedDate: '22/05/2026',
-    tier: 'Member', points: 15, totalSpent: 150000, isActive: true,
-  },
-  {
-    id: '14', numId: 14,
-    fullName: 'Nguyễn Bích Ngọc', initials: 'BN', avatarColor: '#dbeafe',
-    phone: '0933111222', joinedDate: '25/05/2026',
-    tier: 'Diamond', points: 340, totalSpent: 3400000, isActive: true,
-  },
-  {
-    id: '15', numId: 15,
-    fullName: 'Vũ Hoài Nam', initials: 'HN', avatarColor: '#fff3cd',
-    phone: '0911777888', joinedDate: '28/05/2026',
-    tier: 'Bronze', points: 42, totalSpent: 420000, isActive: true,
-  }
-];
+import { AdminApi, type AdminCustomerListItem } from '../../../core/api/admin.api';
+import { ToastService } from '../../../core/services/toast.service';
 
 @Component({
   selector: 'app-admin-customers-page',
@@ -126,23 +22,75 @@ export const MOCK_CUSTOMERS: MockCustomer[] = [
         </p>
       </div>
 
-      <!-- Customers Table Card / Disclaimer -->
-      <div class="dashboard-card" style="padding: 48px; text-align: center; border: 1.5px dashed #ede8e2; background: #fffbf7; border-radius: 16px; margin-bottom: 20px;">
-        <div style="background: #fffcf9; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 1.5px solid #ede8e2; margin: 0 auto 16px;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#7a6555" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-            <circle cx="9" cy="7" r="4"></circle>
-            <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-            <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-          </svg>
-        </div>
-        <h2 style="font-family: 'Fraunces', serif; font-size: 20px; font-weight: 800; color: #2b1a0f; margin-bottom: 8px;">
-          Tính năng quản lý khách hàng chưa sẵn sàng
-        </h2>
-        <p style="color: #7a6555; font-size: 14px; max-width: 440px; margin: 0 auto; font-weight: 500; line-height: 1.6;">
-          Dữ liệu tạm thời ẩn do Backend hiện tại chưa cung cấp các API endpoint phục vụ việc tra cứu và quản lý thông tin khách hàng.
-        </p>
+      <!-- Search -->
+      <div style="display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;">
+        <input
+          type="text"
+          [(ngModel)]="searchInput"
+          (keyup.enter)="applySearch()"
+          placeholder="Tìm theo tên, email hoặc số điện thoại..."
+          style="flex: 1; min-width: 260px; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 14px; outline: none;"
+        />
+        <select [(ngModel)]="statusInput" (change)="applySearch()" style="padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 10px; font-size: 14px; background: #fff; font-weight: 600; cursor: pointer;">
+          <option value="">Trạng thái: Tất cả</option>
+          <option value="active">Đang hoạt động</option>
+          <option value="locked">Đã khóa</option>
+        </select>
+        <button (click)="applySearch()" style="padding: 10px 18px; border-radius: 10px; border: none; background: #f5c842; color: #2b1a0f; font-weight: 800; font-size: 14px; cursor: pointer;">Tìm</button>
       </div>
+
+      @if (loading()) {
+        <div class="dashboard-card" style="padding: 40px; text-align: center; color: #7a6555; font-weight: 600;">Đang tải...</div>
+      } @else {
+        <div class="dashboard-card" style="padding: 0; overflow: hidden; border: 1px solid #ede8e2; border-radius: 16px; background: #fff; margin-bottom: 20px;">
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; text-align: left; font-size: 14px;">
+              <thead>
+                <tr style="background: #fffbf7; border-bottom: 2px solid #ede8e2;">
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase;">Khách hàng</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase;">Liên hệ</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center;">Hạng</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center;">Điểm</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center;">Số đơn</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: right;">Chi tiêu</th>
+                  <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center;">Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (c of customers(); track c.userId) {
+                  <tr style="border-bottom: 1px solid #f3ece3; cursor: pointer;" (click)="goToDetail(c.userId)">
+                    <td style="padding: 14px 16px; font-weight: 800; color: #2b1a0f;">{{ c.fullName }}</td>
+                    <td style="padding: 14px 16px; color: #7a6555;">{{ c.phone || c.email || '---' }}</td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                      <span [style.background]="getTierStyles(c.membershipTier).background" [style.color]="getTierStyles(c.membershipTier).color" style="font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 99px;">
+                        {{ getTierIcon(c.membershipTier) }} {{ c.membershipTier }}
+                      </span>
+                    </td>
+                    <td style="padding: 14px 16px; text-align: center; font-weight: 700;">{{ c.loyaltyPoints }}</td>
+                    <td style="padding: 14px 16px; text-align: center; font-weight: 700;">{{ c.totalOrders }}</td>
+                    <td style="padding: 14px 16px; text-align: right; font-weight: 700;">{{ formatMoney(c.totalSpent) }}</td>
+                    <td style="padding: 14px 16px; text-align: center;">
+                      <span [style.background]="c.isActive ? '#e8fdf0' : '#fef2f2'" [style.color]="c.isActive ? '#16a34a' : '#dc2626'" style="font-size: 12px; font-weight: 700; padding: 4px 10px; border-radius: 99px;">
+                        {{ c.isActive ? 'Hoạt động' : 'Đã khóa' }}
+                      </span>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr><td colspan="7" style="text-align: center; padding: 40px; color: #7a6555; font-weight: 600;">Không có khách hàng nào.</td></tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        @if (totalPages() > 1) {
+          <div style="display: flex; gap: 8px; justify-content: center;">
+            @for (p of getPagesArray(); track p) {
+              <button (click)="goToPage(p)" [style.background]="p === currentPage() ? '#f5c842' : '#fff'" [style.font-weight]="p === currentPage() ? '800' : '600'" style="min-width: 36px; padding: 6px 10px; border: 1.5px solid #ede8e2; border-radius: 8px; cursor: pointer; color: #2b1a0f;">{{ p }}</button>
+            }
+          </div>
+        }
+      }
     </div>
 
     <!-- Toggle Switch Styles -->
@@ -192,114 +140,88 @@ export const MOCK_CUSTOMERS: MockCustomer[] = [
 })
 export class AdminCustomersPage implements OnInit {
   private readonly router = inject(Router);
+  private readonly adminApi = inject(AdminApi);
+  private readonly toastService = inject(ToastService);
 
-  readonly Math = Math;
-
-  readonly customers = signal<MockCustomer[]>([]);
-  readonly searchQuery = signal('');
-  readonly filterTier = signal('');
-  readonly filterPoints = signal('');
-  readonly filterSpent = signal('');
-  readonly filterStatus = signal('');
-
+  readonly customers = signal<AdminCustomerListItem[]>([]);
+  readonly loading = signal(true);
   readonly currentPage = signal(1);
-  readonly pageSize = 10;
+  readonly totalPages = signal(1);
+  readonly pageSize = 20;
 
-  readonly filteredCustomers = computed(() => {
-    const q = this.searchQuery().trim().toLowerCase();
-    const tier = this.filterTier();
-    const points = this.filterPoints();
-    const spent = this.filterSpent();
-    const status = this.filterStatus();
+  // Ô nhập (áp dụng khi bấm Tìm / Enter) — search & lọc trạng thái chạy server-side.
+  searchInput = '';
+  statusInput = '';
 
-    return this.customers().filter(c => {
-      if (q && !c.fullName.toLowerCase().includes(q) && !c.phone.includes(q)) return false;
-      if (tier && c.tier !== tier) return false;
-      if (points) {
-        if (points === 'lt50' && c.points >= 50) return false;
-        if (points === '50-150' && (c.points < 50 || c.points > 150)) return false;
-        if (points === 'gt150' && c.points <= 150) return false;
-      }
-      if (spent) {
-        const s = c.totalSpent;
-        if (spent === 'lt500' && s >= 500000) return false;
-        if (spent === '500-2000' && (s < 500000 || s > 2000000)) return false;
-        if (spent === 'gt2000' && s <= 2000000) return false;
-      }
-      if (status === 'active' && !c.isActive) return false;
-      if (status === 'locked' && c.isActive) return false;
-      return true;
-    });
-  });
-
-  readonly totalPages = computed(() => Math.ceil(this.filteredCustomers().length / this.pageSize) || 1);
-  
-  readonly pagedCustomers = computed(() => {
-    const start = (this.currentPage() - 1) * this.pageSize;
-    return this.filteredCustomers().slice(start, start + this.pageSize);
-  });
+  private appliedSearch = '';
+  private appliedStatus = '';
 
   ngOnInit(): void {
-    // Read from localStorage to persist customer changes
-    const stored = localStorage.getItem('webee_admin_customers');
-    if (stored) {
-      try {
-        this.customers.set(JSON.parse(stored));
-        return;
-      } catch (e) {
-        console.error(e);
-      }
-    }
-    localStorage.setItem('webee_admin_customers', JSON.stringify(MOCK_CUSTOMERS));
-    this.customers.set([...MOCK_CUSTOMERS]);
+    this.load();
   }
 
-  resetFilters(): void {
-    this.searchQuery.set('');
-    this.filterTier.set('');
-    this.filterPoints.set('');
-    this.filterSpent.set('');
-    this.filterStatus.set('');
+  private load(): void {
+    this.loading.set(true);
+    const isActive =
+      this.appliedStatus === 'active' ? true : this.appliedStatus === 'locked' ? false : undefined;
+
+    this.adminApi
+      .getCustomers({
+        page: this.currentPage(),
+        limit: this.pageSize,
+        search: this.appliedSearch || undefined,
+        isActive,
+      })
+      .subscribe({
+        next: (res) => {
+          this.customers.set([...res.items]);
+          this.totalPages.set(res.pagination.totalPages || 1);
+          this.loading.set(false);
+        },
+        error: (err) => {
+          console.error('[Customers] load failed:', err);
+          this.loading.set(false);
+          this.toastService.error('Tải danh sách khách hàng thất bại.');
+        },
+      });
+  }
+
+  applySearch(): void {
+    this.appliedSearch = this.searchInput.trim();
+    this.appliedStatus = this.statusInput;
     this.currentPage.set(1);
+    this.load();
+  }
+
+  goToPage(page: number): void {
+    this.currentPage.set(page);
+    this.load();
   }
 
   goToDetail(id: string): void {
     this.router.navigate(['/admin/customers', id]);
   }
 
-  toggleActive(c: MockCustomer): void {
-    const list = this.customers().map(item =>
-      item.id === c.id ? { ...item, isActive: !item.isActive } : item
-    );
-    this.customers.set(list);
-    localStorage.setItem('webee_admin_customers', JSON.stringify(list));
-  }
-
   getTierIcon(tier: string): string {
     const icons: Record<string, string> = {
-      Diamond: '💎', Gold: '🎖️', Silver: '🥈', Bronze: '🥉', Member: '#',
+      diamond: '💎', gold: '🎖️', silver: '🥈', bronze: '🥉', member: '#',
     };
     return icons[tier] ?? '';
   }
 
   getTierStyles(tier: string) {
     const styles: Record<string, { background: string; color: string; border: string }> = {
-      Diamond: { background: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
-      Gold: { background: '#fef3c7', color: '#92400e', border: '#fde68a' },
-      Silver: { background: '#f3f4f6', color: '#374151', border: '#e5e7eb' },
-      Bronze: { background: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
-      Member: { background: '#f5e6d3', color: '#7a3d18', border: '#e5c9a8' }
+      diamond: { background: '#dbeafe', color: '#1d4ed8', border: '#bfdbfe' },
+      gold: { background: '#fef3c7', color: '#92400e', border: '#fde68a' },
+      silver: { background: '#f3f4f6', color: '#374151', border: '#e5e7eb' },
+      bronze: { background: '#fff7ed', color: '#c2410c', border: '#fed7aa' },
+      member: { background: '#f5e6d3', color: '#7a3d18', border: '#e5c9a8' }
     };
     return styles[tier] || { background: '#f5e6d3', color: '#7a3d18', border: '#e5c9a8' };
   }
 
   formatMoney(val: number): string {
     return val.toLocaleString('vi-VN') + 'đ';
-  }
-
-  formatPhoneInactive(phone: string): string {
-    if (!phone || phone === '---') return '---';
-    return phone.substring(0, 4) + '***' + phone.slice(-3);
   }
 
   getPagesArray(): number[] {

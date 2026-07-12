@@ -6,8 +6,19 @@ import { CategoriesApi } from '../../../core/api/categories.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Category } from '../../../core/models/category.model';
 import type { Product } from '../../../core/models/product.model';
+import { getCategoryImage } from '../../../core/utils/category-image.util';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
+
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 @Component({
   selector: 'app-admin-categories-page',
@@ -103,7 +114,6 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; width: 60px; text-align: center;">STT</th>
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; width: 80px;">Ảnh</th>
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase;">Tên danh mục</th>
-                      <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase;">Đường dẫn Slug</th>
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center; width: 100px;">Số sản phẩm</th>
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: center; width: 160px;">Hiển thị trang chủ/Trạng thái</th>
                       <th style="padding: 14px 16px; font-weight: 800; color: #7a6555; font-size: 11.5px; text-transform: uppercase; text-align: right; width: 120px;">Hành động</th>
@@ -116,7 +126,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                         <td style="padding: 14px 16px; vertical-align: middle;">
                           <div style="width: 48px; height: 48px; border-radius: 50%; overflow: hidden; background: #f9ede0; display: flex; align-items: center; justify-content: center; padding: 10px; box-sizing: border-box;">
                             <img
-                              [src]="category.imageUrl || getCategoryFallbackIcon(category.name, category.slug)"
+                              [src]="getCategoryImage(category.slug)"
                               [alt]="category.name"
                               style="width: 100%; height: 100%; object-fit: contain;"
                               appImgFallback
@@ -124,7 +134,6 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                           </div>
                         </td>
                         <td style="padding: 14px 16px; font-weight: 800; color: #2b1a0f; vertical-align: middle;">{{ category.name }}</td>
-                        <td style="padding: 14px 16px; vertical-align: middle;"><code style="background: #f5e6d3; color: #7a3d18; padding: 3px 8px; border-radius: 4px; font-size: 12.5px; font-family: monospace;">{{ category.slug }}</code></td>
                         <td style="padding: 14px 16px; text-align: center; font-weight: 700; color: #2b1a0f; vertical-align: middle;">
                           {{ getProductCountByCategory(category.categoryId) }}
                         </td>
@@ -161,7 +170,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                       </tr>
                     } @empty {
                       <tr>
-                        <td colspan="7" style="text-align: center; padding: 40px; color: #7a6555; font-weight: 600;">Chưa có danh mục nào.</td>
+                        <td colspan="6" style="text-align: center; padding: 40px; color: #7a6555; font-weight: 600;">Chưa có danh mục nào. Bấm "Thêm mới" bên trái để tạo danh mục đầu tiên.</td>
                       </tr>
                     }
                   </tbody>
@@ -208,26 +217,26 @@ export class AdminCategoriesPage implements OnInit {
 
   readonly catForm = this.fb.group({
     name: ['', Validators.required],
-    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9-]+$/)]],
+    slug: ['', [Validators.required, Validators.pattern(/^[a-z0-9]+(?:-[a-z0-9]+)*$/)]],
     description: ['']
   });
 
   private imageFile: File | null = null;
 
   ngOnInit(): void {
+    this.catForm.get('slug')?.disable();
+    this.catForm.get('name')?.valueChanges.subscribe(() => this.syncCategorySlugFromName());
     this.loadCategories();
     this.loadProducts();
   }
 
-  getCategoryFallbackIcon(name: string, slug?: string): string {
-    const s = (slug || '').toLowerCase();
-    if (s.includes('gato') || s.includes('kem')) return '/assets/IconAdmin/DanhMuc/ic-gato.svg';
-    if (s.includes('mousse')) return '/assets/IconAdmin/DanhMuc/ic-mousse.svg';
-    if (s.includes('entremet')) return '/assets/IconAdmin/DanhMuc/ic-entremet.svg';
-    if (s.includes('nuong') || s.includes('baked')) return '/assets/IconAdmin/DanhMuc/ic-banhnuong.svg';
-    if (s.includes('tiramisu')) return '/assets/IconAdmin/DanhMuc/ic-tiramisu.svg';
-    return '/assets/IconAdmin/DanhMuc/ic-minicakes.svg';
+  syncCategorySlugFromName(): void {
+    const name = this.catForm.get('name')?.value || '';
+    this.catForm.patchValue({ slug: slugify(name) }, { emitEvent: false });
   }
+
+  // Dùng chung helper với client (home) để ảnh danh mục hai bên khớp nhau (C-1).
+  getCategoryImage = getCategoryImage;
 
   loadCategories(): void {
     this.loading.set(true);
@@ -244,12 +253,16 @@ export class AdminCategoriesPage implements OnInit {
   }
 
   loadProducts(): void {
-    this.adminApi.getProducts({ limit: 1000 }).subscribe({
+    // Tải sản phẩm để đếm số SP mỗi danh mục (max backend cho phép = 500).
+    this.adminApi.getProducts({ limit: 500 }).subscribe({
       next: (res) => {
         this.products.set([...res.items]);
       },
       error: (err) => {
         console.error('[Categories] Error loading products:', err);
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được số lượng sản phẩm theo danh mục.');
+        }
       }
     });
   }
@@ -263,16 +276,14 @@ export class AdminCategoriesPage implements OnInit {
     this.editingCategory.set(category);
     this.catForm.reset({
       name: category.name,
-      slug: category.slug,
+      slug: slugify(category.name) || category.slug,
       description: category.description ?? ''
     });
-    this.catForm.get('slug')?.disable();
   }
 
   cancelEdit(): void {
     this.editingCategory.set(null);
     this.catForm.reset({ name: '', slug: '', description: '' });
-    this.catForm.get('slug')?.enable();
   }
 
   onFileSelected(event: Event): void {
@@ -292,6 +303,7 @@ export class AdminCategoriesPage implements OnInit {
     if (category) {
       this.adminApi.updateCategory(category.categoryId, {
         name: v.name ?? undefined,
+        slug: v.name ? (v.slug || slugify(v.name)) : undefined,
         description: v.description ?? undefined
       }).subscribe({
         next: () => {
@@ -308,7 +320,7 @@ export class AdminCategoriesPage implements OnInit {
     } else {
       this.adminApi.createCategory({
         name: v.name!,
-        slug: v.slug!,
+        slug: v.slug || slugify(v.name!),
         description: v.description || undefined
       }, this.imageFile ?? undefined).subscribe({
         next: () => {

@@ -15,6 +15,10 @@ import routes from "./routes";
 
 const app = express();
 
+// Chạy sau reverse proxy (Render/Nginx): tin header X-Forwarded-* của 1 hop proxy
+// để express-rate-limit lấy đúng client IP thay vì gộp tất cả vào IP của proxy.
+app.set("trust proxy", 1);
+
 app.use(
   cors({
     origin(origin, callback) {
@@ -58,8 +62,8 @@ const apiLimiter = rateLimit({
 });
 app.use("/api", apiLimiter);
 
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: "1mb" }));
+app.use(express.urlencoded({ extended: true, limit: "1mb" }));
 app.use(morgan(env.NODE_ENV === "production" ? "combined" : "dev"));
 app.use(passport.initialize());
 

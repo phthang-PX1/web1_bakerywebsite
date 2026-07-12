@@ -28,6 +28,10 @@ export const orderTrackingQuerySchema = z.object({
   token: z.string().min(1)
 });
 
+export const claimOrderBodySchema = z.object({
+  token: z.string().min(1)
+});
+
 export const createOrderBodySchema = z
   .object({
     buyer_name: z.string().trim().min(2).max(100).optional(),
@@ -48,7 +52,9 @@ export const createOrderBodySchema = z
       .transform((val) => (val === "cod" ? "cash" : val)),
     note: optionalTrimmedString(1000),
     card_type: z.enum(["none", "on_cake", "small_card", "premium_card"]).default("none"),
-    card_message: optionalTrimmedString(300)
+    card_message: optionalTrimmedString(300),
+    cart_item_ids: z.array(uuidSchema).optional(),
+    cartItemIds: z.array(uuidSchema).optional()
   })
   .refine(
     (value) =>
@@ -72,17 +78,22 @@ export const createOrderBodySchema = z
     paymentMethod: value.payment_method,
     note: value.note,
     cardType: value.card_type,
-    cardMessage: value.card_message
+    cardMessage: value.card_message,
+    cartItemIds: value.cartItemIds ?? value.cart_item_ids
   }));
 
 export const paymentWebhookBodySchema = z
   .object({
     order_id: uuidSchema,
-    amount: z.coerce.number().positive().max(99999999.99)
+    amount: z.coerce.number().positive().max(99999999.99),
+    // Nội dung chuyển khoản (vd "DH<orderId>"). Optional để tương thích ngược,
+    // nhưng nếu có sẽ được đối chiếu với mã đơn trong service.
+    transfer_content: optionalTrimmedString(100)
   })
   .transform((value) => ({
     orderId: value.order_id,
-    amount: value.amount
+    amount: value.amount,
+    transferContent: value.transfer_content
   }));
 
 export const orderListQuerySchema = z

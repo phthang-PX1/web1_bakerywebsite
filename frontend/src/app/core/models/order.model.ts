@@ -75,6 +75,7 @@ export interface CreateOrderRequest {
   note?: string;
   card_type?: 'none' | 'on_cake' | 'small_card' | 'premium_card';
   card_message?: string;
+  cart_item_ids?: readonly string[];
 }
 
 export interface OrderListParams {

@@ -1,6 +1,6 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { BLOG_POSTS } from '../blog.config';
+import { BlogService } from '../../../core/services/blog.service';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
 
 @Component({
@@ -19,7 +19,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
         </section>
 
         <div class="blog-grid">
-          @for (post of posts; track post.slug) {
+          @for (post of posts(); track post.slug) {
             <a class="blog-card" [routerLink]="['/blog', post.slug]">
               <span class="blog-card__media">
                 <img class="blog-card__img" [src]="post.coverImage" [alt]="post.title" appImgFallback />
@@ -39,6 +39,11 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
   `,
   styleUrl: './content.page.scss',
 })
-export class BlogListPage {
-  readonly posts = BLOG_POSTS;
+export class BlogListPage implements OnInit {
+  private readonly blogService = inject(BlogService);
+  readonly posts = this.blogService.posts;
+
+  ngOnInit(): void {
+    this.blogService.load();
+  }
 }

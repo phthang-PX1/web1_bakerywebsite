@@ -44,11 +44,6 @@ interface MockUsageLog {
               
               <dl style="margin:0">
                 <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ede8e2">
-                  <dt style="color:#7a6555;font-weight:600">ID ưu đãi</dt>
-                  <dd style="margin:0;color:#2b1a0f;font-weight:700;font-size:12px">{{ c.couponId }}</dd>
-                </div>
-
-                <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ede8e2">
                   <dt style="color:#7a6555;font-weight:600">Mã kích hoạt</dt>
                   <dd style="margin:0;color:#2b1a0f;font-weight:700"><code style="background:#f5e6d3;color:#7a3d18;padding:2px 8px;border-radius:4px">{{ c.code }}</code></dd>
                 </div>
@@ -77,12 +72,12 @@ interface MockUsageLog {
 
                 <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ede8e2">
                   <dt style="color:#7a6555;font-weight:600">Ngày bắt đầu</dt>
-                  <dd style="margin:0;color:#2b1a0f;font-weight:700">{{ c.startDate ? c.startDate.slice(0,10) : '2026-01-01' }}</dd>
+                  <dd style="margin:0;color:#2b1a0f;font-weight:700">{{ c.startDate ? c.startDate.slice(0,10) : '—' }}</dd>
                 </div>
 
                 <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ede8e2">
                   <dt style="color:#7a6555;font-weight:600">Ngày kết thúc</dt>
-                  <dd style="margin:0;color:#2b1a0f;font-weight:700">{{ c.expiresAt ? c.expiresAt.slice(0,10) : '—' }}</dd>
+                  <dd style="margin:0;color:#2b1a0f;font-weight:700">{{ c.endDate ? c.endDate.slice(0,10) : '—' }}</dd>
                 </div>
 
                 <div style="display:flex;justify-content:space-between;padding:12px 0;border-bottom:1px solid #ede8e2">
@@ -105,7 +100,7 @@ interface MockUsageLog {
             <div style="display:grid;grid-template-columns: 1fr 1fr;gap:16px">
               <div class="stat-card" style="background:#fffbf7;border:1px solid #ede8e2;border-radius:12px;padding:20px">
                 <span style="font-size:13px;color:#7a6555;font-weight:600;display:block;margin-bottom:6px">Lượt đã sử dụng</span>
-                <strong style="font-size:24px;color:#2b1a0f;font-weight:800">{{ c.usedCount || 2 }} lượt</strong>
+                <strong style="font-size:24px;color:#2b1a0f;font-weight:800">{{ c.usedCount ?? 0 }} lượt</strong>
               </div>
               <div class="stat-card" style="background:#fffbf7;border:1px solid #ede8e2;border-radius:12px;padding:20px">
                 <span style="font-size:13px;color:#7a6555;font-weight:600;display:block;margin-bottom:6px">Giới hạn sử dụng</span>
@@ -143,7 +138,7 @@ interface MockUsageLog {
                       </tr>
                     } @empty {
                       <tr>
-                        <td colspan="5" style="text-align:center;padding:40px;color:#7a6555">Chưa có dữ liệu lịch sử sử dụng voucher thực tế (Backend chưa hỗ trợ API lịch sử sử dụng).</td>
+                        <td colspan="5" style="text-align:center;padding:40px;color:#7a6555">Chưa có lượt sử dụng nào được ghi nhận cho voucher này.</td>
                       </tr>
                     }
                   </tbody>

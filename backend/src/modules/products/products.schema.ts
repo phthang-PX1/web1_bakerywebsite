@@ -81,7 +81,8 @@ export const productListQuerySchema = z
     ),
     sort: z.enum(["newest", "price_asc", "price_desc", "rating_desc", "best_sellers"]).default("newest"),
     page: z.coerce.number().int().min(1).default(1),
-    limit: z.coerce.number().int().min(1).max(100).default(20)
+    // Cho phép tới 500 để admin có thể tải toàn bộ sản phẩm (vd trang danh mục đếm số SP).
+    limit: z.coerce.number().int().min(1).max(500).default(20)
   })
   .refine(
     (value) =>

@@ -418,7 +418,7 @@ export class AdminProductDetailPage implements OnInit {
     return [];
   }
 
-  formatDate(dateStr: string): string {
+  formatDate(dateStr: string | undefined): string {
     if (!dateStr) return 'Chưa rõ';
     const d = new Date(dateStr);
     const time = d.toLocaleTimeString('vi-VN', { hour: '2-digit', minute: '2-digit' });

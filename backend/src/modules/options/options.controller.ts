@@ -2,8 +2,11 @@ import type { RequestHandler } from "express";
 import {
   createOptionGroup,
   createOptionItem,
+  createSharedOptionGroup,
   deleteOptionGroup,
+  getAdminOptionGroups,
   getProductOptions,
+  getSharedOptions,
   toggleOptionItemStatus,
   updateOptionGroup,
   updateOptionItem
@@ -19,6 +22,34 @@ export const getProductOptionsController: RequestHandler = async (req, res, next
   try {
     const result = await getProductOptions(req.params.id);
     res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getSharedOptionsController: RequestHandler = async (_req, res, next) => {
+  try {
+    const result = await getSharedOptions();
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getAdminOptionGroupsController: RequestHandler = async (req, res, next) => {
+  try {
+    const productId = typeof req.query.productId === "string" ? req.query.productId : undefined;
+    const result = await getAdminOptionGroups(productId);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const createSharedOptionGroupController: RequestHandler = async (req, res, next) => {
+  try {
+    const result = await createSharedOptionGroup(req.body as OptionGroupInput);
+    res.status(201).json(result);
   } catch (error) {
     next(error);
   }

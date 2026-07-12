@@ -5,6 +5,7 @@ import { validate } from "../../middlewares/validate";
 import { upload } from "../../utils/upload";
 import {
   createCategoryController,
+  getAdminCategoriesController,
   getCategoriesController,
   getCategoryBySlugController,
   toggleCategoryStatusController,
@@ -95,6 +96,20 @@ publicRouter.get(
  *       201:
  *         description: Category created
  */
+/**
+ * @swagger
+ * /admin/categories:
+ *   get:
+ *     summary: List all categories (including inactive)
+ *     tags: [Admin Categories]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: All categories
+ */
+adminRouter.get("/", ...adminAccess, getAdminCategoriesController);
+
 adminRouter.post(
   "/",
   ...adminAccess,

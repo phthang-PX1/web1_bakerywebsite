@@ -225,7 +225,10 @@ export class RewardsPage implements OnInit {
       next: (result) => {
         this.points.set(result.loyaltyPoints);
         this.info.update((info) => info ? { ...info, loyaltyPoints: result.loyaltyPoints } : info);
-        this.toast.success(`Da doi "${reward.name}". Ma voucher: ${result.voucher.code}`);
+        const msg = result.voucher.redeemable
+          ? `Da doi "${reward.name}". Ma giam gia: ${result.voucher.code} (nhap khi thanh toan)`
+          : `Da doi "${reward.name}". Ma: ${result.voucher.code} (xuat trinh tai cua hang)`;
+        this.toast.success(msg);
       },
       error: () => this.toast.error('Khong the doi qua. Vui long thu lai.'),
     });

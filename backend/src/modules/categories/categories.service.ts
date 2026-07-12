@@ -75,6 +75,12 @@ export const getCategories = async () =>
     orderBy: { name: "asc" }
   });
 
+// Admin: trả cả category inactive để có thể bật lại từ trang quản lý.
+export const getAllCategories = async () =>
+  prisma.category.findMany({
+    orderBy: { name: "asc" }
+  });
+
 export const getCategoryBySlug = async (slug: string) => {
   const category = await prisma.category.findFirst({
     where: {

@@ -10,6 +10,8 @@ import {
   deactivateAccountController,
   deleteAddressController,
   getAddressesController,
+  getAdminCustomerDetailController,
+  getAdminCustomersController,
   getLoyaltyLogsController,
   getLoyaltySummaryController,
   getProfileController,
@@ -24,6 +26,8 @@ import {
 import {
   addressBodySchema,
   addressParamsSchema,
+  adminCustomerParamsSchema,
+  adminCustomersQuerySchema,
   changeEmailBodySchema,
   changePasswordBodySchema,
   changePhoneBodySchema,
@@ -36,7 +40,9 @@ import {
 } from "./users.schema";
 
 const router = Router();
+const adminRouter = Router();
 const memberAccess = [auth, requireRole("member", "admin")];
+const adminAccess = [auth, requireRole("admin")];
 
 router.post(
   "/me/email/confirm",
@@ -319,4 +325,52 @@ router.get(
   getLoyaltyLogsController
 );
 
+// ─── Admin: khách hàng ───────────────────────────────────────────────────────
+
+/**
+ * @swagger
+ * /admin/customers:
+ *   get:
+ *     summary: List customers (members) with order stats
+ *     tags: [Admin Customers]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated customers
+ */
+adminRouter.get(
+  "/",
+  ...adminAccess,
+  validate({ query: adminCustomersQuerySchema }),
+  getAdminCustomersController
+);
+
+/**
+ * @swagger
+ * /admin/customers/{id}:
+ *   get:
+ *     summary: Get a customer detail with recent orders and stats
+ *     tags: [Admin Customers]
+ *     security:
+ *       - bearerAuth: []
+ *     parameters:
+ *       - in: path
+ *         name: id
+ *         required: true
+ *         schema:
+ *           type: string
+ *           format: uuid
+ *     responses:
+ *       200:
+ *         description: Customer detail
+ */
+adminRouter.get(
+  "/:id",
+  ...adminAccess,
+  validate({ params: adminCustomerParamsSchema }),
+  getAdminCustomerDetailController
+);
+
+export { adminRouter as adminCustomersRoutes };
 export default router;

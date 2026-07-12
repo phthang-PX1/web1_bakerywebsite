@@ -6,6 +6,7 @@ frontend/node_modules/
 # Build outputs
 dist/
 backend/dist/
+backend/.build-check/
 frontend/dist/
 .angular/
 coverage/

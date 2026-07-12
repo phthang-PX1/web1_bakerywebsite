@@ -31,8 +31,9 @@ export class AuthApi {
     return this.http.post<RegisterResponse>(`${this.base}/resend-otp`, body);
   }
 
-  activate(token: string): Observable<{ message: string }> {
-    return this.http.post<{ message: string }>(`${this.base}/activate/${token}`, {});
+  /** Kích hoạt tài khoản qua link email — backend trả luôn tokens để đăng nhập ngay. */
+  activate(token: string): Observable<AuthResponse> {
+    return this.http.post<AuthResponse>(`${this.base}/activate/${token}`, {});
   }
 
   login(body: LoginRequest): Observable<AuthResponse> {

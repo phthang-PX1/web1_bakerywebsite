@@ -63,3 +63,22 @@ export const loyaltyLogsQuerySchema = z.object({
 export const redeemRewardBodySchema = z.object({
   rewardId: z.string().trim().min(1).max(50)
 });
+
+export const adminCustomersQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(100).default(20),
+  search: z
+    .string()
+    .trim()
+    .max(100)
+    .optional()
+    .transform((value) => (value === "" ? undefined : value)),
+  isActive: z
+    .enum(["true", "false"])
+    .optional()
+    .transform((value) => (value === undefined ? undefined : value === "true"))
+});
+
+export const adminCustomerParamsSchema = z.object({
+  id: z.string().uuid()
+});

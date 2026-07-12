@@ -10,6 +10,16 @@ import type { Category } from '../../../core/models/category.model';
 import type { ExtendedProduct } from './products-list.page';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
 @Component({
   selector: 'app-admin-product-form-page',
   standalone: true,
@@ -564,7 +574,7 @@ export class AdminProductFormPage implements OnInit {
 
   onNameChange(): void {
     const name = this.form.get('name')?.value || '';
-    const slug = this.generateSlug(name);
+    const slug = slugify(name);
     this.form.patchValue({ slug });
   }
 
@@ -669,7 +679,7 @@ export class AdminProductFormPage implements OnInit {
     const payload = {
       categoryId: val.categoryId!,
       name: val.name!,
-      slug: val.slug || this.generateSlug(val.name!),
+      slug: val.slug || slugify(val.name!),
       description: val.description || undefined,
       basePrice: Number(val.basePrice),
       isCustomizable: false
@@ -714,6 +724,9 @@ export class AdminProductFormPage implements OnInit {
             next: () => callback(),
             error: (err) => {
               console.error('[ProductForm] Error saving variants:', err);
+              // Sản phẩm chính đã lưu; báo rõ biến thể (size) lưu chưa trọn vẹn thay
+              // vì im lặng, để admin biết cần kiểm tra lại phần kích cỡ.
+              this.toastService.error('Sản phẩm đã lưu nhưng một số biến thể (kích cỡ) chưa lưu được. Vui lòng kiểm tra lại.');
               callback();
             }
           });
@@ -737,6 +750,7 @@ export class AdminProductFormPage implements OnInit {
           },
           error: (err) => {
             console.error('[ProductForm] Error creating option group:', err);
+            this.toastService.error('Sản phẩm đã lưu nhưng nhóm kích cỡ chưa tạo được. Vui lòng thử lại phần biến thể.');
             callback();
           }
         });

@@ -55,6 +55,25 @@ model Banner {
   @@map("banners")
 }
 
+model BlogPost {
+  postId        String   @id @default(uuid()) @map("post_id") @db.Uuid
+  slug          String   @unique @db.VarChar(255)
+  title         String   @db.VarChar(255)
+  excerpt       String   @db.VarChar(500)
+  coverImage    String   @map("cover_image") @db.VarChar(500)
+  category      String   @db.VarChar(100)
+  readingTime   String   @map("reading_time") @db.VarChar(50)
+  content       String[] // các đoạn văn bản
+  galleryImages String[] @map("gallery_images")
+  publishedAt   DateTime @default(now()) @map("published_at")
+  isActive      Boolean  @default(true) @map("is_active")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  @@index([isActive, publishedAt])
+  @@map("blog_posts")
+}
+
 model Address {
   addressId     String   @id @default(uuid()) @map("address_id") @db.Uuid
   userId        String   @map("user_id") @db.Uuid
@@ -123,12 +142,17 @@ model ProductImage {
 
 model OptionGroup {
   groupId    String       @id @default(uuid()) @map("group_id") @db.Uuid
-  productId  String       @map("product_id") @db.Uuid
+  // null = thành phần DÙNG CHUNG (áp cho mọi bánh tùy chỉnh); có giá trị = option riêng của 1 sản phẩm.
+  productId  String?      @map("product_id") @db.Uuid
   name       String       @db.VarChar(100)
   isRequired Boolean      @default(false) @map("is_required")
   isMultiple Boolean      @default(false) @map("is_multiple")
+  // Quy tắc chọn cho nhóm nhiều lựa chọn (cấu hình ở admin, trước đây hardcode ở client):
+  maxSelect         Int? @map("max_select")          // số lượng tối đa được chọn (null = không giới hạn)
+  freeQuantity      Int  @default(0) @map("free_quantity")       // số lượng đầu tiên miễn phí phụ phí
+  surchargePerExtra Decimal @default(0) @map("surcharge_per_extra") @db.Decimal(10, 2) // phụ phí mỗi lựa chọn vượt freeQuantity
   sortOrder  Int          @default(0) @map("sort_order")
-  product    Product      @relation(fields: [productId], references: [productId], onDelete: Cascade)
+  product    Product?     @relation(fields: [productId], references: [productId], onDelete: Cascade)
   items      OptionItem[]
 
   @@index([productId])
@@ -202,6 +226,9 @@ model Order {
 
   @@index([userId])
   @@index([couponId])
+  @@index([orderStatus])
+  @@index([paymentStatus])
+  @@index([createdAt])
   @@map("orders")
 }
 

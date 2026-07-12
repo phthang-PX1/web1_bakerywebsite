@@ -211,10 +211,31 @@
 }
 
 .options-toggle {
-  @include m.btn-text;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: t.$sp-3;
+  padding: t.$sp-3 t.$sp-4;
+  border: 1px solid t.$border;
+  border-radius: t.$r-xs;
+  background: t.$surface;
+  color: t.$ink;
+  font-size: t.$fs-body-sm;
+  font-weight: 700;
+  cursor: pointer;
   margin-bottom: t.$sp-4;
+  transition: border-color 0.15s ease, background 0.15s ease;
+
+  &:hover {
+    border-color: t.$primary;
+    background: t.$surface-warm;
+  }
 
   .options-toggle__chevron {
+    flex-shrink: 0;
+    font-size: 1.1rem;
+    line-height: 1;
     transition: transform 0.2s ease;
 
     &--open {
@@ -310,6 +331,36 @@
 .btn-add-cart {
   @include m.btn-solid;
   width: 100%;
+}
+
+// Hàng nút: "Thêm vào giỏ" thu nhỏ bên trái + "Mua ngay" nổi bật bên phải.
+.product-actions {
+  display: flex;
+  gap: t.$sp-3;
+  align-items: stretch;
+}
+
+.btn-add-cart--compact {
+  width: auto;
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.btn-buy-now {
+  @include m.btn-solid;
+  flex: 1 1 auto;
+  background: t.$ink;
+  border-color: t.$ink;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
 }
 
 .product-info__hint {

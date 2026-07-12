@@ -2,11 +2,14 @@ import type { MembershipTier } from './user.model';
 
 export type PointTransactionType = 'earn' | 'redeem' | 'expire' | 'bonus';
 
+// Khớp chính xác row Prisma LoyaltyLog mà backend trả về (getLoyaltyLogs):
+// { logId, userId, orderId, pointsDelta, reason, createdAt }.
 export interface LoyaltyLog {
   readonly logId: string;
-  readonly points: number;
-  readonly type: PointTransactionType;
-  readonly description: string;
+  readonly userId: string;
+  readonly orderId: string | null;
+  readonly pointsDelta: number;
+  readonly reason: string;
   readonly createdAt: string;
 }
 
@@ -31,6 +34,8 @@ export interface RedeemRewardResponse {
   readonly voucher: {
     readonly code: string;
     readonly type: string;
+    /** true = mã nhập được ngay ở checkout (đã là coupon thật); false = quà nhận tại cửa hàng. */
+    readonly redeemable: boolean;
     readonly issuedAt: string;
   };
   readonly loyaltyPoints: number;

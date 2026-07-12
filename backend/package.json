@@ -6,11 +6,15 @@
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
+    "typecheck": "tsc --noEmit",
+    "verify": "npm run typecheck",
     "start": "node dist/src/server.js",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev",
     "prisma:studio": "prisma studio",
     "seed": "tsx prisma/seed.ts",
+    "seed:blog": "tsx prisma/seed-blog.ts",
+    "seed:option-images": "tsx scripts/seed-option-images.ts",
     "test": "tsx test_api_runner.ts"
   },
   "dependencies": {

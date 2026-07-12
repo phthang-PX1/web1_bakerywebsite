@@ -1,5 +1,8 @@
 export type DiscountType = 'percent' | 'fixed';
 
+// Field khớp chính xác backend formatCoupon (coupons.service.ts):
+// couponId, code, discountType, discountValue, minOrderValue, maxDiscountAmount,
+// usageLimit, usedCount, startDate, endDate, isActive.
 export interface Coupon {
   readonly couponId: string;
   readonly code: string;
@@ -7,15 +10,11 @@ export interface Coupon {
   readonly discountValue: number;
   readonly minOrderValue: number;
   readonly maxDiscountAmount: number | null;
+  readonly usageLimit: number | null;
+  readonly usedCount: number;
+  readonly startDate: string;
+  readonly endDate: string;
   readonly isActive: boolean;
-  /** Legacy field — maps to endDate in backend */
-  readonly expiresAt: string | null;
-  /** Admin-only fields from backend */
-  readonly startDate?: string | null;
-  readonly endDate?: string | null;
-  readonly usageLimit?: number | null;
-  readonly usageCount?: number;
-
 }
 
 /** Snake_case body as required by POST /api/coupons/validate schema */

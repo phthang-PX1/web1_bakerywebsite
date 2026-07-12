@@ -25,6 +25,8 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
   readonly order = signal<Order | null>(null);
   readonly loading = signal(true);
   readonly error = signal('');
+  readonly claiming = signal(false);
+  private trackingToken?: string;
   private pollingTimer: ReturnType<typeof setTimeout> | null = null;
   private pollingErrors = 0;
   private readonly maxPollingErrors = 3;
@@ -32,6 +34,7 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
   ngOnInit(): void {
     const orderId = this.route.snapshot.paramMap.get('orderId')!;
     const trackingToken = this.route.snapshot.queryParamMap.get('token') ?? undefined;
+    this.trackingToken = trackingToken;
     this.loadOrder(orderId, trackingToken);
     this.schedulePoll(orderId, trackingToken);
   }
@@ -44,13 +47,45 @@ export class OrderTrackingPage implements OnInit, OnDestroy {
     return this.authService.isLoggedIn();
   }
 
+  /** Đơn guest (chưa gắn tài khoản) + khách đang đăng nhập + có tracking token → cho nhận đơn. */
+  canClaim(): boolean {
+    const o = this.order();
+    return !!o && this.authService.isLoggedIn() && !o.userId && !!this.trackingToken && !this.claiming();
+  }
+
+  claimOrder(): void {
+    const o = this.order();
+    if (!o || !this.trackingToken || this.claiming()) return;
+    this.claiming.set(true);
+    this.ordersApi.claimOrder(o.orderId, this.trackingToken).subscribe({
+      next: (updated) => {
+        this.order.set(updated);
+        this.claiming.set(false);
+        this.error.set('');
+      },
+      error: (err) => {
+        this.claiming.set(false);
+        this.error.set(err?.error?.message || 'Không thể nhận đơn về tài khoản.');
+      },
+    });
+  }
+
   cancelOrder(): void {
     const o = this.order();
     if (!o || !this.authService.isLoggedIn()) return;
+    // Backend chỉ cho hủy đơn pending; chặn sớm + có nhánh error để không thất bại im lặng.
+    if (o.orderStatus !== 'pending') {
+      this.error.set('Chỉ có thể hủy đơn hàng đang chờ xác nhận.');
+      return;
+    }
     this.ordersApi.cancelOrder(o.orderId).subscribe({
       next: (updated) => {
         this.order.set(updated);
+        this.error.set('');
         this.stopPolling();
+      },
+      error: (err) => {
+        this.error.set(err?.error?.message || 'Không thể hủy đơn hàng. Vui lòng thử lại.');
       },
     });
   }

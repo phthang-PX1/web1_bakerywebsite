@@ -41,11 +41,11 @@ import { EmptyStateComponent } from '../../../shared/components/empty-state/empt
               @for (log of logs(); track log.logId) {
                 <li class="transaction-item">
                   <div class="transaction-item__meta">
-                    <span class="transaction-item__desc">{{ log.description }}</span>
+                    <span class="transaction-item__desc">{{ log.reason }}</span>
                     <span class="transaction-item__date">{{ log.createdAt | slice:0:10 }}</span>
                   </div>
-                  <span class="transaction-item__points" [class.text-success]="log.points > 0">
-                    {{ log.points > 0 ? '+' : '' }}{{ log.points }}
+                  <span class="transaction-item__points" [class.text-success]="log.pointsDelta > 0">
+                    {{ log.pointsDelta > 0 ? '+' : '' }}{{ log.pointsDelta }}
                   </span>
                 </li>
               }

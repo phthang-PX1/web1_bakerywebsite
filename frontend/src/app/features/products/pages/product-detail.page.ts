@@ -6,8 +6,10 @@ import { take } from 'rxjs/operators';
 import { ProductsApi } from '../../../core/api/products.api';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
+import type { AddCartItemRequest, CartResponse } from '../../../core/models/cart.model';
 import type { Product, OptionGroup, OptionItem } from '../../../core/models/product.model';
 import type { Review } from '../../../core/models/review.model';
+import { optionKindFromName, getOptionImage } from '../../../core/utils/option-display.util';
 import { SlicePipe } from '@angular/common';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { StarRatingComponent } from '../../../shared/components/star-rating/star-rating.component';
@@ -66,18 +68,45 @@ export class ProductDetailPage implements OnInit {
     return Number(p.basePrice) + optionsExtra;
   });
 
+  /**
+   * Trang chi tiết CHỈ cho tùy chỉnh "nhân" + "topping" (theo tên nhóm).
+   * Các nhóm khác (kích cỡ, kem phủ...) không hiển thị nhưng vẫn cần chọn để giá
+   * đúng — được auto-chọn item đầu tiên khi load.
+   */
+  readonly customizableGroups = computed(() =>
+    this.optionGroups().filter((g) => {
+      const kind = optionKindFromName(g.name);
+      return kind === 'filling' || kind === 'topping';
+    })
+  );
+  private readonly hiddenGroups = computed(() =>
+    this.optionGroups().filter((g) => {
+      const kind = optionKindFromName(g.name);
+      return kind !== 'filling' && kind !== 'topping';
+    })
+  );
+
   readonly canAddToCart = computed(() => {
-    const groups = this.optionGroups();
     const selected = this.selectedOptions();
-    return groups.every((g) => !g.isRequired || selected.some((s) => s.groupId === g.groupId));
+    // Chỉ ràng buộc required trên các nhóm ĐANG HIỂN THỊ + nhóm bắt buộc ẩn đã auto-chọn.
+    return this.optionGroups().every(
+      (g) => !g.isRequired || selected.some((s) => s.groupId === g.groupId)
+    );
   });
 
-  readonly hasRequiredOptions = computed(() => this.optionGroups().some((g) => g.isRequired));
-  readonly requiredGroups = computed(() => this.optionGroups().filter((g) => g.isRequired));
-  readonly optionalGroups = computed(() => this.optionGroups().filter((g) => !g.isRequired));
-  readonly unselectedRequiredCount = computed(() =>
-    this.requiredGroups().filter((g) => !this.selectedOptions().some((s) => s.groupId === g.groupId)).length
+  // Chia nhóm hiển thị theo nhân (required-like) / topping (optional-like) để render.
+  readonly fillingGroups = computed(() =>
+    this.customizableGroups().filter((g) => optionKindFromName(g.name) === 'filling')
   );
+  readonly toppingGroups = computed(() =>
+    this.customizableGroups().filter((g) => optionKindFromName(g.name) === 'topping')
+  );
+  readonly hasCustomizableOptions = computed(() => this.customizableGroups().length > 0);
+
+  /** Ảnh option: ưu tiên ảnh admin upload (DB), fallback asset theo tên. */
+  optionImage(item: OptionItem): string | null {
+    return item.imageUrl ?? getOptionImage(item.name);
+  }
 
   readonly selectedImages = computed(() => {
     const p = this.product();
@@ -146,6 +175,7 @@ export class ProductDetailPage implements OnInit {
         // optionGroups are already included in the product detail response
         if (product.optionGroups && product.optionGroups.length > 0) {
           this.optionGroups.set(product.optionGroups as OptionGroup[]);
+          this.autoSelectDefaultGroups();
         }
         this.prefillFromCartItem();
         this.productsApi.getProductReviews(product.productId, { limit: 5 }).subscribe({
@@ -190,10 +220,6 @@ export class ProductDetailPage implements OnInit {
     this.activeTab.set(tab);
   }
 
-  toggleOptions(): void {
-    this.showOptions.update((v) => !v);
-  }
-
   toggleOption(group: OptionGroup, item: OptionItem): void {
     const current = this.selectedOptions();
     if (group.isMultiple) {
@@ -218,12 +244,37 @@ export class ProductDetailPage implements OnInit {
     return this.selectedOptions().some((s) => s.groupId === groupId && s.itemId === itemId);
   }
 
+  toggleOptionsPanel(): void {
+    this.showOptions.update((open) => !open);
+  }
+
+  /**
+   * Nếu khách không mở phần tuỳ chỉnh, các nhóm bắt buộc dùng item đầu tiên còn
+   * active làm mặc định. Nhóm ẩn cũng cần mặc định để giá và cart payload đúng.
+   */
+  private autoSelectDefaultGroups(): void {
+    const current = this.selectedOptions();
+    const additions: SelectedOption[] = [];
+    for (const group of this.optionGroups()) {
+      const alreadyChosen = current.some((s) => s.groupId === group.groupId);
+      if (alreadyChosen) continue;
+      if (!group.isRequired && !this.hiddenGroups().some((hidden) => hidden.groupId === group.groupId)) continue;
+      const firstItem = group.items.find((i) => i.isActive !== false) ?? group.items[0];
+      if (firstItem) {
+        additions.push({ groupId: group.groupId, itemId: firstItem.itemId });
+      }
+    }
+    if (additions.length) {
+      this.selectedOptions.set([...current, ...additions]);
+    }
+  }
+
   addToCart(): void {
     const p = this.product();
     if (!p || !this.canAddToCart()) return;
     this.addingToCart.set(true);
 
-    const payload = {
+    const payload: AddCartItemRequest = {
       product_id: p.productId,
       quantity: this.quantity(),
       option_item_ids: this.selectedOptions().map((s) => s.itemId),
@@ -254,6 +305,54 @@ export class ProductDetailPage implements OnInit {
         this.addingToCart.set(false);
         this.toastService.error('Không thể thêm vào giỏ hàng. Vui lòng thử lại.');
       },
+    });
+  }
+
+  /**
+   * "Mua ngay": thêm vào giỏ rồi chuyển thẳng tới checkout. Cơ chế thiệp chúc
+   * mừng vẫn giữ nguyên (thu thập ở giỏ/checkout), vì mua ngay vẫn qua checkout.
+   */
+  buyNow(): void {
+    const p = this.product();
+    if (!p || !this.canAddToCart() || this.addingToCart()) return;
+    this.addingToCart.set(true);
+    const editingId = this.editingCartItemId();
+
+    const payload: AddCartItemRequest = {
+      product_id: p.productId,
+      quantity: this.quantity(),
+      option_item_ids: this.selectedOptions().map((s) => s.itemId),
+      force_new: !editingId,
+    };
+
+    const request$ = editingId
+      ? this.cartService.replaceItem(editingId, payload)
+      : this.cartService.addItem(payload);
+
+    request$.subscribe({
+      next: (cart) => {
+        this.addingToCart.set(false);
+        const buyNowItem = this.findNewestMatchingCartItem(cart, p.productId, payload.option_item_ids);
+        this.router.navigate(['/checkout'], {
+          queryParams: buyNowItem ? { buyNow: buyNowItem.cartItemId } : undefined,
+        });
+      },
+      error: () => {
+        this.addingToCart.set(false);
+        this.toastService.error('Không thể xử lý. Vui lòng thử lại.');
+      },
+    });
+  }
+
+  private findNewestMatchingCartItem(
+    cart: CartResponse,
+    productId: string,
+    optionItemIds: readonly string[]
+  ) {
+    const expected = [...optionItemIds].sort().join(',');
+    return [...cart.items].reverse().find((item) => {
+      const actual = [...item.optionItemIds].sort().join(',');
+      return item.productId === productId && actual === expected;
     });
   }
 }

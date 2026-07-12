@@ -135,7 +135,13 @@
           <h2 class="form-section__title">{{ isDelivery() ? 'Chọn ngày giao' : 'Chọn ngày ghé lấy' }}</h2>
           <div class="day-chips">
             @for (day of deliveryDays; track day.value) {
-              <button type="button" class="day-chip" [class.day-chip--active]="isSelectedDay(day.value)" (click)="selectDay(day.value)">
+              <button
+                type="button"
+                class="day-chip"
+                [class.day-chip--active]="isSelectedDay(day.value)"
+                [disabled]="!isDeliveryDateAvailable(day.value)"
+                (click)="selectDay(day.value)"
+              >
                 <span class="day-chip__label">{{ day.label }}</span>
                 <span class="day-chip__sub">{{ day.sublabel }}</span>
               </button>
@@ -147,7 +153,7 @@
 
           @if (showCustomDate()) {
             <div class="field custom-date-field">
-              <input type="date" class="field__input" formControlName="deliveryDate" [min]="today" />
+              <input type="date" class="field__input" formControlName="deliveryDate" [min]="minimumSelectableDate" />
             </div>
           }
           @if (form.controls.deliveryDate.invalid && form.controls.deliveryDate.touched) {
@@ -155,13 +161,16 @@
           }
 
           <div class="time-slots">
-            @for (slot of timeSlots; track slot) {
+            @for (slot of timeSlots(); track slot) {
               <label class="time-slot-chip" [class.time-slot-chip--active]="form.value.deliveryTimeSlot === slot">
                 <input type="radio" formControlName="deliveryTimeSlot" [value]="slot" hidden />
                 {{ slot }}
               </label>
             }
           </div>
+          @if (form.value.deliveryDate && timeSlots().length === 0) {
+            <p class="field__error">Ngày này không còn khung giờ phù hợp. Vui lòng chọn ngày khác.</p>
+          }
           @if (form.controls.deliveryTimeSlot.invalid && form.controls.deliveryTimeSlot.touched) {
             <p class="field__error">Vui lòng chọn khung giờ nhận hàng.</p>
           }
@@ -284,4 +293,11 @@
   [contactPhone]="addressContactPhone()"
   (saved)="onAddressSaved($event)"
   (dismissed)="addressDialogOpen.set(false)"
+/>
+
+<app-cake-message-dialog
+  [open]="messageDialogOpen()"
+  [items]="messageDialogItems()"
+  startAt="prompt"
+  (finished)="onMessageDialogFinished($event)"
 />

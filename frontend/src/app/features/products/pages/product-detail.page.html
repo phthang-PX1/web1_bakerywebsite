@@ -72,51 +72,57 @@
 
           <div class="product-info__price">{{ totalPrice() | currencyVnd }}</div>
 
-          <!-- Required options — pill đơn giản, luôn hiện -->
-          @if (requiredGroups().length > 0) {
-            <div class="required-options">
-              @for (group of requiredGroups(); track group.groupId) {
-                <div class="option-group">
-                  <p class="option-group__label">
-                    {{ group.name }} <span class="option-group__required">*</span>
-                  </p>
-                  <div class="size-pills">
-                    @for (item of group.items; track item.itemId) {
-                      <button
-                        type="button"
-                        class="size-pill"
-                        [class.size-pill--selected]="isSelected(group.groupId, item.itemId)"
-                        [disabled]="!item.isActive"
-                        (click)="toggleOption(group, item)"
-                      >
-                        {{ item.name }}
-                        @if (item.extraPrice > 0) {
-                          <span class="size-pill__extra">+{{ item.extraPrice | currencyVnd }}</span>
-                        }
-                      </button>
-                    }
-                  </div>
-                </div>
-              }
-            </div>
-          }
-
-          <!-- Optional options — toggle ẩn/hiện -->
-          @if (optionalGroups().length > 0) {
-            <button class="options-toggle" type="button" (click)="toggleOptions()">
-              <span class="options-toggle__label">
-                {{ showOptions() ? 'Ẩn tuỳ chỉnh' : 'Thêm tuỳ chỉnh cho bánh' }}
-              </span>
-              <svg class="options-toggle__chevron" [class.options-toggle__chevron--open]="showOptions()"
-                xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <polyline points="6 9 12 15 18 9"/>
-              </svg>
+          <!-- Tùy chỉnh: CHỈ nhân + topping (ảnh lấy từ asset, đồng bộ trang tùy chỉnh bánh) -->
+          @if (hasCustomizableOptions()) {
+            <button
+              type="button"
+              class="options-toggle"
+              [attr.aria-expanded]="showOptions()"
+              (click)="toggleOptionsPanel()"
+            >
+              <span>Tùy chỉnh bánh</span>
+              <span
+                class="options-toggle__chevron"
+                [class.options-toggle__chevron--open]="showOptions()"
+                aria-hidden="true"
+              >⌄</span>
             </button>
 
             @if (showOptions()) {
               <div class="options-panel">
-                @for (group of optionalGroups(); track group.groupId) {
+                @for (group of fillingGroups(); track group.groupId) {
+                  <div class="option-group">
+                    <p class="option-group__label">
+                      {{ group.name }}
+                      @if (group.isRequired) { <span class="option-group__required">*</span> }
+                    </p>
+                    <div class="option-circles">
+                      @for (item of group.items; track item.itemId) {
+                        <button
+                          type="button"
+                          class="option-circle"
+                          [class.option-circle--selected]="isSelected(group.groupId, item.itemId)"
+                          [disabled]="!item.isActive"
+                          (click)="toggleOption(group, item)"
+                        >
+                          <span class="option-circle__media">
+                            @if (optionImage(item)) {
+                              <img [src]="optionImage(item)" [alt]="item.name" />
+                            } @else {
+                              <span class="option-circle__fallback">{{ item.name[0] }}</span>
+                            }
+                          </span>
+                          <span class="option-circle__name">{{ item.name }}</span>
+                          @if (item.extraPrice > 0) {
+                            <span class="option-circle__price">+{{ item.extraPrice | currencyVnd }}</span>
+                          }
+                        </button>
+                      }
+                    </div>
+                  </div>
+                }
+
+                @for (group of toppingGroups(); track group.groupId) {
                   <div class="option-group">
                     <p class="option-group__label">{{ group.name }}</p>
                     <div class="option-circles">
@@ -129,8 +135,8 @@
                           (click)="toggleOption(group, item)"
                         >
                           <span class="option-circle__media">
-                            @if (item.imageUrl) {
-                              <img [src]="item.imageUrl" [alt]="item.name" />
+                            @if (optionImage(item)) {
+                              <img [src]="optionImage(item)" [alt]="item.name" />
                             } @else {
                               <span class="option-circle__fallback">{{ item.name[0] }}</span>
                             }
@@ -154,25 +160,35 @@
             <app-quantity-stepper [quantity]="quantity()" (quantityChange)="quantity.set($event)" />
           </div>
 
-          <!-- Add to cart -->
-          <button
-            class="btn-add-cart"
-            type="button"
-            [disabled]="!canAddToCart() || addingToCart()"
-            (click)="addToCart()"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
-              <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
-            </svg>
-            @if (addingToCart()) { Đang xử lý... }
-            @else if (editingCartItemId()) { Cập nhật giỏ hàng }
-            @else { Thêm vào giỏ hàng }
-          </button>
+          <!-- Hành động: Thêm vào giỏ (thu nhỏ) + Mua ngay -->
+          <div class="product-actions">
+            <button
+              class="btn-add-cart btn-add-cart--compact"
+              type="button"
+              [disabled]="!canAddToCart() || addingToCart()"
+              (click)="addToCart()"
+            >
+              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/>
+                <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>
+              </svg>
+              @if (addingToCart()) { Đang xử lý... }
+              @else if (editingCartItemId()) { Cập nhật giỏ }
+              @else { Thêm vào giỏ }
+            </button>
+            <button
+              class="btn-buy-now"
+              type="button"
+              [disabled]="!canAddToCart() || addingToCart()"
+              (click)="buyNow()"
+            >
+              Mua ngay
+            </button>
+          </div>
 
-          @if (unselectedRequiredCount() > 0) {
+          @if (!canAddToCart()) {
             <p class="product-info__hint">
-              Vui lòng chọn {{ unselectedRequiredCount() }} tuỳ chọn kích thước bắt buộc bên trên (*)
+              Vui lòng chọn đủ tuỳ chọn bắt buộc để tiếp tục.
             </p>
           }
 

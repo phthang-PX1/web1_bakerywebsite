@@ -2,6 +2,9 @@ export type OptionGroupInput = {
   name: string;
   isRequired?: boolean;
   isMultiple?: boolean;
+  maxSelect?: number | null;
+  freeQuantity?: number;
+  surchargePerExtra?: number;
   sortOrder?: number;
 };
 

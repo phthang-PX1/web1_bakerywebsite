@@ -5,6 +5,7 @@ import { FormsModule } from '@angular/forms';
 import { AdminApi } from '../../../core/api/admin.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Order, OrderStatus } from '../../../core/models/order.model';
+import { orderStatusLabel, orderStatusBadgeStyle } from '../../../core/utils/admin-status.util';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 import { PaginationComponent } from '../../../shared/components/pagination/pagination.component';
@@ -257,37 +258,11 @@ export class AdminOrdersListPage implements OnInit {
   }
 
   getStatusLabelText(order: Order): string {
-    switch (order.orderStatus) {
-      case 'pending': return 'Chờ xác nhận';
-      case 'confirmed': return 'Đã xác nhận';
-      case 'processing': return 'Đang làm bánh';
-      case 'ready': 
-        return order.fulfillmentType === 'delivery' ? 'Đang giao hàng' : 'Chờ khách lấy';
-      case 'delivered': return 'Hoàn thành';
-      case 'cancelled': return 'Đã hủy';
-      default: return order.orderStatus;
-    }
+    return orderStatusLabel(order);
   }
 
   getStatusBadgeStyle(order: Order): string {
-    switch (order.orderStatus) {
-      case 'pending':
-        return 'background: #fff7ed; color: #ea580c;';
-      case 'confirmed':
-        return 'background: #ecfdf5; color: #047857;';
-      case 'processing':
-        return 'background: #eff6ff; color: #2563eb;';
-      case 'ready':
-        return order.fulfillmentType === 'delivery' 
-          ? 'background: #f5f3ff; color: #7c3aed;'
-          : 'background: #fefce8; color: #ca8a04;';
-      case 'delivered':
-        return 'background: #f0fdf4; color: #16a34a;';
-      case 'cancelled':
-        return 'background: #fef2f2; color: #dc2626;';
-      default:
-        return 'background: #f3f4f6; color: #4b5563;';
-    }
+    return orderStatusBadgeStyle(order);
   }
 
   getPaymentMethodLabel(method: string): string {

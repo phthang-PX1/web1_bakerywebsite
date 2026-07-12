@@ -1,8 +1,20 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule } from '@angular/forms';
-import { BlogService, type ManagedBlogPost } from '../../../core/services/blog.service';
+import { AdminApi } from '../../../core/api/admin.api';
+import type { BlogPost, BlogPostFormData } from '../../../core/models/blog.model';
 import { ToastService } from '../../../core/services/toast.service';
 import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.directive';
+
+const SLUG_PATTERN = '^[a-z0-9]+(?:-[a-z0-9]+)*$';
+const slugify = (value: string): string =>
+  value
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .replace(/[đĐ]/g, 'd')
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/-+/g, '-')
+    .replace(/^-+|-+$/g, '');
 
 @Component({
   selector: 'app-admin-blog-page',
@@ -29,13 +41,6 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
         }
       </div>
 
-      <!-- Database/API Gap Alert Box -->
-      <div style="background-color: #fffbeb; border: 1.5px solid #fef3c7; border-radius: 12px; padding: 16px; margin-bottom: 24px; color: #b45309; font-size: 13.5px; font-weight: 600; line-height: 1.5;">
-        ⚠️ <strong>Lưu ý nghiệp vụ:</strong> Backend hiện chưa có cơ sở dữ liệu và API cho Blog. 
-        Để đáp ứng yêu cầu <strong>Single Source of Truth</strong>, toàn bộ hoạt động chỉnh sửa dưới đây được đồng bộ động qua <code>localStorage</code> và chia sẻ trực tiếp với trang Blog Client. 
-        Khi Backend bổ sung các endpoint <code>/admin/blog</code>, dịch vụ chỉ cần trỏ HTTP API là hoàn thành.
-      </div>
-
       <!-- Main Layout Grid -->
       <div style="display: grid; grid-template-columns: {{ panelMode() !== 'none' ? '380px 1fr' : '1fr' }}; gap: 24px; align-items: start;">
         
@@ -54,7 +59,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                   class="form-input" 
                   placeholder="Bí quyết nướng bánh bông lan ngon" 
                   style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 8px; font-size: 13.5px; outline: none; box-sizing: border-box;"
-                  (input)="autoGenerateSlug()"
+                  (input)="syncSlugFromTitle()"
                 />
                 @if (postForm.get('title')?.invalid && postForm.get('title')?.touched) {
                   <p style="color: #dc2626; font-size: 12px; margin: 4px 0 0; font-weight: 600;">Vui lòng điền tiêu đề bài viết.</p>
@@ -67,7 +72,8 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                   formControlName="slug" 
                   class="form-input" 
                   placeholder="bi-quyet-nuong-banh" 
-                  style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 8px; font-size: 13.5px; outline: none; box-sizing: border-box;"
+                  readonly
+                  style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 8px; font-size: 13.5px; outline: none; box-sizing: border-box; background: #fffcf8; cursor: default;"
                 />
                 @if (postForm.get('slug')?.invalid && postForm.get('slug')?.touched) {
                   <p style="color: #dc2626; font-size: 12px; margin: 4px 0 0; font-weight: 600;">Slug không hợp lệ (chỉ chấp nhận chữ thường, số, dấu gạch ngang).</p>
@@ -78,16 +84,46 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
               </div>
 
               <div>
-                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #7a6555; text-transform: uppercase; margin-bottom: 6px;">Link ảnh nền (Cover URL) *</label>
-                <input 
-                  formControlName="coverImage" 
-                  class="form-input" 
-                  placeholder="https://res.cloudinary.com/..." 
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #7a6555; text-transform: uppercase; margin-bottom: 6px;">Ảnh bìa *</label>
+                @if (coverPreview()) {
+                  <div style="margin-bottom: 8px;">
+                    <img [src]="coverPreview()" alt="Ảnh bìa" appImgFallback style="width: 100%; height: 140px; object-fit: cover; border-radius: 8px; border: 1.5px solid #ede8e2;" />
+                  </div>
+                }
+                <input
+                  type="file"
+                  accept="image/*"
+                  (change)="onCoverSelected($event)"
+                  style="width: 100%; font-size: 13px; color: #7a6555;"
+                />
+                <p style="color: #9c8a78; font-size: 11.5px; margin: 4px 0 0; font-weight: 600;">Tải ảnh từ máy (JPG/PNG, tối đa 5MB).</p>
+                @if (coverError()) {
+                  <p style="color: #dc2626; font-size: 12px; margin: 4px 0 0; font-weight: 600;">Vui lòng chọn ảnh bìa cho bài viết.</p>
+                }
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #7a6555; text-transform: uppercase; margin-bottom: 6px;">Ảnh minh họa (tùy chọn)</label>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  (change)="onGallerySelected($event)"
+                  style="width: 100%; font-size: 13px; color: #7a6555;"
+                />
+                @if (galleryFiles().length) {
+                  <p style="color: #16a34a; font-size: 12px; margin: 4px 0 0; font-weight: 600;">Đã chọn {{ galleryFiles().length }} ảnh minh họa.</p>
+                }
+              </div>
+
+              <div>
+                <label style="display: block; font-size: 11.5px; font-weight: 700; color: #7a6555; text-transform: uppercase; margin-bottom: 6px;">Danh mục *</label>
+                <input
+                  formControlName="category"
+                  class="form-input"
+                  placeholder="Tin tức / Mẹo chọn bánh / Xu hướng..."
                   style="width: 100%; padding: 10px 14px; border: 1.5px solid #ede8e2; border-radius: 8px; font-size: 13.5px; outline: none; box-sizing: border-box;"
                 />
-                @if (postForm.get('coverImage')?.invalid && postForm.get('coverImage')?.touched) {
-                  <p style="color: #dc2626; font-size: 12px; margin: 4px 0 0; font-weight: 600;">Vui lòng nhập URL ảnh bìa hợp lệ.</p>
-                }
               </div>
 
               <div>
@@ -181,7 +217,7 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
                 [style.border-color]="activeTab() === 'all' ? '#f5c842' : '#ede8e2'"
                 style="padding: 8px 16px; border: 1.5px solid; border-radius: 99px; font-size: 13px; font-weight: 700; cursor: pointer; transition: all 0.15s; outline: none;"
               >
-                Tất cả ({{ blogService.posts().length }})
+                Tất cả ({{ posts().length }})
               </button>
               <button 
                 (click)="activeTab.set('active')"
@@ -340,17 +376,28 @@ import { ImgFallbackDirective } from '../../../shared/directives/img-fallback.di
   styleUrl: './admin.page.scss',
 })
 export class AdminBlogPage implements OnInit {
-  readonly blogService = inject(BlogService);
+  private readonly adminApi = inject(AdminApi);
   private readonly toastService = inject(ToastService);
   private readonly fb = inject(FormBuilder);
+
+  // Danh sách bài viết (từ API thật).
+  readonly posts = signal<BlogPost[]>([]);
+  readonly loading = signal(false);
 
   // Forms and actions
   readonly postForm: FormGroup;
   readonly panelMode = signal<'create' | 'edit' | 'none'>('none');
-  readonly editingSlug = signal<string | null>(null);
-  readonly selectedPost = signal<ManagedBlogPost | null>(null);
+  readonly editingId = signal<string | null>(null);
+  readonly selectedPost = signal<BlogPost | null>(null);
   readonly slugError = signal(false);
   readonly saving = signal(false);
+
+  // Ảnh (upload file).
+  readonly coverFile = signal<File | null>(null);
+  readonly coverPreview = signal<string | null>(null);
+  readonly coverError = signal(false);
+  readonly galleryFiles = signal<File[]>([]);
+  private existingCoverUrl: string | null = null;
 
   // Filtering
   searchQuery = '';
@@ -359,47 +406,67 @@ export class AdminBlogPage implements OnInit {
   constructor() {
     this.postForm = this.fb.group({
       title: ['', Validators.required],
-      slug: ['', [Validators.required, Validators.pattern('^[a-z0-9-]+$')]],
-      coverImage: ['', Validators.required],
-      excerpt: ['', [Validators.required, Validators.maxLength(150)]],
+      slug: ['', [Validators.required, Validators.pattern(SLUG_PATTERN)]],
+      category: ['Tin tức', Validators.required],
+      excerpt: ['', [Validators.required, Validators.maxLength(500)]],
       content: ['', Validators.required],
-      publishedAt: [new Date().toISOString().split('T')[0]],
+      publishedAt: [this.getTodayInputValue()],
       isActive: [true]
     });
   }
 
   ngOnInit(): void {
-    // Initial fetch from service
+    this.loadPosts();
+  }
+
+  loadPosts(): void {
+    this.loading.set(true);
+    this.adminApi.getBlogPosts().subscribe({
+      next: (res) => {
+        this.posts.set([...res.items]);
+        this.loading.set(false);
+      },
+      error: (err) => {
+        console.error('[Blog] load failed:', err);
+        this.loading.set(false);
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được danh sách bài viết.');
+        }
+      },
+    });
   }
 
   getCountByStatus(isActive: boolean): number {
-    return this.blogService.posts().filter(p => (p.isActive !== false) === isActive).length;
+    return this.posts().filter((p) => p.isActive === isActive).length;
   }
 
   filteredPosts = computed(() => {
-    const list = this.blogService.posts();
+    const list = this.posts();
     const query = this.searchQuery.toLowerCase().trim();
     const tab = this.activeTab();
 
-    return list.filter(p => {
-      // 1. Status Filter
-      if (tab === 'active' && p.isActive === false) return false;
-      if (tab === 'inactive' && p.isActive !== false) return false;
-
-      // 2. Search query filter
+    return list.filter((p) => {
+      if (tab === 'active' && !p.isActive) return false;
+      if (tab === 'inactive' && p.isActive) return false;
       if (query) {
-        const matchesTitle = p.title.toLowerCase().includes(query);
-        const matchesSlug = p.slug.toLowerCase().includes(query);
-        const matchesExcerpt = p.excerpt.toLowerCase().includes(query);
-        const matchesContent = this.contentText(p).toLowerCase().includes(query);
-        return matchesTitle || matchesSlug || matchesExcerpt || matchesContent;
+        return (
+          p.title.toLowerCase().includes(query) ||
+          p.slug.toLowerCase().includes(query) ||
+          p.excerpt.toLowerCase().includes(query) ||
+          this.contentText(p).toLowerCase().includes(query)
+        );
       }
-
       return true;
     });
   });
 
   // Slug auto generation
+  syncSlugFromTitle(): void {
+    const title = this.postForm.get('title')?.value || '';
+    this.postForm.get('slug')?.setValue(slugify(title));
+    this.slugError.set(false);
+  }
+
   autoGenerateSlug(): void {
     if (this.panelMode() === 'create') {
       const title = this.postForm.get('title')?.value || '';
@@ -415,102 +482,146 @@ export class AdminBlogPage implements OnInit {
     }
   }
 
+  onCoverSelected(event: Event): void {
+    const file = (event.target as HTMLInputElement).files?.[0] ?? null;
+    this.coverFile.set(file);
+    this.coverError.set(false);
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => this.coverPreview.set(reader.result as string);
+      reader.readAsDataURL(file);
+    }
+  }
+
+  onGallerySelected(event: Event): void {
+    const files = Array.from((event.target as HTMLInputElement).files ?? []);
+    this.galleryFiles.set(files);
+  }
+
   // Panel Handlers
   openCreatePanel(): void {
     this.postForm.reset({
       title: '',
       slug: '',
-      coverImage: '',
+      category: 'Tin tức',
       excerpt: '',
       content: '',
-      publishedAt: new Date().toISOString().split('T')[0],
-      isActive: true
+      publishedAt: this.getTodayInputValue(),
+      isActive: true,
     });
-    this.editingSlug.set(null);
+    this.editingId.set(null);
+    this.existingCoverUrl = null;
+    this.coverFile.set(null);
+    this.coverPreview.set(null);
+    this.coverError.set(false);
+    this.galleryFiles.set([]);
     this.slugError.set(false);
     this.panelMode.set('create');
   }
 
-  startEdit(post: ManagedBlogPost): void {
+  startEdit(post: BlogPost): void {
     this.postForm.patchValue({
       title: post.title,
       slug: post.slug,
-      coverImage: post.coverImage,
+      category: post.category,
       excerpt: post.excerpt,
       content: this.contentText(post),
-      publishedAt: post.publishedAt || new Date().toISOString().split('T')[0],
-      isActive: post.isActive !== false
+      publishedAt: (post.publishedAt || '').slice(0, 10) || this.getTodayInputValue(),
+      isActive: post.isActive,
     });
-    this.editingSlug.set(post.slug);
+    this.editingId.set(post.postId);
+    this.existingCoverUrl = post.coverImage;
+    this.coverFile.set(null);
+    this.coverPreview.set(post.coverImage);
+    this.coverError.set(false);
+    this.galleryFiles.set([]);
     this.slugError.set(false);
     this.panelMode.set('edit');
   }
 
   cancelForm(): void {
     this.panelMode.set('none');
-    this.editingSlug.set(null);
+    this.editingId.set(null);
     this.slugError.set(false);
   }
 
   submitForm(): void {
-    if (this.postForm.invalid) return;
+    const mode = this.panelMode();
+    if (mode === 'create' && !this.coverFile()) {
+      this.coverError.set(true);
+      return;
+    }
+    if (this.postForm.invalid) {
+      this.postForm.markAllAsTouched();
+      return;
+    }
     this.saving.set(true);
 
-    const postData: ManagedBlogPost = {
-      ...this.postForm.value,
-      galleryImages: [],
-      category: 'Tin tức',
-      readingTime: '3 phút đọc',
+    const v = this.postForm.value;
+    const content = String(v.content || '')
+      .split(/\n\s*\n/)
+      .map((s: string) => s.trim())
+      .filter(Boolean);
+
+    const body: BlogPostFormData = {
+      title: v.title,
+      slug: v.slug || slugify(v.title || ''),
+      category: v.category,
+      excerpt: v.excerpt,
+      content,
+      isActive: v.isActive,
+      coverImageFile: this.coverFile(),
+      coverImageUrl: this.existingCoverUrl ?? undefined,
+      galleryImageFiles: this.galleryFiles(),
     };
-    const mode = this.panelMode();
-    const editSlug = this.editingSlug();
 
-    if (mode === 'create') {
-      const success = this.blogService.addPost(postData);
-      if (success) {
-        this.toastService.success('Đã thêm bài viết mới thành công!');
+    const editId = this.editingId();
+    const request$ =
+      mode === 'edit' && editId
+        ? this.adminApi.updateBlogPost(editId, body)
+        : this.adminApi.createBlogPost(body);
+
+    request$.subscribe({
+      next: () => {
+        this.toastService.success(mode === 'edit' ? 'Đã cập nhật bài viết thành công!' : 'Đã thêm bài viết mới thành công!');
+        this.saving.set(false);
         this.cancelForm();
-      } else {
-        this.slugError.set(true);
-        this.toastService.error('Thêm thất bại. Slug bị trùng lặp.');
-      }
-    } else if (mode === 'edit' && editSlug) {
-      const success = this.blogService.updatePost(editSlug, postData);
-      if (success) {
-        this.toastService.success('Đã cập nhật bài viết thành công!');
-        this.cancelForm();
-      } else {
-        this.slugError.set(true);
-        this.toastService.error('Cập nhật thất bại. Slug bị trùng lặp với bài viết khác.');
-      }
-    }
-    this.saving.set(false);
+        this.loadPosts();
+      },
+      error: (err) => {
+        this.saving.set(false);
+        if (err?.status === 409) {
+          this.slugError.set(true);
+          this.toastService.error('Slug đã tồn tại ở bài viết khác.');
+        } else {
+          this.toastService.error(err?.error?.message || 'Lưu bài viết thất bại.');
+        }
+      },
+    });
   }
 
-  toggleActive(post: ManagedBlogPost): void {
-    const success = this.blogService.togglePostActive(post.slug);
-    if (success) {
-      const isNowActive = this.blogService.posts().find(p => p.slug === post.slug)?.isActive !== false;
-      const statusText = isNowActive ? 'hiển thị' : 'tạm ẩn';
-      this.toastService.success(`Đã chuyển trạng thái bài viết sang: ${statusText}`);
-    } else {
-      this.toastService.error('Không thể chuyển trạng thái bài viết.');
-    }
+  toggleActive(post: BlogPost): void {
+    this.adminApi.toggleBlogPostStatus(post.postId).subscribe({
+      next: (updated) => {
+        this.posts.update((list) => list.map((p) => (p.postId === updated.postId ? updated : p)));
+        this.toastService.success(`Đã chuyển bài viết sang: ${updated.isActive ? 'hiển thị' : 'tạm ẩn'}`);
+      },
+      error: () => this.toastService.error('Không thể chuyển trạng thái bài viết.'),
+    });
   }
 
-  deletePost(post: ManagedBlogPost): void {
-    if (confirm(`Bạn có chắc chắn muốn xóa bài viết "${post.title}" không?`)) {
-      const success = this.blogService.deletePost(post.slug);
-      if (success) {
+  deletePost(post: BlogPost): void {
+    if (!confirm(`Bạn có chắc chắn muốn xóa bài viết "${post.title}" không?`)) return;
+    this.adminApi.deleteBlogPost(post.postId).subscribe({
+      next: () => {
         this.toastService.success('Đã xóa bài viết thành công.');
-      } else {
-        this.toastService.error('Không thể xóa bài viết.');
-      }
-    }
+        this.loadPosts();
+      },
+      error: () => this.toastService.error('Không thể xóa bài viết.'),
+    });
   }
 
-  // Previews
-  previewPost(post: ManagedBlogPost): void {
+  previewPost(post: BlogPost): void {
     this.selectedPost.set(post);
   }
 
@@ -527,7 +638,11 @@ export class AdminBlogPage implements OnInit {
     return `${day}/${month}/${year}`;
   }
 
-  contentText(post: ManagedBlogPost): string {
-    return Array.isArray(post.content) ? post.content.join('\n\n') : post.content;
+  contentText(post: BlogPost): string {
+    return Array.isArray(post.content) ? post.content.join('\n\n') : String(post.content ?? '');
+  }
+
+  private getTodayInputValue(): string {
+    return new Date().toISOString().split('T')[0];
   }
 }

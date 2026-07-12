@@ -172,8 +172,8 @@ src/app/
 > **Goal:** Finalize all planning docs before any implementation begins.
 
 - [x] Build `SCREEN_FLOW_INVENTORY.md`
-- [x] Build `ux_conflict_audit.md`
-- [x] Build `ui_improvement_plan.md`
+- [x] Resolve UX conflict audit findings (archived after implementation)
+- [x] Apply UI improvement plan findings (archived after implementation)
 - [x] Build `layout_contract.md`
 - [x] Build `feature_mapping.md`
 - [x] Build `backend/gap_analysis.md`
@@ -185,7 +185,7 @@ src/app/
 **Dependencies:** None  
 **Backend requirements:** None  
 **Risks:** None  
-**Acceptance criteria:** All critical conflicts in ux_conflict_audit.md resolved in documentation
+**Acceptance criteria:** All critical conflicts from the UX audit are resolved in documentation
 
 ---
 

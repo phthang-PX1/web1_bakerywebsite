@@ -30,6 +30,7 @@ export interface AddCartItemRequest {
   readonly product_id: string;
   readonly quantity: number;
   readonly option_item_ids: readonly string[];
+  readonly force_new?: boolean;
 }
 
 export interface UpdateCartItemRequest {

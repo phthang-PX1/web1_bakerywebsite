@@ -350,7 +350,7 @@ export const addCartItem = async (
     (item) => getItemSignature(item.productId, item.optionItemIds) === signature
   );
 
-  if (existingItem) {
+  if (existingItem && !input.forceNew) {
     const nextQuantity = existingItem.quantity + input.quantity;
 
     if (nextQuantity > 99) {
@@ -405,6 +405,16 @@ export const removeCartItem = async (
 export const clearCart = async (identity: CartIdentity) => {
   await redis.del(getCartKey(identity));
   return emptyCart();
+};
+
+export const clearCartItems = async (
+  identity: CartIdentity,
+  cartItemIds: string[]
+) => {
+  const ids = new Set(cartItemIds);
+  const { cartKey, cart } = await readStoredCart(identity);
+  const nextItems = cart.items.filter((item) => !ids.has(item.cartItemId));
+  return persistResolvedCart(cartKey, createStoredCart(nextItems));
 };
 
 export const mergeGuestCartIntoUserCart = async (

@@ -2,7 +2,13 @@ import { Prisma, type MembershipTier } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { AppError } from "../../middlewares/errorHandler";
 import { toMoney } from "../../utils/money";
-import { POINT_VALUE, REWARD_CATALOG, TIER_MULTIPLIERS, TIER_THRESHOLDS } from "./loyalty.config";
+import {
+  POINT_VALUE,
+  REDEEMED_COUPON_VALID_DAYS,
+  REWARD_CATALOG,
+  TIER_MULTIPLIERS,
+  TIER_THRESHOLDS
+} from "./loyalty.config";
 import type { CreditLoyaltyResult } from "./loyalty.types";
 
 export const calculateLoyaltyPoints = (totalAmount: Prisma.Decimal | number) =>
@@ -241,14 +247,44 @@ export const redeemReward = async (
       select: { loyaltyPoints: true, membershipTier: true }
     });
 
-    const voucherCode = `WB-${reward.rewardId.toUpperCase()}-${Date.now().toString(36).toUpperCase()}`;
+    const now = new Date();
+    const voucherCode = `WB-${reward.rewardId.toUpperCase()}-${now.getTime().toString(36).toUpperCase()}`;
+
+    // Nếu reward là voucher giảm giá → tạo Coupon THẬT (usageLimit=1) để khách
+    // dùng được ngay ở checkout. Trước đây voucher chỉ là chuỗi rỗng → điểm mất
+    // trắng (business-problem.md D-2). Quà vật lý/freeship không sinh coupon.
+    const couponConfig = "coupon" in reward ? reward.coupon : undefined;
+    let redeemable = false;
+
+    if (couponConfig) {
+      const endDate = new Date(
+        now.getTime() + REDEEMED_COUPON_VALID_DAYS * 24 * 60 * 60 * 1000
+      );
+
+      await tx.coupon.create({
+        data: {
+          code: voucherCode,
+          discountType: couponConfig.discountType,
+          discountValue: couponConfig.discountValue,
+          minOrderValue: couponConfig.minOrderValue,
+          maxDiscountAmount: couponConfig.maxDiscountAmount,
+          usageLimit: 1,
+          startDate: now,
+          endDate,
+          isActive: true
+        }
+      });
+      redeemable = true;
+    }
 
     return {
       reward,
       voucher: {
         code: voucherCode,
         type: reward.voucherType,
-        issuedAt: new Date().toISOString()
+        // redeemable=true nghĩa là mã này nhập được ở checkout (đã là coupon thật).
+        redeemable,
+        issuedAt: now.toISOString()
       },
       loyaltyPoints: user.loyaltyPoints,
       membershipTier: user.membershipTier

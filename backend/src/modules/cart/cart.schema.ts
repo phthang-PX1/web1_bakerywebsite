@@ -18,12 +18,15 @@ export const addCartItemBodySchema = z
     productId: z.string().uuid().optional(),
     quantity: quantitySchema,
     option_item_ids: optionItemIdsSchema.optional(),
-    optionItemIds: optionItemIdsSchema.optional()
+    optionItemIds: optionItemIdsSchema.optional(),
+    force_new: z.coerce.boolean().optional(),
+    forceNew: z.coerce.boolean().optional()
   })
   .transform((value) => ({
     productId: value.productId ?? value.product_id,
     quantity: value.quantity,
-    optionItemIds: value.optionItemIds ?? value.option_item_ids ?? []
+    optionItemIds: value.optionItemIds ?? value.option_item_ids ?? [],
+    forceNew: value.forceNew ?? value.force_new ?? false
   }))
   .refine((value) => value.productId !== undefined, {
     message: "product_id is required",

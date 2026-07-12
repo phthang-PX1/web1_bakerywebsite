@@ -1,19 +1,26 @@
 import { AsyncPipe } from '@angular/common';
-import { Component, OnInit, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
+import { map } from 'rxjs/operators';
 
 import { CouponsApi } from '../../../core/api/coupons.api';
 import { OrdersApi } from '../../../core/api/orders.api';
 import { UsersApi } from '../../../core/api/users.api';
 import type { ValidateCouponResponse } from '../../../core/models/coupon.model';
 import type { CreateOrderResponse } from '../../../core/models/order.model';
+import type { CartResponse } from '../../../core/models/cart.model';
 import type { Address } from '../../../core/models/user.model';
 import { AuthService } from '../../../core/services/auth.service';
 import { CakeMessageService } from '../../../core/services/cake-message.service';
 import { CartService } from '../../../core/services/cart.service';
 import { ToastService } from '../../../core/services/toast.service';
 import { AddressFormDialogComponent } from '../../../shared/components/address-form-dialog/address-form-dialog.component';
+import {
+  CakeMessageDialogComponent,
+  type CakeMessageDialogResult,
+} from '../../../shared/components/cake-message-dialog/cake-message-dialog.component';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 
 export interface DeliveryDay {
@@ -23,11 +30,13 @@ export interface DeliveryDay {
 }
 
 const phoneValidator = [Validators.required, Validators.pattern(/^[0-9]{9,11}$/)];
+const MIN_LEAD_TIME_HOURS = 4;
+const STORE_TIME_SLOTS = ['08:00-10:00', '10:00-12:00', '13:00-15:00', '15:00-17:00', '17:00-19:00'];
 
 @Component({
   selector: 'app-checkout-page',
   standalone: true,
-  imports: [ReactiveFormsModule, AsyncPipe, CurrencyVndPipe, AddressFormDialogComponent],
+  imports: [ReactiveFormsModule, AsyncPipe, CurrencyVndPipe, AddressFormDialogComponent, CakeMessageDialogComponent],
   templateUrl: './checkout.page.html',
   styleUrl: './checkout.page.scss',
 })
@@ -40,8 +49,11 @@ export class CheckoutPage implements OnInit {
   private readonly toastService = inject(ToastService);
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
+  private readonly route = inject(ActivatedRoute);
+  private readonly destroyRef = inject(DestroyRef);
 
-  readonly cart$ = this.cartService.cart$;
+  private readonly buyNowItemId = this.route.snapshot.queryParamMap.get('buyNow');
+  readonly cart$ = this.cartService.cart$.pipe(map((cart) => this.scopeCart(cart)));
   readonly submitting = signal(false);
   readonly validatingCoupon = signal(false);
   readonly coupon = signal<ValidateCouponResponse | null>(null);
@@ -56,11 +68,15 @@ export class CheckoutPage implements OnInit {
   readonly selectedAddress = signal<Address | null>(null);
   readonly addressDialogOpen = signal(false);
   readonly addressError = signal(false);
+  readonly messageDialogOpen = signal(false);
+  readonly messageDialogItems = signal<CartResponse['items']>([]);
+  private promptedForMessages = false;
 
   readonly shippingFee = 0;
-  readonly today = new Date().toISOString().split('T')[0];
+  readonly today = this.formatDateValue(new Date());
+  readonly minimumSelectableDate = this.firstAvailableDeliveryDate();
   readonly deliveryDays: DeliveryDay[] = this.buildDeliveryDays();
-  readonly timeSlots = ['08:00-10:00', '10:00-12:00', '13:00-15:00', '15:00-17:00', '17:00-19:00'];
+  readonly timeSlots = signal<string[]>([]);
 
   readonly form = new FormGroup({
     buyerName: new FormControl('', [Validators.required, Validators.maxLength(100)]),
@@ -69,7 +85,7 @@ export class CheckoutPage implements OnInit {
     recipientPhone: new FormControl(''),
     email: new FormControl(''),
     fulfillmentType: new FormControl<'delivery' | 'pickup'>('delivery', [Validators.required]),
-    deliveryDate: new FormControl(this.deliveryDays[0].value, [Validators.required]),
+    deliveryDate: new FormControl(this.minimumSelectableDate, [Validators.required]),
     deliveryTimeSlot: new FormControl('', [Validators.required]),
     paymentMethod: new FormControl<'transfer' | 'cash'>('cash', [Validators.required]),
     couponCode: new FormControl(''),
@@ -93,7 +109,9 @@ export class CheckoutPage implements OnInit {
       this.loadAddresses();
     }
 
-    this.form.controls.fulfillmentType.valueChanges.subscribe((type) => {
+    this.form.controls.fulfillmentType.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe((type) => {
       const delivery = type === 'delivery';
       this.isDelivery.set(delivery);
 
@@ -105,9 +123,26 @@ export class CheckoutPage implements OnInit {
     });
 
     this.syncRecipientValidators();
+    this.refreshTimeSlots();
+
+    this.form.controls.deliveryDate.valueChanges
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(() => this.refreshTimeSlots());
+
+    this.cart$.pipe(takeUntilDestroyed(this.destroyRef)).subscribe((cart) => {
+      this.cakeMessages.prune(this.cartService.snapshot.items.map((item) => item.cartItemId));
+      if (this.promptedForMessages || this.cakeMessages.skippedThisSession) return;
+      const pending = this.cakeMessages.pendingItems(cart.items);
+      if (pending.length > 0) {
+        this.promptedForMessages = true;
+        this.messageDialogItems.set(pending);
+        this.messageDialogOpen.set(true);
+      }
+    });
   }
 
   selectDay(value: string): void {
+    if (!this.isDeliveryDateAvailable(value)) return;
     this.showCustomDate.set(false);
     this.form.patchValue({ deliveryDate: value });
   }
@@ -119,6 +154,10 @@ export class CheckoutPage implements OnInit {
 
   isSelectedDay(value: string): boolean {
     return !this.showCustomDate() && this.form.value.deliveryDate === value;
+  }
+
+  isDeliveryDateAvailable(value: string): boolean {
+    return this.availableTimeSlotsForDate(value).length > 0;
   }
 
   toggleGiftRecipient(checked: boolean): void {
@@ -178,17 +217,26 @@ export class CheckoutPage implements OnInit {
 
     this.validatingCoupon.set(true);
     this.couponError.set('');
-    const subtotal = this.cartService.snapshot.subtotal;
+    const subtotal = this.scopeCart(this.cartService.snapshot).subtotal;
 
     this.couponsApi.validate({ code, order_value: subtotal }).subscribe({
       next: (res) => {
+        this.validatingCoupon.set(false);
+        // Backend trả HTTP 200 kèm { valid:false, reason } cho coupon hết hạn/hết
+        // lượt/chưa đủ điều kiện — phải kiểm tra res.valid, không chỉ dựa vào lỗi HTTP.
+        if (!res.valid) {
+          this.coupon.set(null);
+          this.discount.set(0);
+          this.couponError.set(res.reason || 'Mã giảm giá không hợp lệ.');
+          return;
+        }
         this.coupon.set(res);
         this.discount.set(res.discountAmount ?? 0);
-        this.validatingCoupon.set(false);
       },
       error: (err) => {
         this.validatingCoupon.set(false);
         this.coupon.set(null);
+        this.discount.set(0);
         if (err?.status === 404) this.couponError.set('Mã giảm giá không tồn tại hoặc đã hết hạn.');
         else if (err?.status === 400) this.couponError.set('Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.');
         else this.couponError.set('Không thể xác thực mã giảm giá.');
@@ -220,6 +268,13 @@ export class CheckoutPage implements OnInit {
       return;
     }
 
+    this.refreshTimeSlots();
+    if (!this.timeSlots().includes(this.form.value.deliveryTimeSlot ?? '')) {
+      this.form.controls.deliveryTimeSlot.setErrors({ unavailable: true });
+      this.toastService.error('Khung giờ nhận hàng không còn phù hợp. Vui lòng chọn lại.');
+      return;
+    }
+
     this.submitting.set(true);
     const v = this.form.getRawValue();
     const hasGiftRecipient = this.isDelivery() && this.giftRecipient();
@@ -232,6 +287,7 @@ export class CheckoutPage implements OnInit {
 
     const cardMessage =
       Object.values(this.cakeMessages.messages())
+        .filter((message) => this.scopeCart(this.cartService.snapshot).items.some((item) => item.cartItemId === message.cartItemId))
         .map((m) => `${m.productName} (${this.cakeMessages.templateById(m.templateId).name}): "${m.text}"`)
         .join(' | ')
         .slice(0, 300) || undefined;
@@ -252,11 +308,16 @@ export class CheckoutPage implements OnInit {
         note: v.note || undefined,
         card_type: cardMessage ? 'on_cake' : 'none',
         card_message: cardMessage,
+        cart_item_ids: this.buyNowItemId ? [this.buyNowItemId] : undefined,
       })
       .subscribe({
         next: (res: CreateOrderResponse) => {
           this.submitting.set(false);
-          this.cakeMessages.clearAll();
+          if (this.buyNowItemId) {
+            this.cakeMessages.remove(this.buyNowItemId);
+          } else {
+            this.cakeMessages.clearAll();
+          }
           const totalAmount = res.summary?.totalAmount ?? 0;
           this.router.navigate(['/checkout/success'], {
             queryParams: { orderId: res.orderId, trackingToken: res.trackingToken },
@@ -287,15 +348,91 @@ export class CheckoutPage implements OnInit {
     for (let i = 0; i < 3; i++) {
       const d = new Date(base);
       d.setDate(base.getDate() + i);
-      const yyyy = d.getFullYear();
-      const mm = String(d.getMonth() + 1).padStart(2, '0');
-      const dd = String(d.getDate()).padStart(2, '0');
-      const value = `${yyyy}-${mm}-${dd}`;
+      const value = this.formatDateValue(d);
+      const [, mm, dd] = value.split('-');
       const label = i === 0 ? 'Hôm nay' : i === 1 ? 'Ngày mai' : dayNames[d.getDay()];
       days.push({ label, sublabel: `${dd}/${mm}`, value });
     }
 
     return days;
+  }
+
+  onMessageDialogFinished(_result: CakeMessageDialogResult): void {
+    this.messageDialogOpen.set(false);
+  }
+
+  private scopeCart(cart: CartResponse): CartResponse {
+    if (!this.buyNowItemId) return cart;
+
+    const items = cart.items.filter((item) => item.cartItemId === this.buyNowItemId);
+    return {
+      items,
+      subtotal: items.reduce((sum, item) => sum + item.itemTotal, 0),
+      totalQuantity: items.reduce((sum, item) => sum + item.quantity, 0),
+    };
+  }
+
+  private refreshTimeSlots(): void {
+    const deliveryDate = this.form.value.deliveryDate;
+    const slots = deliveryDate ? this.availableTimeSlotsForDate(deliveryDate) : [];
+    this.timeSlots.set(slots);
+
+    const currentSlot = this.form.value.deliveryTimeSlot;
+    if (!currentSlot || !slots.includes(currentSlot)) {
+      this.form.patchValue({ deliveryTimeSlot: slots[0] ?? '' }, { emitEvent: false });
+    }
+  }
+
+  private availableTimeSlotsForDate(dateValue: string): string[] {
+    const selectedDate = this.parseDateValue(dateValue);
+    if (!selectedDate) return [];
+
+    const now = new Date();
+    const minimumReadyAt = new Date(now.getTime() + MIN_LEAD_TIME_HOURS * 60 * 60 * 1000);
+
+    return STORE_TIME_SLOTS.filter((slot) => {
+      const start = this.slotStartDate(selectedDate, slot);
+      return start.getTime() >= minimumReadyAt.getTime();
+    });
+  }
+
+  private slotStartDate(date: Date, slot: string): Date {
+    const [start] = slot.split('-');
+    const [hour, minute] = start.split(':').map(Number);
+    const value = new Date(date);
+    value.setHours(hour, minute, 0, 0);
+    return value;
+  }
+
+  private firstAvailableDeliveryDate(): string {
+    const base = new Date();
+    base.setHours(0, 0, 0, 0);
+
+    for (let offset = 0; offset < 14; offset++) {
+      const date = new Date(base);
+      date.setDate(base.getDate() + offset);
+      const value = this.formatDateValue(date);
+      if (this.availableTimeSlotsForDate(value).length > 0) {
+        return value;
+      }
+    }
+
+    return this.formatDateValue(base);
+  }
+
+  private parseDateValue(value: string): Date | null {
+    const [year, month, day] = value.split('-').map(Number);
+    if (!year || !month || !day) return null;
+    const date = new Date(year, month - 1, day);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+
+  private formatDateValue(date: Date): string {
+    const yyyy = date.getFullYear();
+    const mm = String(date.getMonth() + 1).padStart(2, '0');
+    const dd = String(date.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
   }
 
   private syncRecipientValidators(): void {

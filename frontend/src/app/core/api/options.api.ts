@@ -13,4 +13,9 @@ export class OptionsApi {
   getProductOptions(productId: string): Observable<OptionGroup[]> {
     return this.http.get<OptionGroup[]>(`${this.base}/${productId}/options`);
   }
+
+  /** Thành phần DÙNG CHUNG (áp cho mọi bánh tùy chỉnh). */
+  getSharedOptions(): Observable<OptionGroup[]> {
+    return this.http.get<OptionGroup[]>(`${environment.apiUrl}/options/shared`);
+  }
 }

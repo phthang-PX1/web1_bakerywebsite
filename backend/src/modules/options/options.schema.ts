@@ -32,10 +32,23 @@ export const optionItemParamsSchema = z.object({
   id: z.string().uuid()
 });
 
+const optionalIntSchema = (min: number, max: number) =>
+  z.preprocess(
+    (value) => (value === "" || value === undefined ? undefined : value),
+    z.coerce.number().int().min(min).max(max).optional()
+  );
+const optionalNullableIntSchema = z.preprocess(
+  (value) => (value === "" || value === undefined ? undefined : value === null ? null : value),
+  z.coerce.number().int().min(1).max(99).nullable().optional()
+);
+
 export const createOptionGroupBodySchema = z.object({
   name: z.string().trim().min(1).max(100),
   isRequired: optionalBooleanSchema,
   isMultiple: optionalBooleanSchema,
+  maxSelect: optionalNullableIntSchema,
+  freeQuantity: optionalIntSchema(0, 99),
+  surchargePerExtra: z.coerce.number().min(0).max(99999999.99).optional(),
   sortOrder: optionalSortOrderSchema
 });
 

@@ -4,6 +4,7 @@ import { catchError, finalize, map, of } from 'rxjs';
 
 import { CategoriesApi } from '../../core/api/categories.api';
 import { ProductsApi } from '../../core/api/products.api';
+import { getCategoryImage } from '../../core/utils/category-image.util';
 import type { Category } from '../../core/models/category.model';
 import type { Product } from '../../core/models/product.model';
 import { CategoryShortcutsComponent } from './components/category-shortcuts/category-shortcuts.component';
@@ -100,9 +101,9 @@ export class HomePage {
       .getProducts({ sort: 'best_sellers', limit: 4, page: 1 })
       .pipe(
         map((response) =>
-          response.items.map((product, index) => ({
+          response.items.map((product) => ({
             ...this.mapProduct(product),
-            badge: index < 2 ? 'Phổ biến' : undefined
+            badge: 'Phổ biến'
           }))
         ),
         catchError(() => {
@@ -120,12 +121,11 @@ export class HomePage {
   }
 
   private mapCategory(category: Category): HomeCategoryItem {
-    const fallback = HOME_CATEGORIES.find((item) => item.slug === category.slug);
-
     return {
       id: category.categoryId,
       name: category.name,
-      image: fallback?.image ?? '/assets/categories/banh-gato.svg',
+      // Dùng helper chung với admin để hai bên hiển thị giống hệt nhau (C-1).
+      image: getCategoryImage(category.slug),
       slug: category.slug
     };
   }

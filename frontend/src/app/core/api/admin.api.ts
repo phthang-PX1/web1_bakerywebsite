@@ -1,4 +1,4 @@
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { inject, Injectable } from '@angular/core';
 import { Observable } from 'rxjs';
 
@@ -10,6 +10,7 @@ import type { Coupon } from '../models/coupon.model';
 import type { Banner, BannerRequest } from '../models/banner.model';
 import type { Category } from '../models/category.model';
 import type { User } from '../models/user.model';
+import type { BlogPost, BlogPostFormData } from '../models/blog.model';
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Analytics types — mapped 1-to-1 from backend analytics.service.ts response
@@ -39,6 +40,52 @@ export interface AdminAnalyticsBehavior {
   byPageUrl: { pageUrl: string; count: number }[];
 }
 
+// ── Time-series & phân bổ (Phase 2) ──────────────────────────────────────────
+
+export interface RevenueTrendPoint {
+  date: string;
+  revenue: number;
+  orders: number;
+}
+export interface RevenueTrend {
+  range: { dateFrom: string; dateTo: string };
+  points: RevenueTrendPoint[];
+}
+
+export interface OrderStatusDistribution {
+  range: { dateFrom: string; dateTo: string };
+  total: number;
+  byStatus: { status: OrderStatus; count: number }[];
+}
+
+export interface CategoryDistribution {
+  range: { dateFrom: string; dateTo: string };
+  totalRevenue: number;
+  byCategory: { categoryId: string; name: string; revenue: number; quantity: number }[];
+}
+
+export interface TierDistribution {
+  total: number;
+  byTier: { tier: string; count: number }[];
+}
+
+export interface LoyaltyStats {
+  totalGranted: number;
+  totalRedeemed: number;
+  usersWithPoints: number;
+  avgFrequency: number;
+}
+
+export interface OptionGroupBody {
+  name?: string;
+  isRequired?: boolean;
+  isMultiple?: boolean;
+  maxSelect?: number | null;
+  freeQuantity?: number;
+  surchargePerExtra?: number;
+  sortOrder?: number;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
 // Products
 // ─────────────────────────────────────────────────────────────────────────────
@@ -46,6 +93,7 @@ export interface AdminAnalyticsBehavior {
 export interface AdminProductCreateRequest {
   categoryId: string;
   name: string;
+  slug?: string;
   description?: string;
   basePrice: number;
   isCustomizable?: boolean;
@@ -53,6 +101,7 @@ export interface AdminProductCreateRequest {
 
 export interface AdminProductUpdateRequest {
   name?: string;
+  slug?: string;
   description?: string;
   basePrice?: number;
   isActive?: boolean;
@@ -92,14 +141,43 @@ export interface AdminCouponRequest {
   isActive?: boolean;
 }
 
+/**
+ * Create path: backend `createCouponBodySchema` yêu cầu startDate/endDate bắt buộc
+ * (coupons.schema.ts). Bỏ trống sẽ trả 400, nên đánh dấu required riêng cho create.
+ */
+export interface AdminCouponCreateRequest extends AdminCouponRequest {
+  startDate: string;
+  endDate: string;
+}
+
 // ─────────────────────────────────────────────────────────────────────────────
-// Customers — BACKEND GAP: no admin customer endpoints exist
-// TODO_BACKEND: Implement GET /admin/customers and GET /admin/customers/:id
+// Customers — backend: GET /admin/customers, GET /admin/customers/:id
 // ─────────────────────────────────────────────────────────────────────────────
 
 export interface AdminCustomerListItem extends User {
-  totalOrders?: number;
-  totalSpent?: number;
+  totalOrders: number;
+  totalSpent: number;
+}
+
+export interface AdminCustomerRecentOrder {
+  orderId: string;
+  orderStatus: OrderStatus;
+  paymentStatus: string;
+  totalAmount: number;
+  createdAt: string;
+}
+
+export interface AdminCustomerDetail extends User {
+  totalOrders: number;
+  totalSpent: number;
+  recentOrders: AdminCustomerRecentOrder[];
+}
+
+export interface AdminCustomerListParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  isActive?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -131,6 +209,78 @@ export class AdminApi {
     return this.http.get<AdminAnalyticsBehavior>(`${this.base}/analytics/behavior`, { params });
   }
 
+  private rangeParams(dateFrom?: string, dateTo?: string): Record<string, string> {
+    const params: Record<string, string> = {};
+    if (dateFrom) params['date_from'] = dateFrom;
+    if (dateTo) params['date_to'] = dateTo;
+    return params;
+  }
+
+  getRevenueTrend(dateFrom?: string, dateTo?: string): Observable<RevenueTrend> {
+    return this.http.get<RevenueTrend>(`${this.base}/analytics/revenue-trend`, {
+      params: this.rangeParams(dateFrom, dateTo),
+    });
+  }
+
+  getOrderStatusDistribution(dateFrom?: string, dateTo?: string): Observable<OrderStatusDistribution> {
+    return this.http.get<OrderStatusDistribution>(`${this.base}/analytics/order-status`, {
+      params: this.rangeParams(dateFrom, dateTo),
+    });
+  }
+
+  getCategoryDistribution(dateFrom?: string, dateTo?: string): Observable<CategoryDistribution> {
+    return this.http.get<CategoryDistribution>(`${this.base}/analytics/category-distribution`, {
+      params: this.rangeParams(dateFrom, dateTo),
+    });
+  }
+
+  getTierDistribution(): Observable<TierDistribution> {
+    return this.http.get<TierDistribution>(`${this.base}/analytics/tier-distribution`);
+  }
+
+  getLoyaltyStats(): Observable<LoyaltyStats> {
+    return this.http.get<LoyaltyStats>(`${this.base}/analytics/loyalty-stats`);
+  }
+
+  // ── Blog ──────────────────────────────────────────────────────────────────
+
+  getBlogPosts(): Observable<PaginatedResponse<BlogPost>> {
+    return this.http.get<PaginatedResponse<BlogPost>>(`${this.base}/blog`);
+  }
+
+  private blogFormData(body: BlogPostFormData): FormData {
+    const form = new FormData();
+    form.append('title', body.title);
+    if (body.slug) form.append('slug', body.slug);
+    form.append('excerpt', body.excerpt);
+    form.append('category', body.category);
+    if (body.readingTime) form.append('readingTime', body.readingTime);
+    // Mảng gửi dưới dạng JSON string (backend preprocess parse lại).
+    form.append('content', JSON.stringify(body.content ?? []));
+    if (body.isActive !== undefined) form.append('isActive', String(body.isActive));
+    if (body.coverImageFile) form.append('coverImage', body.coverImageFile);
+    else if (body.coverImageUrl) form.append('coverImageUrl', body.coverImageUrl);
+    if (body.galleryImageUrls?.length) form.append('galleryImageUrls', JSON.stringify(body.galleryImageUrls));
+    (body.galleryImageFiles ?? []).forEach((f) => form.append('galleryImages', f));
+    return form;
+  }
+
+  createBlogPost(body: BlogPostFormData): Observable<BlogPost> {
+    return this.http.post<BlogPost>(`${this.base}/blog`, this.blogFormData(body));
+  }
+
+  updateBlogPost(postId: string, body: BlogPostFormData): Observable<BlogPost> {
+    return this.http.put<BlogPost>(`${this.base}/blog/${postId}`, this.blogFormData(body));
+  }
+
+  toggleBlogPostStatus(postId: string): Observable<BlogPost> {
+    return this.http.patch<BlogPost>(`${this.base}/blog/${postId}/status`, {});
+  }
+
+  deleteBlogPost(postId: string): Observable<{ message: string }> {
+    return this.http.delete<{ message: string }>(`${this.base}/blog/${postId}`);
+  }
+
   // ── Products ────────────────────────────────────────────────────────────
 
   getProducts(params?: { page?: number; limit?: number; search?: string; category?: string }): Observable<PaginatedResponse<Product>> {
@@ -151,6 +301,7 @@ export class AdminApi {
     const form = new FormData();
     form.append('categoryId', body.categoryId);
     form.append('name', body.name);
+    if (body.slug) form.append('slug', body.slug);
     form.append('basePrice', String(body.basePrice));
     if (body.description) form.append('description', body.description);
     if (body.isCustomizable !== undefined) form.append('isCustomizable', String(body.isCustomizable));
@@ -212,7 +363,7 @@ export class AdminApi {
     return this.http.get<Coupon[]>(`${this.base}/coupons`);
   }
 
-  createCoupon(body: AdminCouponRequest): Observable<Coupon> {
+  createCoupon(body: AdminCouponCreateRequest): Observable<Coupon> {
     return this.http.post<Coupon>(`${this.base}/coupons`, body);
   }
 
@@ -224,24 +375,38 @@ export class AdminApi {
     return this.http.patch<Coupon>(`${this.base}/coupons/${couponId}/status`, {});
   }
 
-  // ── Categories ────────────────────────────────────────────────────────────
-  // NOTE: Backend has no GET /admin/categories endpoint.
-  // Using public GET /categories — returns only active categories.
+  // ── Customers ───────────────────────────────────────────────────────────────
 
-  getCategories(): Observable<Category[]> {
-    return this.http.get<Category[]>(`${environment.apiUrl}/categories`);
+  getCustomers(params: AdminCustomerListParams = {}): Observable<PaginatedResponse<AdminCustomerListItem>> {
+    let httpParams = new HttpParams();
+    if (params.page !== undefined) httpParams = httpParams.set('page', String(params.page));
+    if (params.limit !== undefined) httpParams = httpParams.set('limit', String(params.limit));
+    if (params.search) httpParams = httpParams.set('search', params.search);
+    if (params.isActive !== undefined) httpParams = httpParams.set('isActive', String(params.isActive));
+    return this.http.get<PaginatedResponse<AdminCustomerListItem>>(`${this.base}/customers`, { params: httpParams });
   }
 
-  createCategory(body: { name: string; slug: string; description?: string }, imageFile?: File): Observable<Category> {
+  getCustomer(customerId: string): Observable<AdminCustomerDetail> {
+    return this.http.get<AdminCustomerDetail>(`${this.base}/customers/${customerId}`);
+  }
+
+  // ── Categories ────────────────────────────────────────────────────────────
+  // GET /admin/categories trả cả category inactive (khác public /categories chỉ active).
+
+  getCategories(): Observable<Category[]> {
+    return this.http.get<Category[]>(`${this.base}/categories`);
+  }
+
+  createCategory(body: { name: string; slug?: string; description?: string }, imageFile?: File): Observable<Category> {
     const form = new FormData();
     form.append('name', body.name);
-    form.append('slug', body.slug);
+    if (body.slug) form.append('slug', body.slug);
     if (body.description) form.append('description', body.description);
     if (imageFile) form.append('image', imageFile);
     return this.http.post<Category>(`${this.base}/categories`, form);
   }
 
-  updateCategory(categoryId: string, body: { name?: string; description?: string }): Observable<Category> {
+  updateCategory(categoryId: string, body: { name?: string; slug?: string; description?: string }): Observable<Category> {
     return this.http.put<Category>(`${this.base}/categories/${categoryId}`, body);
   }
 
@@ -281,6 +446,19 @@ export class AdminApi {
     return this.http.delete<{ message: string }>(`${this.base}/banners/${bannerId}`);
   }
 
+  /**
+   * Admin đánh dấu đơn đã thanh toán thủ công (COD hoặc đối soát chuyển khoản).
+   * Dùng endpoint admin có auth qua role — KHÔNG đi qua webhook (cần secret) và
+   * KHÔNG ép orderStatus (xem business-problem.md B-2, B-3).
+   */
+  markOrderPaid(orderId: string): Observable<{ message: string; order: Order }> {
+    return this.http.patch<{ message: string; order: Order }>(
+      `${this.base}/orders/${orderId}/payment`,
+      {},
+    );
+  }
+
+  /** @deprecated Dùng markOrderPaid(). Chỉ giữ để mô phỏng webhook chuyển khoản khi test. */
   simulatePayment(orderId: string, amount: number, webhookSecret?: string): Observable<unknown> {
     const headers: Record<string, string> = { 'Content-Type': 'application/json' };
     if (webhookSecret) {
@@ -291,11 +469,24 @@ export class AdminApi {
 
   // ── Options / Customizations ────────────────────────────────────────────
 
-  createOptionGroup(productId: string, body: { name: string; isRequired?: boolean; isMultiple?: boolean; sortOrder?: number }): Observable<OptionGroup> {
+  /** Danh sách nhóm thành phần DÙNG CHUNG (productId=null), kèm cả item ẩn. */
+  // (type OptionGroupBody khai báo bên dưới class)
+  getSharedOptionGroups(productId?: string): Observable<OptionGroup[]> {
+    let params = new HttpParams();
+    if (productId) params = params.set('productId', productId);
+    return this.http.get<OptionGroup[]>(`${this.base}/option-groups`, { params });
+  }
+
+  /** Tạo nhóm thành phần dùng chung (không thuộc sản phẩm nào). */
+  createSharedOptionGroup(body: OptionGroupBody): Observable<OptionGroup> {
+    return this.http.post<OptionGroup>(`${this.base}/option-groups`, body);
+  }
+
+  createOptionGroup(productId: string, body: OptionGroupBody): Observable<OptionGroup> {
     return this.http.post<OptionGroup>(`${this.base}/products/${productId}/option-groups`, body);
   }
 
-  updateOptionGroup(groupId: string, body: { name?: string; isRequired?: boolean; isMultiple?: boolean; sortOrder?: number }): Observable<OptionGroup> {
+  updateOptionGroup(groupId: string, body: OptionGroupBody): Observable<OptionGroup> {
     return this.http.put<OptionGroup>(`${this.base}/option-groups/${groupId}`, body);
   }
 

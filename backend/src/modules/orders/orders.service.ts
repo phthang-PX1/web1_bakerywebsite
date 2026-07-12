@@ -4,7 +4,7 @@ import type { SignOptions } from "jsonwebtoken";
 import { prisma } from "../../config/database";
 import { env } from "../../config/env";
 import { AppError } from "../../middlewares/errorHandler";
-import { clearCart, getCart } from "../cart/cart.service";
+import { clearCart, clearCartItems, getCart } from "../cart/cart.service";
 import type { CartIdentity, CartItemResponse } from "../cart/cart.types";
 import {
   creditDeliveredOrderLoyaltyInTransaction,
@@ -139,6 +139,8 @@ const formatOrderSummary = (order: {
   paymentStatus: "pending" | "paid" | "failed";
   orderStatus: OrderStatus;
   note: string | null;
+  cardType: string;
+  cardMessage: string | null;
   loyaltyPointsEarned: number;
   loyaltyPointsUsed: number;
   createdAt: Date;
@@ -163,6 +165,8 @@ const formatOrderSummary = (order: {
   paymentStatus: order.paymentStatus,
   orderStatus: order.orderStatus,
   note: order.note,
+  cardType: order.cardType,
+  cardMessage: order.cardMessage,
   loyaltyPointsEarned: order.loyaltyPointsEarned,
   loyaltyPointsUsed: order.loyaltyPointsUsed,
   createdAt: order.createdAt,
@@ -255,9 +259,21 @@ const resolveOrderUser = async (
 
   const existingUser = await findSingleUserByContact(tx, input);
   if (existingUser) {
+    // Không tự gắn đơn khách vãng lai vào một tài khoản ĐÃ kích hoạt (tài khoản
+    // thật) chỉ vì trùng email/phone — khách chưa chứng minh sở hữu. Làm vậy sẽ
+    // rò lịch sử đơn + điểm loyalty sang người lạ. Đơn giữ dạng guest-only.
+    if (existingUser.isActive) {
+      return {
+        userId: undefined,
+        activationUserId: undefined
+      };
+    }
+
+    // Tài khoản shell chưa kích hoạt (do chính luồng guest tạo trước đó): tái sử
+    // dụng và gửi lại link kích hoạt.
     return {
       userId: existingUser.userId,
-      activationUserId: existingUser.isActive ? undefined : existingUser.userId
+      activationUserId: existingUser.userId
     };
   }
 
@@ -355,6 +371,88 @@ const resolveCoupon = async (
     couponId: coupon.couponId,
     discountAmount: calculateCouponDiscount(coupon, subtotal)
   };
+};
+
+/**
+ * Hoàn 1 lượt sử dụng coupon khi đơn bị hủy. Guard `usedCount > 0` để không
+ * bao giờ giảm xuống âm (idempotent nếu chẳng may gọi trùng).
+ */
+const releaseCouponUsage = async (
+  tx: TransactionClient,
+  couponId: string | null
+) => {
+  if (!couponId) {
+    return;
+  }
+
+  await tx.coupon.updateMany({
+    where: { couponId, usedCount: { gt: 0 } },
+    data: { usedCount: { decrement: 1 } }
+  });
+};
+
+/**
+ * Hoàn điểm loyalty ĐÃ TIÊU khi đơn bị hủy. Idempotent: chỉ hoàn khi
+ * `loyaltyPointsUsed > 0`, rồi reset field về 0 trong cùng điều kiện (updateMany
+ * atomic) để gọi trùng không hoàn hai lần (xem business-problem.md B-1).
+ */
+const refundUsedLoyaltyPoints = async (
+  tx: TransactionClient,
+  order: { orderId: string; userId: string | null; loyaltyPointsUsed: number }
+) => {
+  if (!order.userId || order.loyaltyPointsUsed <= 0) {
+    return;
+  }
+
+  // Guard chống hoàn trùng: chỉ thành công 1 lần nhờ điều kiện loyaltyPointsUsed > 0.
+  const reset = await tx.order.updateMany({
+    where: { orderId: order.orderId, loyaltyPointsUsed: { gt: 0 } },
+    data: { loyaltyPointsUsed: 0 }
+  });
+
+  if (reset.count === 0) {
+    return;
+  }
+
+  await tx.user.update({
+    where: { userId: order.userId },
+    data: { loyaltyPoints: { increment: order.loyaltyPointsUsed } }
+  });
+
+  await tx.loyaltyLog.create({
+    data: {
+      userId: order.userId,
+      orderId: order.orderId,
+      pointsDelta: order.loyaltyPointsUsed,
+      reason: "Order cancelled points refund"
+    }
+  });
+};
+
+/**
+ * Giảm lại `soldCount` khi hủy một đơn ĐÃ delivered (lúc delivered đã tăng).
+ * Không cho soldCount xuống âm (xem business-problem.md B-4).
+ */
+const revertSoldCountForOrder = async (
+  tx: TransactionClient,
+  orderId: string
+) => {
+  const items = await tx.orderItem.groupBy({
+    by: ["productId"],
+    where: { orderId },
+    _sum: { quantity: true }
+  });
+
+  await Promise.all(
+    items.map((item) => {
+      const qty = item._sum.quantity ?? 0;
+      if (qty <= 0) return Promise.resolve();
+      return tx.product.updateMany({
+        where: { productId: item.productId, soldCount: { gte: qty } },
+        data: { soldCount: { decrement: qty } }
+      });
+    })
+  );
 };
 
 const buildOrderItems = (items: CartItemResponse[]) =>
@@ -463,15 +561,30 @@ export const createOrder = async (
     throw new AppError(400, "Cart is empty");
   }
 
+  const scopedCartItemIds = input.cartItemIds;
+  const orderItems = scopedCartItemIds?.length
+    ? cart.items.filter((item) => scopedCartItemIds.includes(item.cartItemId))
+    : cart.items;
+
+  if (orderItems.length === 0) {
+    throw new AppError(400, "Selected cart items are not available");
+  }
+
+  if (scopedCartItemIds?.length && orderItems.length !== new Set(scopedCartItemIds).size) {
+    throw new AppError(400, "Selected cart items are not available");
+  }
+
+  const subtotal = toMoney(orderItems.reduce((sum, item) => sum + item.itemTotal, 0));
+
   const shippingFee = getShippingFee(input);
   const createdOrder = await prisma.$transaction(async (tx) => {
     const { userId, activationUserId } = await resolveOrderUser(tx, identity, input);
     const { couponId, discountAmount } = await resolveCoupon(
       tx,
       input.couponCode,
-      cart.subtotal
+      subtotal
     );
-    const totalAmount = toMoney(cart.subtotal - discountAmount + shippingFee);
+    const totalAmount = toMoney(subtotal - discountAmount + shippingFee);
 
     const order = await tx.order.create({
       data: {
@@ -485,7 +598,7 @@ export const createOrder = async (
         deliveryAddress: input.deliveryAddress,
         deliveryDate: input.deliveryDate,
         deliveryTimeSlot: input.deliveryTimeSlot,
-        subtotal: cart.subtotal,
+        subtotal,
         discountAmount,
         shippingFee,
         totalAmount,
@@ -496,7 +609,7 @@ export const createOrder = async (
         cardType: input.cardType,
         cardMessage: input.cardMessage,
         items: {
-          create: buildOrderItems(cart.items)
+          create: buildOrderItems(orderItems)
         }
       }
     });
@@ -504,7 +617,11 @@ export const createOrder = async (
     return { order, activationUserId };
   });
 
-  await clearCart(cartIdentity);
+  if (scopedCartItemIds?.length) {
+    await clearCartItems(cartIdentity, scopedCartItemIds);
+  } else {
+    await clearCart(cartIdentity);
+  }
 
   const isTransfer = input.paymentMethod === "transfer";
   const paymentQrUrl = isTransfer ? getStaticQrUrl() : null;
@@ -544,14 +661,17 @@ export const createOrder = async (
 
 export const getMyOrders = async (
   userId: string | undefined,
-  query: Pick<OrderListQuery, "page" | "limit">
+  query: Pick<OrderListQuery, "page" | "limit" | "status">
 ) => {
   if (!userId) {
     throw new AppError(401, "Authentication is required");
   }
 
   const skip = (query.page - 1) * query.limit;
-  const where: Prisma.OrderWhereInput = { userId };
+  const where: Prisma.OrderWhereInput = {
+    userId,
+    ...(query.status && { orderStatus: query.status })
+  };
   const [total, items] = await prisma.$transaction([
     prisma.order.count({ where }),
     prisma.order.findMany({
@@ -662,25 +782,64 @@ export const cancelMyOrder = async (
   }
 
   const updatedOrder = await prisma.$transaction(async (tx) => {
-    if (order.loyaltyPointsUsed > 0) {
-      await tx.user.update({
-        where: { userId },
-        data: { loyaltyPoints: { increment: order.loyaltyPointsUsed } }
-      });
-      await tx.loyaltyLog.create({
-        data: {
-          userId,
-          orderId,
-          pointsDelta: order.loyaltyPointsUsed,
-          reason: "Order cancelled points refund"
-        }
-      });
-    }
+    await refundUsedLoyaltyPoints(tx, order);
+    await releaseCouponUsage(tx, order.couponId);
 
     return tx.order.update({
       where: { orderId },
       data: { orderStatus: "cancelled" }
     });
+  });
+
+  return formatOrderSummary(updatedOrder);
+};
+
+/**
+ * Cho phép khách ĐÃ ĐĂNG NHẬP "nhận" một đơn guest (userId=null) về tài khoản
+ * mình, chứng minh sở hữu bằng tracking token của đơn. Nếu đơn đã delivered thì
+ * cộng điểm loyalty ngay (trước đây đơn guest không bao giờ được cộng điểm — xem
+ * business-problem.md D-5).
+ */
+export const claimGuestOrder = async (
+  userId: string | undefined,
+  orderId: string,
+  token: string
+) => {
+  if (!userId) {
+    throw new AppError(401, "Authentication is required");
+  }
+
+  // Chứng minh người claim thực sự nắm link theo dõi của đơn.
+  verifyTrackingToken(orderId, token);
+
+  const order = await prisma.order.findUnique({ where: { orderId } });
+
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+
+  if (order.userId === userId) {
+    // Đã thuộc về mình rồi → không cần làm gì (idempotent).
+    return formatOrderSummary(order);
+  }
+
+  // Chỉ nhận được đơn CHƯA gắn với tài khoản nào; không cướp đơn của người khác.
+  if (order.userId !== null) {
+    throw new AppError(409, "Order already belongs to another account");
+  }
+
+  const updatedOrder = await prisma.$transaction(async (tx) => {
+    const linked = await tx.order.update({
+      where: { orderId },
+      data: { userId }
+    });
+
+    // Đơn đã giao trước khi được nhận → cộng điểm cho chủ mới.
+    if (linked.orderStatus === "delivered") {
+      await creditDeliveredOrderLoyaltyInTransaction(tx, orderId);
+    }
+
+    return tx.order.findUniqueOrThrow({ where: { orderId } });
   });
 
   return formatOrderSummary(updatedOrder);
@@ -695,8 +854,25 @@ export const confirmPaymentWebhook = async (input: PaymentWebhookInput) => {
     throw new AppError(404, "Order not found");
   }
 
+  // Chỉ đơn chuyển khoản mới được xác nhận qua webhook. Đơn COD (cash)/thẻ
+  // không đi qua cổng chuyển khoản nên không được phép flip sang "paid" ở đây.
+  if (order.paymentMethod !== "transfer") {
+    throw new AppError(400, "Only bank-transfer orders can be confirmed via webhook");
+  }
+
+  // Idempotency: đơn đã rời trạng thái pending (đã paid/failed) thì không xử lý lại.
   if (order.paymentStatus !== "pending") {
     throw new AppError(409, "Order payment is not pending");
+  }
+
+  // Yêu cầu nội dung chuyển khoản khớp mã đơn để chống nhầm/giả mạo bằng số tiền.
+  const expectedTransferContent = getTransferContent(order.orderId);
+  if (
+    input.transferContent !== undefined &&
+    input.transferContent.replace(/\s+/g, "").toUpperCase() !==
+      expectedTransferContent.toUpperCase()
+  ) {
+    throw new AppError(400, "Transfer content does not match order reference");
   }
 
   if (toMoney(order.totalAmount) !== toMoney(input.amount)) {
@@ -713,6 +889,42 @@ export const confirmPaymentWebhook = async (input: PaymentWebhookInput) => {
 
   return {
     message: "Payment confirmed",
+    order: formatOrderSummary(updatedOrder)
+  };
+};
+
+/**
+ * Admin xác nhận đã thu tiền THỦ CÔNG (dùng cho đơn COD/tiền mặt, hoặc đối soát
+ * chuyển khoản bằng tay). Khác webhook: hoạt động cho MỌI phương thức, KHÔNG ép
+ * orderStatus (giữ máy trạng thái độc lập), và xác thực qua role admin thay vì
+ * secret webhook (xem business-problem.md B-2, B-3).
+ */
+export const markOrderPaidByAdmin = async (orderId: string) => {
+  const order = await prisma.order.findUnique({ where: { orderId } });
+
+  if (!order) {
+    throw new AppError(404, "Order not found");
+  }
+
+  if (order.orderStatus === "cancelled") {
+    throw new AppError(400, "Cannot mark a cancelled order as paid");
+  }
+
+  // Idempotent: đã paid thì trả về nguyên trạng, không lỗi.
+  if (order.paymentStatus === "paid") {
+    return {
+      message: "Order already marked as paid",
+      order: formatOrderSummary(order)
+    };
+  }
+
+  const updatedOrder = await prisma.order.update({
+    where: { orderId },
+    data: { paymentStatus: "paid" }
+  });
+
+  return {
+    message: "Payment marked as paid",
     order: formatOrderSummary(updatedOrder)
   };
 };
@@ -885,7 +1097,15 @@ export const updateAdminOrderStatus = async (
     }
 
     if (input.status === "cancelled") {
+      // Hoàn điểm ĐÃ KIẾM (nếu đơn từng delivered) + hoàn điểm ĐÃ TIÊU + hoàn coupon.
       await revokeOrderLoyaltyInTransaction(tx, updated.orderId);
+      await refundUsedLoyaltyPoints(tx, order);
+      await releaseCouponUsage(tx, order.couponId);
+
+      // Nếu hủy một đơn ĐÃ delivered thì trả lại soldCount đã cộng lúc giao.
+      if (order.orderStatus === "delivered") {
+        await revertSoldCountForOrder(tx, updated.orderId);
+      }
     }
 
     return tx.order.findUniqueOrThrow({

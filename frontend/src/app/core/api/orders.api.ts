@@ -61,6 +61,16 @@ export class OrdersApi {
     );
   }
 
+  /**
+   * Nhận một đơn guest về tài khoản đang đăng nhập bằng tracking token.
+   * Nếu đơn đã giao, backend tự cộng điểm loyalty (xem business-problem.md D-5).
+   */
+  claimOrder(orderId: string, trackingToken: string): Observable<Order> {
+    return this.http.post<OrderWire>(`${this.base}/me/${orderId}/claim`, { token: trackingToken }, { withCredentials: true }).pipe(
+      map((order) => this.normalizeOrder(order))
+    );
+  }
+
   private normalizeOrder(order: OrderWire): Order {
     return {
       ...order,

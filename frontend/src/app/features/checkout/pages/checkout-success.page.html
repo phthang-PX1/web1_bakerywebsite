@@ -1,0 +1,83 @@
+<div class="success-page">
+  <div class="success-page__inner">
+    @if (loading()) {
+      <div class="empty-state">
+        <app-loading-spinner />
+        <p>Đang tải thông tin đơn hàng...</p>
+      </div>
+    } @else if (state(); as order) {
+      <section class="success-shell" aria-label="Đặt hàng thành công">
+        <header class="success-hero">
+          <span class="success-mark" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 6 9 17l-5-5" />
+            </svg>
+          </span>
+          <p class="success-eyebrow">Đơn hàng đã được ghi nhận</p>
+          <h1>Cảm ơn bạn, {{ order.recipientName }}.</h1>
+          <p class="success-subtitle">WeBee đã nhận đơn và sẽ chuẩn bị bánh theo thông tin bạn đã đặt.</p>
+          <div class="order-chip">
+            <span>Mã đơn</span>
+            <strong>#{{ order.orderId.slice(-8).toUpperCase() }}</strong>
+          </div>
+        </header>
+
+        <div class="success-content">
+          <section class="next-steps" aria-label="Các bước tiếp theo">
+            <h2>Các bước tiếp theo</h2>
+            <ol>
+              <li>
+                <span>01</span>
+                <p>Kiểm tra chi tiết đơn hàng trong tài khoản của bạn.</p>
+              </li>
+              <li>
+                <span>02</span>
+                <p>WeBee xác nhận đơn và bắt đầu chuẩn bị bánh.</p>
+              </li>
+              <li>
+                <span>03</span>
+                <p>Bạn nhận bánh theo hình thức và khung giờ đã chọn.</p>
+              </li>
+            </ol>
+          </section>
+
+          <aside class="payment-panel" aria-label="Thông tin thanh toán">
+            @if (order.paymentMethod === 'transfer') {
+              <p class="payment-panel__kicker">Thanh toán chuyển khoản</p>
+              @if (order.paymentQrUrl) {
+                <img class="qr-code" [src]="order.paymentQrUrl" alt="QR thanh toán" />
+              }
+              <div class="transfer-info">
+                <span>Nội dung chuyển khoản</span>
+                <code>{{ order.transferContent }}</code>
+              </div>
+              <div class="amount-row">
+                <span>Số tiền cần chuyển</span>
+                <strong>{{ order.totalAmount | currencyVnd }}</strong>
+              </div>
+              <p class="payment-note">Vui lòng chuyển đúng nội dung để đơn được xác nhận tự động.</p>
+            } @else {
+              <p class="payment-panel__kicker">Thanh toán khi nhận hàng (COD)</p>
+              <div class="amount-row amount-row--cod">
+                <span>Số tiền thanh toán</span>
+                <strong>{{ order.totalAmount | currencyVnd }}</strong>
+              </div>
+              <p class="payment-note">Vui lòng chuẩn bị đúng số tiền khi nhận bánh.</p>
+            }
+          </aside>
+        </div>
+
+        <nav class="success-actions" aria-label="Điều hướng sau đặt hàng">
+          <a class="btn btn--primary" routerLink="/products">Tiếp tục mua sắm</a>
+          <a class="btn btn--secondary" [routerLink]="['/account/orders', order.orderId]">Theo dõi đơn hàng</a>
+          <a class="btn btn--text" routerLink="/account/orders">Lịch sử đơn hàng</a>
+        </nav>
+      </section>
+    } @else {
+      <div class="empty-state">
+        <p>Không tìm thấy thông tin đơn hàng.</p>
+        <a class="btn btn--primary" routerLink="/products">Tiếp tục mua sắm</a>
+      </div>
+    }
+  </div>
+</div>

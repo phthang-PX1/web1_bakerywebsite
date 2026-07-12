@@ -21,6 +21,11 @@ export const TIER_THRESHOLDS: Array<{
   { tier: "bronze", minOrders: 2, minRevenue: 500000 }
 ];
 
+/**
+ * `coupon`: nếu có, khi khách đổi điểm sẽ sinh một Coupon THẬT (usageLimit=1) để
+ * dùng được ngay ở checkout. Các reward là quà vật lý (gift/gift_box) hoặc freeship
+ * (hệ thống hiện chưa tính phí ship) không có `coupon` — khách mang mã tới cửa hàng.
+ */
 export const REWARD_CATALOG = [
   {
     rewardId: "ship",
@@ -34,7 +39,13 @@ export const REWARD_CATALOG = [
     name: "Voucher 30.000 VND",
     description: "Giam truc tiep 30.000 VND cho don tu 200.000 VND.",
     cost: 300,
-    voucherType: "fixed_discount"
+    voucherType: "fixed_discount",
+    coupon: {
+      discountType: "fixed",
+      discountValue: 30000,
+      minOrderValue: 200000,
+      maxDiscountAmount: null
+    }
   },
   {
     rewardId: "birthday",
@@ -48,14 +59,26 @@ export const REWARD_CATALOG = [
     name: "Voucher 50.000 VND",
     description: "Giam truc tiep 50.000 VND cho don tu 300.000 VND.",
     cost: 500,
-    voucherType: "fixed_discount"
+    voucherType: "fixed_discount",
+    coupon: {
+      discountType: "fixed",
+      discountValue: 50000,
+      minOrderValue: 300000,
+      maxDiscountAmount: null
+    }
   },
   {
     rewardId: "percent15",
     name: "Giam 15% toan don",
     description: "Giam 15%, toi da 100.000 VND.",
     cost: 700,
-    voucherType: "percent_discount"
+    voucherType: "percent_discount",
+    coupon: {
+      discountType: "percent",
+      discountValue: 15,
+      minOrderValue: 0,
+      maxDiscountAmount: 100000
+    }
   },
   {
     rewardId: "vip",
@@ -65,5 +88,8 @@ export const REWARD_CATALOG = [
     voucherType: "gift_box"
   }
 ] as const;
+
+/** Số ngày hiệu lực của coupon sinh ra từ đổi điểm. */
+export const REDEEMED_COUPON_VALID_DAYS = 30;
 
 export type RewardId = (typeof REWARD_CATALOG)[number]["rewardId"];

@@ -341,6 +341,29 @@
   flex: 1;
 }
 
+// "Thêm vào giỏ" thu nhỏ + "Mua ngay" nổi bật (đồng bộ trang chi tiết sản phẩm).
+.btn-add--compact {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.btn-buy-now {
+  @include m.btn-solid;
+  flex: 1;
+  background: t.$ink;
+  border-color: t.$ink;
+  color: #fff;
+
+  &:hover:not(:disabled) {
+    filter: brightness(1.08);
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
 .options__hint {
   min-height: 18px;
   margin: 0 0 t.$sp-2;

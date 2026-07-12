@@ -65,7 +65,7 @@ const DEFAULT_CONFIG: LoyaltyConfig = {
               Chỉnh sửa
             </button>
           } @else {
-            <button 
+            <button
               (click)="cancelEdit()"
               style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 22px; background: #ffffff; border: 1.5px solid #ede8e2; border-radius: 12px; font-size: 14px; font-weight: 700; color: #7a6555; cursor: pointer; transition: all 0.15s; font-family: 'Be Vietnam Pro', sans-serif;"
               onmouseover="this.style.background='#fbf9f6'"
@@ -73,25 +73,22 @@ const DEFAULT_CONFIG: LoyaltyConfig = {
             >
               Hủy chỉnh sửa
             </button>
-          }
 
-          <!-- Nút Lưu cấu hình -->
-          <button 
-            (click)="saveConfig()"
-            [disabled]="!isEditMode()"
-            [style.opacity]="isEditMode() ? '1' : '0.6'"
-            [style.cursor]="isEditMode() ? 'pointer' : 'not-allowed'"
-            style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: #2b1a0f; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: #ffffff; transition: background 0.15s; font-family: 'Be Vietnam Pro', sans-serif; box-shadow: 0 4px 6px rgba(43,26,15,0.08);"
-            onmouseover="this.style.background='#442918'"
-            onmouseout="this.style.background='#2b1a0f'"
-          >
-            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-              <polyline points="17 21 17 13 7 13 7 21"></polyline>
-              <polyline points="7 3 7 8 15 8"></polyline>
-            </svg>
-            Lưu cấu hình
-          </button>
+            <!-- Nút Lưu cấu hình: chỉ hiện khi đang chỉnh sửa (tránh nhiều nút primary cạnh tranh) -->
+            <button
+              (click)="saveConfig()"
+              style="display: inline-flex; align-items: center; gap: 8px; padding: 10px 24px; background: #2b1a0f; border: none; border-radius: 12px; font-size: 14px; font-weight: 700; color: #ffffff; cursor: pointer; transition: background 0.15s; font-family: 'Be Vietnam Pro', sans-serif; box-shadow: 0 4px 6px rgba(43,26,15,0.08);"
+              onmouseover="this.style.background='#442918'"
+              onmouseout="this.style.background='#2b1a0f'"
+            >
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+                <polyline points="17 21 17 13 7 13 7 21"></polyline>
+                <polyline points="7 3 7 8 15 8"></polyline>
+              </svg>
+              Lưu cấu hình
+            </button>
+          }
         </div>
       </div>
 
@@ -107,6 +104,17 @@ const DEFAULT_CONFIG: LoyaltyConfig = {
             </svg>
             CẤU HÌNH QUY TẮC TÍCH ĐIỂM
           </h2>
+
+          <!-- Cảnh báo: cấu hình dưới đây hiện là tham khảo, chưa nối backend -->
+          <div style="display: flex; gap: 10px; align-items: flex-start; background: #fff8ed; border: 1.5px solid #f5d9a8; border-radius: 12px; padding: 12px 14px; margin-bottom: 20px;">
+            <span style="font-size: 16px; line-height: 1.2;">ℹ️</span>
+            <div style="font-size: 12.5px; color: #7a5a2e; font-weight: 600; line-height: 1.5;">
+              Các thông số dưới đây là <strong>bản mô tả tham khảo</strong> khớp với quy tắc đang chạy trên hệ thống.
+              Giá trị thực thi (tỷ lệ 10.000đ=1 điểm, hệ số hạng, chu kỳ 6 tháng, xét đồng thời 2 tiêu chí)
+              hiện được cố định ở máy chủ — chỉnh ở đây <strong>chỉ lưu cục bộ trên trình duyệt này</strong>,
+              chưa thay đổi hành vi hệ thống. Dùng nút <strong>"Đánh giá chu kỳ"</strong> để chạy xét hạng thật.
+            </div>
+          </div>
 
           <!-- Tỷ lệ tích điểm cơ bản -->
           <div style="margin-bottom: 24px;">
@@ -368,7 +376,8 @@ const DEFAULT_CONFIG: LoyaltyConfig = {
             <div>
               <label style="display: block; font-size: 14px; font-weight: 800; color: #2b1a0f; margin-bottom: 4px;">Logic xử lý</label>
               <div style="font-size: 13.5px; font-weight: 600; color: #7a6555;">
-                Giữ hạng tối thiểu hết chu kỳ, hạ xuống hạng tương ứng
+                Mỗi kỳ xét lại hạng theo doanh số 6 tháng gần nhất và gán đúng hạng tương ứng
+                (có thể lên hoặc xuống hạng).
               </div>
             </div>
 
@@ -566,13 +575,14 @@ export class AdminLoyaltyPage implements OnInit {
     
     // Validate that at least one criteria is selected
     if (!this.config.criteriaRevenue && !this.config.criteriaOrders) {
-      alert('Cần chọn ít nhất một tiêu chí xét hạng!');
+      this.toastService.warning('Cần chọn ít nhất một tiêu chí xét hạng!');
       return;
     }
 
     localStorage.setItem('webee_loyalty_config', JSON.stringify(this.config));
     this.isEditMode.set(false);
-    this.toastService.success('Đã lưu cấu hình tích điểm thành công!');
+    // Nói rõ chỉ lưu cục bộ, tránh admin hiểu nhầm là đã đổi quy tắc hệ thống.
+    this.toastService.success('Đã lưu ghi chú cấu hình (cục bộ trên trình duyệt này). Quy tắc thực thi trên hệ thống không đổi.');
   }
 
   evaluateCycles(): void {

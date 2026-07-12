@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { cloudinary } from "../../config/cloudinary";
 import { prisma } from "../../config/database";
 import { AppError } from "../../middlewares/errorHandler";
+import { sanitizeRichText } from "../../utils/sanitizeHtml";
 import type {
   ProductInput,
   ProductListQuery,
@@ -416,7 +417,10 @@ export const createProduct = async (
         categoryId: input.categoryId,
         name: input.name,
         slug,
-        description: input.description,
+        description:
+          input.description != null
+            ? sanitizeRichText(input.description)
+            : input.description,
         basePrice: input.basePrice,
         thumbnailUrl,
         isCustomizable: input.isCustomizable ?? false,
@@ -460,7 +464,12 @@ export const updateProduct = async (
         ...(input.categoryId !== undefined && { categoryId: input.categoryId }),
         ...(input.name !== undefined && { name: input.name }),
         ...(input.slug !== undefined && { slug: input.slug }),
-        ...(input.description !== undefined && { description: input.description }),
+        ...(input.description !== undefined && {
+          description:
+            input.description != null
+              ? sanitizeRichText(input.description)
+              : input.description
+        }),
         ...(input.basePrice !== undefined && { basePrice: input.basePrice }),
         ...(input.thumbnailUrl !== undefined && { thumbnailUrl: input.thumbnailUrl }),
         ...(input.isCustomizable !== undefined && { isCustomizable: input.isCustomizable }),

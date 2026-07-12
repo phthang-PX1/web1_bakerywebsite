@@ -1,7 +1,7 @@
 import { Component, signal, HostListener, computed, OnInit, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { AdminApi, AdminAnalyticsOverview } from '../../../core/api/admin.api';
+import { AdminApi, AdminAnalyticsOverview, type RevenueTrend, type OrderStatusDistribution } from '../../../core/api/admin.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Order, OrderStatus } from '../../../core/models/order.model';
 
@@ -153,21 +153,23 @@ interface SearchResultItem {
             </div>
             
             <div class="line-chart-wrapper" style="position: relative;">
-              <!-- Overlay disclaimer for lack of backend API support -->
-              <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10;">
-                <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Biểu đồ xu hướng chưa khả dụng</span>
-                <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Số liệu tạm ẩn do Backend chưa hỗ trợ cung cấp API dữ liệu chuỗi thời gian (time-series).</span>
-              </div>
-              <!-- SVG Line Chart -->
-              <svg class="line-chart-svg" viewBox="0 0 500 180" width="100%" height="180">
+              @if (!revenueChart().hasData) {
+                <!-- Trạng thái trống thật (chưa có đơn trong kỳ) — KHÔNG phải mock -->
+                <div style="position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10;">
+                  <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Chưa có dữ liệu doanh thu trong kỳ này</span>
+                  <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Hãy chọn khoảng thời gian khác hoặc chờ có đơn hàng mới.</span>
+                </div>
+              }
+              <!-- SVG Line Chart (vẽ từ dữ liệu thật revenueChart) -->
+              <svg class="line-chart-svg" viewBox="0 0 500 195" width="100%" height="195">
                 <defs>
                   <linearGradient id="chart-grad" x1="0" y1="0" x2="0" y2="1">
                     <stop offset="0%" stop-color="#fef3c7" stop-opacity="0.8" />
                     <stop offset="100%" stop-color="#fef3c7" stop-opacity="0" />
                   </linearGradient>
                 </defs>
-                
-                <!-- Lưới ngang Y và nhãn -->
+
+                <!-- Lưới ngang Y -->
                 <g stroke="#f3f4f6" stroke-width="1">
                   <line x1="60" y1="10" x2="470" y2="10" stroke-dasharray="4" />
                   <line x1="60" y1="50" x2="470" y2="50" stroke-dasharray="4" />
@@ -175,38 +177,30 @@ interface SearchResultItem {
                   <line x1="60" y1="130" x2="470" y2="130" stroke-dasharray="4" />
                   <line x1="60" y1="170" x2="470" y2="170" />
                 </g>
-                
-                <!-- Nhãn Y -->
+
+                <!-- Nhãn Y (từ max doanh thu thật) -->
                 <g fill="#9ca3af" font-size="10" font-weight="600" text-anchor="end">
-                  <text x="50" y="14">{{ currentStats().yLabel1 }}</text>
-                  <text x="50" y="54">{{ currentStats().yLabel2 }}</text>
-                  <text x="50" y="94">{{ currentStats().yLabel3 }}</text>
-                  <text x="50" y="134">{{ currentStats().yLabel4 }}</text>
-                  <text x="50" y="174">0 VNĐ</text>
+                  <text x="50" y="14">{{ revenueChart().yLabels[0] }}</text>
+                  <text x="50" y="54">{{ revenueChart().yLabels[1] }}</text>
+                  <text x="50" y="94">{{ revenueChart().yLabels[2] }}</text>
+                  <text x="50" y="134">{{ revenueChart().yLabels[3] }}</text>
+                  <text x="50" y="174">0</text>
                 </g>
-                
-                <!-- Vùng fill dưới biểu đồ -->
-                <path [attr.d]="currentStats().fillD" fill="url(#chart-grad)" />
-                
-                <!-- Đường vẽ Line chart -->
-                <path [attr.d]="currentStats().lineD" 
-                      fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-                      
-                <!-- Các chấm tròn dữ liệu ở các điểm nút quan trọng -->
-                @for (pt of currentStats().points; track $index) {
-                  <circle [attr.cx]="pt.cx" [attr.cy]="pt.cy" r="4" fill="#7c2d12" />
+
+                @if (revenueChart().hasData) {
+                  <path [attr.d]="revenueChart().fillD" fill="url(#chart-grad)" />
+                  <path [attr.d]="revenueChart().lineD"
+                        fill="none" stroke="#7c2d12" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                  @for (pt of revenueChart().points; track $index) {
+                    <circle [attr.cx]="pt.cx" [attr.cy]="pt.cy" r="4" fill="#7c2d12" />
+                  }
+                  <!-- Trục X nhãn (ngày dd/MM từ data thật) -->
+                  <g fill="#9ca3af" font-size="10" font-weight="600" text-anchor="middle">
+                    @for (xl of revenueChart().xLabels; track xl.x) {
+                      <text [attr.x]="xl.x" y="190">{{ xl.label }}</text>
+                    }
+                  </g>
                 }
-                
-                <!-- Trục X nhãn -->
-                <g fill="#9ca3af" font-size="10" font-weight="600" text-anchor="middle">
-                  <text x="70" y="192">T2</text>
-                  <text x="133" y="192">T3</text>
-                  <text x="196" y="192">T4</text>
-                  <text x="259" y="192">T5</text>
-                  <text x="322" y="192">T6</text>
-                  <text x="385" y="192">T7</text>
-                  <text x="448" y="192">CN</text>
-                </g>
               </svg>
             </div>
           </article>
@@ -274,103 +268,38 @@ interface SearchResultItem {
                 </div>
               } @empty {
                 <div style="text-align: center; padding: 24px; color: #7a6555; font-size: 13.5px; font-weight: 600;">
-                  Backend hiện chưa cung cấp dữ liệu Top sản phẩm bán chạy.
+                  Chưa có dữ liệu bán hàng trong kỳ này.
                 </div>
               }
             </div>
           </article>
 
-          <!-- Trạng thái vận hành -->
-          <article class="dashboard-card-new" style="position: relative;">
-            <div style="position: absolute; inset: 0; background: rgba(253, 251, 245, 0.95); display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 20px; z-index: 10; border-radius: 16px;">
-              <span style="font-weight: 700; color: #7a6555; font-size: 14px; margin-bottom: 4px;">Dữ liệu vận hành chưa khả dụng</span>
-              <span style="font-size: 12px; color: #a18c7e; max-width: 320px;">Số liệu vận hành (giao hàng/nhận tại cửa hàng) tạm ẩn do Backend chưa hỗ trợ thống kê phân bổ.</span>
-            </div>
+          <!-- Phân bổ trạng thái đơn hàng (dữ liệu thật) -->
+          <article class="dashboard-card-new">
             <div class="dashboard-card-new__header">
-              <h2 class="dashboard-card-new__title">Trạng thái vận hành</h2>
+              <h2 class="dashboard-card-new__title">Phân bổ trạng thái đơn</h2>
+              <span class="dashboard-card-new__more">{{ orderStatusChart().total }} đơn</span>
             </div>
-            
-            <div class="operation-grid">
-              <!-- Cột Giao hàng -->
-              <div class="op-column">
-                <h3 class="op-column__title">Giao hàng</h3>
-                <div class="op-doughnut-wrapper">
-                  <div class="doughnut-chart delivery-chart">
-                    <div class="doughnut-center">{{ currentStats().deliveryCount }}</div>
-                  </div>
-                </div>
-                <div class="op-legend">
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #c96a2e;"></span>
-                      Hoàn thành
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().deliveryLegend.complete }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #fcd34d;"></span>
-                      Đang giao
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().deliveryLegend.shipping }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #ffb07c;"></span>
-                      Đang làm bánh
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().deliveryLegend.baking }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #ffedd5;"></span>
-                      Chờ xác nhận
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().deliveryLegend.pending }}</span>
-                  </div>
-                </div>
-              </div>
 
-              <!-- Cột Nhận tại cửa hàng -->
-              <div class="op-column">
-                <h3 class="op-column__title">Nhận tại cửa hàng</h3>
-                <div class="op-doughnut-wrapper">
-                  <div class="doughnut-chart pickup-chart">
-                    <div class="doughnut-center">{{ currentStats().pickupCount }}</div>
+            @if (orderStatusChart().hasData) {
+              <div style="display: flex; flex-direction: column; gap: 14px; padding: 8px 4px;">
+                @for (row of orderStatusChart().rows; track row.label) {
+                  <div>
+                    <div style="display: flex; justify-content: space-between; font-size: 13.5px; font-weight: 700; color: #2b1a0f; margin-bottom: 5px;">
+                      <span>{{ row.label }}</span>
+                      <span style="color: #7a6555;">{{ row.count }} đơn · {{ row.pct }}%</span>
+                    </div>
+                    <div style="height: 8px; background: #f3ece3; border-radius: 99px; overflow: hidden;">
+                      <div [style.width.%]="row.pct" style="height: 100%; background: linear-gradient(90deg, #f5c842, #c96a2e); border-radius: 99px;"></div>
+                    </div>
                   </div>
-                </div>
-                <div class="op-legend">
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #c96a2e;"></span>
-                      Hoàn thành
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().pickupLegend.complete }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #fcd34d;"></span>
-                      Chờ khách lấy
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().pickupLegend.waiting }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #ffb07c;"></span>
-                      Đang làm bánh
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().pickupLegend.baking }}</span>
-                  </div>
-                  <div class="op-legend-item">
-                    <span class="op-legend-color-label">
-                      <span class="op-legend-dot" style="background-color: #ffedd5;"></span>
-                      Chờ xác nhận
-                    </span>
-                    <span class="op-legend-percent">{{ currentStats().pickupLegend.pending }}</span>
-                  </div>
-                </div>
+                }
               </div>
-            </div>
+            } @else {
+              <div style="text-align: center; padding: 32px 16px; color: #7a6555; font-size: 13.5px; font-weight: 600;">
+                Chưa có đơn hàng nào trong kỳ này.
+              </div>
+            }
           </article>
         </section>
       </div><!-- /admin-page -->
@@ -472,6 +401,10 @@ export class DashboardPage implements OnInit {
   apiOverview = signal<AdminAnalyticsOverview | null>(null);
   isLoadingOverview = signal(false);
 
+  /** Time-series & phân bổ trạng thái (Phase 2) — dùng vẽ biểu đồ thật. */
+  revenueTrend = signal<RevenueTrend | null>(null);
+  orderStatusDist = signal<OrderStatusDistribution | null>(null);
+
   readonly tasksByPeriod: Record<string, KitchenTask[]> = {
     today: [
       { id: 1, title: 'Bánh Kem Dâu Tây', desc: 'SL: 12 • Kèm lời chúc sinh nhật', checked: false },
@@ -499,6 +432,65 @@ export class DashboardPage implements OnInit {
   };
 
   currentTasks = signal<KitchenTask[]>([]);
+
+  /**
+   * Biểu đồ xu hướng doanh thu tính TỪ DATA THẬT (revenueTrend). Trả toạ độ SVG
+   * cho viewBox 0 0 500 180: trục X trải đều 60→470, trục Y 170(=0đ)→10(=max).
+   * hasData=false khi chưa có/không có điểm → template hiện trạng thái trống thay vì mock.
+   */
+  revenueChart = computed(() => {
+    const trend = this.revenueTrend();
+    const pts = trend?.points ?? [];
+    if (pts.length === 0) {
+      return { hasData: false, points: [] as { cx: number; cy: number; date: string; revenue: number }[], lineD: '', fillD: '', yLabels: ['', '', '', ''], xLabels: [] as { x: number; label: string }[] };
+    }
+
+    const X0 = 60, X1 = 470, Y0 = 10, Y1 = 170;
+    const maxRev = Math.max(...pts.map((p) => p.revenue), 1);
+    const n = pts.length;
+    const xAt = (i: number) => (n === 1 ? (X0 + X1) / 2 : X0 + ((X1 - X0) * i) / (n - 1));
+    const yAt = (rev: number) => Y1 - (Y1 - Y0) * (rev / maxRev);
+
+    const coords = pts.map((p, i) => ({
+      cx: Math.round(xAt(i)),
+      cy: Math.round(yAt(p.revenue)),
+      date: p.date,
+      revenue: p.revenue,
+    }));
+
+    const lineD = coords.map((c, i) => `${i === 0 ? 'M' : 'L'} ${c.cx} ${c.cy}`).join(' ');
+    const fillD = `M ${coords[0].cx} ${Y1} ` + coords.map((c) => `L ${c.cx} ${c.cy}`).join(' ') + ` L ${coords[n - 1].cx} ${Y1} Z`;
+
+    const fmt = (v: number) => (v >= 1_000_000 ? (v / 1_000_000).toFixed(1).replace('.0', '') + 'M' : v >= 1_000 ? Math.round(v / 1_000) + 'K' : String(v));
+    const yLabels = [fmt(maxRev), fmt(maxRev * 0.75), fmt(maxRev * 0.5), fmt(maxRev * 0.25)];
+
+    // Nhãn X: hiện tối đa ~7 mốc ngày (dd/MM) để không chật.
+    const step = Math.ceil(n / 7);
+    const xLabels = coords
+      .filter((_, i) => i % step === 0 || i === n - 1)
+      .map((c) => ({ x: c.cx, label: c.date.slice(8, 10) + '/' + c.date.slice(5, 7) }));
+
+    return { hasData: true, points: coords, lineD, fillD, yLabels, xLabels };
+  });
+
+  /** Phân bổ trạng thái đơn (cho phần "Dữ liệu vận hành"). */
+  readonly ORDER_STATUS_LABELS: Record<string, string> = {
+    pending: 'Chờ xác nhận', confirmed: 'Đã xác nhận', processing: 'Đang làm',
+    ready: 'Sẵn sàng', delivered: 'Đã giao', cancelled: 'Đã huỷ',
+  };
+  orderStatusChart = computed(() => {
+    const dist = this.orderStatusDist();
+    if (!dist || dist.total === 0) return { hasData: false, total: 0, rows: [] as { label: string; count: number; pct: number }[] };
+    return {
+      hasData: true,
+      total: dist.total,
+      rows: dist.byStatus.map((s) => ({
+        label: this.ORDER_STATUS_LABELS[s.status] ?? s.status,
+        count: s.count,
+        pct: Math.round((s.count / dist.total) * 100),
+      })),
+    };
+  });
 
   tasksTitle = computed(() => {
     const period = this.selectedPeriod();
@@ -622,6 +614,10 @@ export class DashboardPage implements OnInit {
       error: (err) => {
         console.error('Error loading orders for dashboard:', err);
         this.updateTasksForPeriod();
+        // 401 đã được interceptor xử lý (điều hướng login); chỉ báo lỗi thật khác.
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được danh sách đơn hàng cho bảng điều khiển.');
+        }
       }
     });
   }
@@ -678,7 +674,20 @@ export class DashboardPage implements OnInit {
       error: (err) => {
         console.error('[Dashboard] Failed to load analytics overview', err);
         this.isLoadingOverview.set(false);
+        if (err?.status !== 401) {
+          this.toastService.error('Không tải được số liệu tổng quan.');
+        }
       }
+    });
+
+    // Biểu đồ thật (time-series + phân bổ trạng thái).
+    this.adminApi.getRevenueTrend(dateFrom, dateTo).subscribe({
+      next: (data) => this.revenueTrend.set(data),
+      error: () => this.revenueTrend.set(null),
+    });
+    this.adminApi.getOrderStatusDistribution(dateFrom, dateTo).subscribe({
+      next: (data) => this.orderStatusDist.set(data),
+      error: () => this.orderStatusDist.set(null),
     });
   }
 

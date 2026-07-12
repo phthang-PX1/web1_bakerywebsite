@@ -1,3 +1,4 @@
+import { randomInt } from "crypto";
 import bcrypt from "bcrypt";
 import type { Profile } from "passport-google-oauth20";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
@@ -115,7 +116,8 @@ const sendResetPasswordMessage = async (user: User, token: string) => {
 
 const OTP_TTL_MS = 5 * 60 * 1000;
 
-const generateOtp = () => String(Math.floor(100000 + Math.random() * 900000));
+// Dùng CSPRNG thay vì Math.random() để OTP không đoán được.
+const generateOtp = () => String(randomInt(100000, 1000000));
 
 /**
  * Issue a fresh OTP for the user and try to deliver it by SMS. Delivery
