@@ -374,11 +374,10 @@ Dự án sử dụng:
 ## 📖 Tài Liệu Bổ Sung
 
 - [Tech Stack Chi Tiết](document/tech_stack.md)
-- [API Contract](document/backend/api_contract.md)
-- [Database Schema](document/schema.md)
 - [ERD Diagram](document/erd.md)
 - [DFD Diagram](document/dfd.md)
-- [Quy Tắc Thành Viên Trung Thành](document/loyalty_rule.md)
+
+> Schema chi tiết xem trực tiếp tại [backend/prisma/schema.prisma](backend/prisma/schema.prisma). Dữ liệu seed mẫu nằm trong [document/backend/](document/backend/) (CSV dùng bởi `prisma/seed.ts`).
 
 
 ---
