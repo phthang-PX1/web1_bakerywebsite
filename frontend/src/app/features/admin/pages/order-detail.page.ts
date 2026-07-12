@@ -8,7 +8,6 @@ import type { Order, OrderStatus } from '../../../core/models/order.model';
 import { orderStatusLabel } from '../../../core/utils/admin-status.util';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
-import { environment } from '../../../../environments/environment';
 
 @Component({
   selector: 'app-admin-order-detail-page',

@@ -3,7 +3,6 @@ import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
 import { AdminApi } from '../../../core/api/admin.api';
-import { CategoriesApi } from '../../../core/api/categories.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Product } from '../../../core/models/product.model';
 import type { Category } from '../../../core/models/category.model';
@@ -24,161 +23,6 @@ export interface ExtendedProduct extends Product {
   giftAccessories?: string;
   variants?: { name: string; price: number; stock: number }[];
 }
-
-const MOCK_PRODUCTS: ExtendedProduct[] = [
-  {
-    productId: '1',
-    categoryId: 'gato',
-    name: 'Bánh kem sữa tươi',
-    slug: 'banh-kem-sua-tuoi',
-    description: 'Bánh gato truyền thống nhỏ xinh cho bữa tiệc gia đình ấm cúng.',
-    basePrice: 120000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.8,
-    reviewCount: 42,
-    soldCount: 142,
-    stock: 15,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'gato', name: 'Bánh Gato', slug: 'banh-gato', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '2',
-    categoryId: 'entremet',
-    name: 'Midnight Salt',
-    slug: 'midnight-salt',
-    description: 'Sự kết hợp hoàn hảo giữa socola caramel muối mặn đặc biệt.',
-    basePrice: 320000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1606313564200-e75d5e30476c?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 5.0,
-    reviewCount: 12,
-    soldCount: 32,
-    stock: 5,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'entremet', name: 'Bánh Entremet', slug: 'banh-entremet', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '3',
-    categoryId: 'mousse',
-    name: 'Strawberry Dream',
-    slug: 'strawberry-dream',
-    description: 'Lớp kem mousse dâu tây ngọt mát dịu dàng cùng nhân dâu tây tươi.',
-    basePrice: 429000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.9,
-    reviewCount: 65,
-    soldCount: 89,
-    stock: 10,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'mousse', name: 'Bánh Mousse', slug: 'banh-mousse', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '4',
-    categoryId: 'baked',
-    name: 'Bánh Chumi Sô-cô-la',
-    slug: 'banh-chumi-so-co-la',
-    description: 'Sự kết hợp ngọt ngào giữa cốt bánh nướng thơm lừng và sốt sô cô la.',
-    basePrice: 97000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1551024601-bec78aea704b?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.5,
-    reviewCount: 33,
-    soldCount: 67,
-    stock: 0,
-    isActive: false,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'baked', name: 'Bánh nướng', slug: 'banh-nuong', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '5',
-    categoryId: 'tiramisu',
-    name: 'Tiramisu Classic',
-    slug: 'tiramisu-classic',
-    description: 'Bông lan vani xen lẫn kem mascarpone phảng phất hương rượu và cà phê.',
-    basePrice: 222000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1571877227200-a0d98ea607e9?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.7,
-    reviewCount: 98,
-    soldCount: 211,
-    stock: 12,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'tiramisu', name: 'Bánh Tiramisu', slug: 'banh-tiramisu', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '6',
-    categoryId: 'gato',
-    name: 'Bánh bắp phô mai',
-    slug: 'banh-bap-pho-mai',
-    description: 'Vị ngọt thanh tự nhiên của bắp kết hợp hoàn hảo cùng kem phô mai béo ngậy.',
-    basePrice: 140000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1535141192574-5d4897c13636?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.6,
-    reviewCount: 47,
-    soldCount: 95,
-    stock: 18,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'gato', name: 'Bánh Gato', slug: 'banh-gato', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '7',
-    categoryId: 'entremet',
-    name: 'Berry Blush',
-    slug: 'berry-blush',
-    description: 'Dâu sữa chua tươi mát ngọt ngào kết hợp mousse mịn màng.',
-    basePrice: 300000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1588195538326-c5b1e9f80a1b?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.8,
-    reviewCount: 29,
-    soldCount: 41,
-    stock: 7,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'entremet', name: 'Bánh Entremet', slug: 'banh-entremet', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  },
-  {
-    productId: '8',
-    categoryId: 'minicakes',
-    name: 'Panacotta Táo xanh',
-    slug: 'panacotta-tao-xanh',
-    description: 'Món tráng miệng Mini Cakes ngọt dịu kết hợp vị chua mát thanh khiết của táo xanh.',
-    basePrice: 19000,
-    thumbnailUrl: 'https://images.unsplash.com/photo-1488477181946-6428a0291777?w=500&q=80',
-    isCustomizable: false,
-    hasRequiredOptions: false,
-    avgRating: 4.4,
-    reviewCount: 156,
-    soldCount: 312,
-    stock: 45,
-    isActive: true,
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString(),
-    category: { categoryId: 'minicakes', name: 'Mini Cakes', slug: 'mini-cakes', description: null, imageUrl: null, isActive: true, createdAt: '' }
-  }
-];
 
 @Component({
   selector: 'app-admin-products-list-page',
@@ -541,7 +385,6 @@ const MOCK_PRODUCTS: ExtendedProduct[] = [
 })
 export class AdminProductsListPage implements OnInit {
   private readonly router = inject(Router);
-  private readonly categoriesApi = inject(CategoriesApi);
   private readonly adminApi = inject(AdminApi);
   private readonly toastService = inject(ToastService);
 

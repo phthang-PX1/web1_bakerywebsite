@@ -3,11 +3,9 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { FormBuilder, Validators, ReactiveFormsModule, FormArray, FormGroup } from '@angular/forms';
 import { forkJoin, Observable } from 'rxjs';
 
-import { CategoriesApi } from '../../../core/api/categories.api';
 import { AdminApi } from '../../../core/api/admin.api';
 import { ToastService } from '../../../core/services/toast.service';
 import type { Category } from '../../../core/models/category.model';
-import type { ExtendedProduct } from './products-list.page';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
 const slugify = (value: string): string =>
@@ -576,18 +574,6 @@ export class AdminProductFormPage implements OnInit {
     const name = this.form.get('name')?.value || '';
     const slug = slugify(name);
     this.form.patchValue({ slug });
-  }
-
-  private generateSlug(name: string): string {
-    return name
-      .toLowerCase()
-      .normalize('NFD')
-      .replace(/[\u0300-\u036f]/g, '')
-      .replace(/[đĐ]/g, 'd')
-      .replace(/[^a-z0-9\s-]/g, '')
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .trim();
   }
 
   addVariant(): void {

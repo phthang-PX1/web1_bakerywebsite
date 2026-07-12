@@ -1,5 +1,5 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { debounceTime, distinctUntilChanged, Subject } from 'rxjs';
@@ -24,7 +24,6 @@ export class ProductListPage implements OnInit {
   private readonly productsApi = inject(ProductsApi);
   private readonly categoriesApi = inject(CategoriesApi);
   private readonly route = inject(ActivatedRoute);
-  private readonly router = inject(Router);
 
   readonly MAX_PRICE = MAX_PRICE;
 

@@ -1,5 +1,5 @@
 import { inject, Injectable } from '@angular/core';
-import { switchMap, of, Observable } from 'rxjs';
+import { switchMap, Observable } from 'rxjs';
 
 import { OptionsApi } from '../api/options.api';
 import { CartService } from './cart.service';

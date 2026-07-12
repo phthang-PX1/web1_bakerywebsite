@@ -4,7 +4,6 @@ import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 
 import { AuthService } from '../../../core/services/auth.service';
 import { AuthApi } from '../../../core/api/auth.api';
-import { ToastService } from '../../../core/services/toast.service';
 import { CartService } from '../../../core/services/cart.service';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
 
@@ -89,7 +88,6 @@ export class LoginPage {
   private readonly authService = inject(AuthService);
   private readonly authApi = inject(AuthApi);
   private readonly cartService = inject(CartService);
-  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
 

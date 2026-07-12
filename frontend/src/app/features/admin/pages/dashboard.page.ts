@@ -13,13 +13,6 @@ interface KitchenTask {
   orderId?: string;
 }
 
-interface RankingProduct {
-  productId?: string;
-  name: string;
-  value: number;
-  percentage: number;
-}
-
 interface SearchResultItem {
   id: string;
   type: 'order' | 'product' | 'customer';

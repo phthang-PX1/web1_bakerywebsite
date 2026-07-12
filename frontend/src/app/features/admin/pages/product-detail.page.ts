@@ -406,18 +406,6 @@ export class AdminProductDetailPage implements OnInit {
     });
   }
 
-  private getStoredProducts(): ExtendedProduct[] {
-    const stored = localStorage.getItem('webee_admin_products');
-    if (stored) {
-      try {
-        return JSON.parse(stored);
-      } catch (e) {
-        return [];
-      }
-    }
-    return [];
-  }
-
   formatDate(dateStr: string | undefined): string {
     if (!dateStr) return 'Chưa rõ';
     const d = new Date(dateStr);

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 
 import { AdminApi } from '../../../core/api/admin.api';
 import { ToastService } from '../../../core/services/toast.service';
-import type { Order, OrderStatus } from '../../../core/models/order.model';
+import type { Order } from '../../../core/models/order.model';
 import { orderStatusLabel, orderStatusBadgeStyle } from '../../../core/utils/admin-status.util';
 import { CurrencyVndPipe } from '../../../shared/pipes/currency-vnd.pipe';
 import { LoadingSpinnerComponent } from '../../../shared/components/loading-spinner/loading-spinner.component';
