@@ -10,7 +10,8 @@ import {
   creditDeliveredOrderLoyaltyInTransaction,
   revokeOrderLoyaltyInTransaction
 } from "../loyalty/loyalty.service";
-import { emailTransporter, renderOrderNotificationEmail, sendEmailAsync } from "../../utils/email";
+import { calculateCouponDiscount } from "../coupons/coupons.util";
+import { renderOrderNotificationEmail, sendEmailAsync } from "../../utils/email";
 import { toMoney } from "../../utils/money";
 import { getStaticQrUrl } from "../../utils/payment";
 import { sendSms } from "../../utils/sms";
@@ -291,27 +292,6 @@ const resolveOrderUser = async (
     userId: user.userId,
     activationUserId: user.userId
   };
-};
-
-const calculateCouponDiscount = (
-  coupon: {
-    discountType: "percent" | "fixed";
-    discountValue: Prisma.Decimal;
-    maxDiscountAmount: Prisma.Decimal | null;
-  },
-  orderValue: number
-) => {
-  const discountValue = toMoney(coupon.discountValue);
-  const rawDiscount =
-    coupon.discountType === "percent"
-      ? orderValue * (discountValue / 100)
-      : discountValue;
-  const cappedDiscount =
-    coupon.maxDiscountAmount === null
-      ? rawDiscount
-      : Math.min(rawDiscount, toMoney(coupon.maxDiscountAmount));
-
-  return toMoney(Math.min(cappedDiscount, orderValue));
 };
 
 const resolveCoupon = async (

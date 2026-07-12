@@ -2,6 +2,7 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "../../config/database";
 import { AppError } from "../../middlewares/errorHandler";
 import { toMoney } from "../../utils/money";
+import { calculateCouponDiscount } from "./coupons.util";
 import type {
   CouponInput,
   CouponValidationResult,
@@ -52,26 +53,6 @@ const mapCouponPersistenceError = (error: unknown): never => {
   throw error;
 };
 
-const calculateDiscountAmount = (
-  coupon: {
-    discountType: "percent" | "fixed";
-    discountValue: Prisma.Decimal;
-    maxDiscountAmount: Prisma.Decimal | null;
-  },
-  orderValue: number
-) => {
-  const discountValue = toMoney(coupon.discountValue);
-  const rawDiscount =
-    coupon.discountType === "percent"
-      ? orderValue * (discountValue / 100)
-      : discountValue;
-  const cappedDiscount =
-    coupon.maxDiscountAmount === null
-      ? rawDiscount
-      : Math.min(rawDiscount, toMoney(coupon.maxDiscountAmount));
-
-  return toMoney(Math.min(cappedDiscount, orderValue));
-};
 
 const assertDateRange = (startDate: Date, endDate: Date) => {
   if (startDate >= endDate) {
@@ -117,7 +98,7 @@ export const validateCoupon = async (
     return invalidCouponResult(input, "Order value does not meet coupon minimum");
   }
 
-  const discountAmount = calculateDiscountAmount(coupon, input.orderValue);
+  const discountAmount = calculateCouponDiscount(coupon, input.orderValue);
 
   return {
     valid: true,
