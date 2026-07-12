@@ -15,7 +15,7 @@ import type { CartIdentity, CartItemInput, UpdateCartItemInput } from "./cart.ty
 const SESSION_COOKIE_NAME = "session_id";
 const SESSION_COOKIE_MAX_AGE_MS = 7 * 24 * 60 * 60 * 1000;
 const UUID_PATTERN =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const parseCookies = (cookieHeader: string | undefined) => {
   const cookies = new Map<string, string>();
@@ -39,6 +39,10 @@ const parseCookies = (cookieHeader: string | undefined) => {
 };
 
 const getSessionId = (req: Request) => {
+  const headerId = req.header("x-session-id");
+  if (headerId && UUID_PATTERN.test(headerId)) {
+    return headerId;
+  }
   const sessionId = parseCookies(req.headers.cookie).get(SESSION_COOKIE_NAME);
   return sessionId && UUID_PATTERN.test(sessionId) ? sessionId : undefined;
 };

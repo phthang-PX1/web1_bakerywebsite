@@ -118,6 +118,25 @@ publicRouter.post(
 
 /**
  * @swagger
+ * /orders:
+ *   get:
+ *     summary: Get current member order history (alias for /orders/me)
+ *     tags: [Orders]
+ *     security:
+ *       - bearerAuth: []
+ *     responses:
+ *       200:
+ *         description: Paginated order history
+ */
+publicRouter.get(
+  "/",
+  auth,
+  validate({ query: orderListQuerySchema }),
+  getMyOrdersController
+);
+
+/**
+ * @swagger
  * /orders/me:
  *   get:
  *     summary: Get current member order history

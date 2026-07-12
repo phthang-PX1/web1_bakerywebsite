@@ -61,8 +61,8 @@ export interface Order {
 
 /** Snake_case body as required by POST /api/orders schema */
 export interface CreateOrderRequest {
-  buyer_name: string;
-  buyer_phone: string;
+  buyer_name?: string;
+  buyer_phone?: string;
   recipient_name: string;
   email?: string;
   phone: string;

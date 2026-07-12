@@ -8,7 +8,28 @@ const optionalTrimmedString = (max: number) =>
     .trim()
     .max(max)
     .optional()
-    .transform((value) => (value === "" ? undefined : value));
+    .transform((value) => (!value || value === "" ? undefined : value));
+
+const optionalBuyerNameSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => (!value || value === "" ? undefined : value))
+  .pipe(z.string().min(2).max(100).optional());
+
+const optionalPhoneSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => (!value || value === "" ? undefined : value))
+  .pipe(phoneSchema.optional());
+
+const optionalEmailSchema = z
+  .string()
+  .trim()
+  .optional()
+  .transform((value) => (!value || value === "" ? undefined : value))
+  .pipe(z.string().email().optional());
 
 const orderStatusSchema = z.enum([
   "pending",
@@ -34,10 +55,10 @@ export const claimOrderBodySchema = z.object({
 
 export const createOrderBodySchema = z
   .object({
-    buyer_name: z.string().trim().min(2).max(100).optional(),
-    buyer_phone: phoneSchema.optional(),
+    buyer_name: optionalBuyerNameSchema,
+    buyer_phone: optionalPhoneSchema,
     recipient_name: z.string().trim().min(2).max(100),
-    email: z.string().trim().email().optional(),
+    email: optionalEmailSchema,
     phone: phoneSchema,
     fulfillment_type: z.enum(["delivery", "pickup"]),
     delivery_address: optionalTrimmedString(500),

@@ -37,7 +37,9 @@ export class CheckoutSuccessPage implements OnInit {
     }
 
     const orderId = this.route.snapshot.queryParamMap.get('orderId');
-    const rawToken = this.route.snapshot.queryParamMap.get('trackingToken');
+    const rawToken =
+      this.route.snapshot.queryParamMap.get('trackingToken') ??
+      this.route.snapshot.queryParamMap.get('token');
     const trackingToken =
       rawToken && rawToken !== 'undefined' && rawToken !== 'null' ? rawToken : null;
 

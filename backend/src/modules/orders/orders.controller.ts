@@ -1,4 +1,4 @@
-import type { RequestHandler } from "express";
+import type { Request, RequestHandler } from "express";
 import {
   cancelMyOrder,
   claimGuestOrder,
@@ -22,7 +22,7 @@ import type {
 
 const SESSION_COOKIE_NAME = "session_id";
 const uuidPattern =
-  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 
 const parseCookies = (cookieHeader: string | undefined) => {
   const cookies = new Map<string, string>();
@@ -45,8 +45,12 @@ const parseCookies = (cookieHeader: string | undefined) => {
   return cookies;
 };
 
-const getSessionId = (cookieHeader: string | undefined) => {
-  const sessionId = parseCookies(cookieHeader).get(SESSION_COOKIE_NAME);
+const getSessionId = (req: Request) => {
+  const headerId = req.header("x-session-id");
+  if (headerId && uuidPattern.test(headerId)) {
+    return headerId;
+  }
+  const sessionId = parseCookies(req.headers.cookie).get(SESSION_COOKIE_NAME);
   return sessionId && uuidPattern.test(sessionId) ? sessionId : undefined;
 };
 
@@ -55,7 +59,7 @@ export const createOrderController: RequestHandler = async (req, res, next) => {
     const result = await createOrder(
       {
         userId: req.user?.userId,
-        sessionId: getSessionId(req.headers.cookie)
+        sessionId: getSessionId(req)
       },
       req.body as OrderCreateInput
     );

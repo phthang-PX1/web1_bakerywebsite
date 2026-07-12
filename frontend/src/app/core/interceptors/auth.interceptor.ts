@@ -4,6 +4,7 @@ import { Subject, throwError } from 'rxjs';
 import { catchError, switchMap, take } from 'rxjs/operators';
 
 import { AuthService } from '../services/auth.service';
+import { SessionService } from '../services/session.service';
 import { AuthApi } from '../api/auth.api';
 import { environment } from '../../../environments/environment';
 
@@ -16,6 +17,7 @@ const refreshResult$ = new Subject<boolean>();
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
   const authApi = inject(AuthApi);
+  const sessionService = inject(SessionService);
 
   const isAuthEndpoint =
     req.url.includes('/auth/login') ||
@@ -27,7 +29,18 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
     !req.url.startsWith(environment.apiUrl);
 
   const token = authService.accessToken;
-  const authed = token && !isAuthEndpoint ? req.clone({ setHeaders: { Authorization: `Bearer ${token}` } }) : req;
+  const isTargetingApi = req.url.startsWith(environment.apiUrl);
+  const sessionId = isTargetingApi ? sessionService.getSessionId() : undefined;
+
+  const headers: Record<string, string> = {};
+  if (token && !isAuthEndpoint) {
+    headers['Authorization'] = `Bearer ${token}`;
+  }
+  if (sessionId) {
+    headers['X-Session-Id'] = sessionId;
+  }
+
+  const authed = Object.keys(headers).length > 0 ? req.clone({ setHeaders: headers }) : req;
 
   return next(authed).pipe(
     catchError((err: HttpErrorResponse) => {
@@ -50,9 +63,10 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
               return throwError(() => err);
             }
             const newToken = authService.accessToken;
-            const retried = newToken
-              ? req.clone({ setHeaders: { Authorization: `Bearer ${newToken}` } })
-              : req;
+            const retriedHeaders: Record<string, string> = {};
+            if (newToken) retriedHeaders['Authorization'] = `Bearer ${newToken}`;
+            if (sessionId) retriedHeaders['X-Session-Id'] = sessionId;
+            const retried = Object.keys(retriedHeaders).length > 0 ? req.clone({ setHeaders: retriedHeaders }) : req;
             return next(retried);
           })
         );
@@ -65,7 +79,11 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
           isRefreshing = false;
           authService.storeTokens(tokens);
           refreshResult$.next(true);
-          const retried = req.clone({ setHeaders: { Authorization: `Bearer ${tokens.accessToken}` } });
+          const retriedHeaders: Record<string, string> = {
+            Authorization: `Bearer ${tokens.accessToken}`
+          };
+          if (sessionId) retriedHeaders['X-Session-Id'] = sessionId;
+          const retried = req.clone({ setHeaders: retriedHeaders });
           return next(retried);
         }),
         catchError((refreshErr) => {

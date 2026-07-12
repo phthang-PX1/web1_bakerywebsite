@@ -69,8 +69,14 @@
 
         <nav class="success-actions" aria-label="Điều hướng sau đặt hàng">
           <a class="btn btn--primary" routerLink="/products">Tiếp tục mua sắm</a>
-          <a class="btn btn--secondary" [routerLink]="['/account/orders', order.orderId]">Theo dõi đơn hàng</a>
-          <a class="btn btn--text" routerLink="/account/orders">Lịch sử đơn hàng</a>
+          @if (order.trackingToken) {
+            <a class="btn btn--secondary" [routerLink]="['/orders', order.orderId, 'track']" [queryParams]="{ token: order.trackingToken }">Theo dõi đơn hàng</a>
+          } @else {
+            <a class="btn btn--secondary" [routerLink]="['/account/orders', order.orderId]">Theo dõi đơn hàng</a>
+          }
+          @if (!order.trackingToken) {
+            <a class="btn btn--text" routerLink="/account/orders">Lịch sử đơn hàng</a>
+          }
         </nav>
       </section>
     } @else {

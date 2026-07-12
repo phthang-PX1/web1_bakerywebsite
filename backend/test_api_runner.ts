@@ -1,5 +1,6 @@
 import http from "http";
 import app from "./src/app";
+import { env } from "./src/config/env";
 
 async function runTests() {
   const server = http.createServer(app);
@@ -79,7 +80,8 @@ async function runTests() {
 
   // 5. Products - Get list
   let productId = "";
-  await testEndpoint("GET /api/products (Public Products)", async () => {
+  let selectedOptions: string[] = [];
+  await testEndpoint("GET /api/products (Public Products & Options)", async () => {
     const res = await fetch(`${baseUrl}/api/products`);
     if (res.status !== 200) throw new Error(`Expected 200, got ${res.status}`);
     const json: any = await res.json();
@@ -88,6 +90,19 @@ async function runTests() {
       throw new Error("Product list is empty");
     }
     productId = items[0].productId || items[0].id;
+
+    // Fetch product detail by slug to check for required options
+    const slug = items[0].slug;
+    const detailRes = await fetch(`${baseUrl}/api/products/${slug}`);
+    if (detailRes.status === 200) {
+      const detailJson: any = await detailRes.json();
+      const optionGroups = detailJson.optionGroups || detailJson.option_groups || [];
+      for (const group of optionGroups) {
+        if (group.isRequired && group.items && group.items.length > 0) {
+          selectedOptions.push(group.items[0].itemId || group.items[0].item_id || group.items[0].id);
+        }
+      }
+    }
   });
 
   // 6. Cart - Add Item to Redis Cart
@@ -95,7 +110,11 @@ async function runTests() {
     const res = await fetch(`${baseUrl}/api/cart/items`, {
       method: "POST",
       headers: { "Content-Type": "application/json", "Authorization": `Bearer ${memberToken}` },
-      body: JSON.stringify({ product_id: productId, quantity: 2 })
+      body: JSON.stringify({
+        product_id: productId,
+        quantity: 2,
+        option_item_ids: selectedOptions.length > 0 ? selectedOptions : undefined
+      })
     });
     if (res.status !== 200 && res.status !== 201) {
       const text = await res.text();
@@ -158,7 +177,10 @@ async function runTests() {
   await testEndpoint("POST /api/webhooks/payment (Simulate Bank Transfer)", async () => {
     const res = await fetch(`${baseUrl}/api/webhooks/payment`, {
       method: "POST",
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "X-Payment-Webhook-Secret": env.PAYMENT_WEBHOOK_SECRET || ""
+      },
       body: JSON.stringify({ order_id: orderId, amount: totalAmount })
     });
     if (res.status !== 200 && res.status !== 204) {
@@ -181,6 +203,51 @@ async function runTests() {
     const orderStatus = json.orderStatus || json.order_status || json.order?.orderStatus;
     if (paymentStatus !== "paid") throw new Error(`Expected paymentStatus paid, got ${paymentStatus}`);
     if (orderStatus !== "confirmed") throw new Error(`Expected orderStatus confirmed, got ${orderStatus}`);
+  });
+
+  // 12. Orders - Guest Checkout (Create Order using x-session-id without Bearer token)
+  await testEndpoint("POST /api/orders (Guest Checkout with x-session-id)", async () => {
+    const guestSessionId = "11111111-2222-3333-4444-555555555555";
+    const addRes = await fetch(`${baseUrl}/api/cart/items`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Id": guestSessionId
+      },
+      body: JSON.stringify({
+        product_id: productId,
+        quantity: 1,
+        option_item_ids: selectedOptions.length > 0 ? selectedOptions : undefined
+      })
+    });
+    if (addRes.status !== 200 && addRes.status !== 201) {
+      const text = await addRes.text();
+      throw new Error(`Failed to add item to guest cart: ${addRes.status} ${text}`);
+    }
+
+    const orderRes = await fetch(`${baseUrl}/api/orders`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "X-Session-Id": guestSessionId
+      },
+      body: JSON.stringify({
+        buyer_name: "Khách vãng lai Test",
+        buyer_phone: "0909888777",
+        recipient_name: "Khách vãng lai Test",
+        email: "",
+        phone: "0909888777",
+        fulfillment_type: "pickup",
+        delivery_date: new Date(Date.now() + 86400000).toISOString(),
+        delivery_time_slot: "10:00-12:00",
+        payment_method: "cash",
+        note: ""
+      })
+    });
+    if (orderRes.status !== 201 && orderRes.status !== 200) {
+      const text = await orderRes.text();
+      throw new Error(`Guest order placement failed: ${orderRes.status} ${text}`);
+    }
   });
 
   server.close();
