@@ -90,7 +90,7 @@ Một nền tảng thương mại điện tử hiện đại được xây dựn
 
 ## 💻 Yêu Cầu Hệ Thống
 
-- **Node.js**: v18+ 
+- **Node.js**: v20+ (Angular 22 & TypeScript 6 yêu cầu Node ≥ 20.19)
 - **npm**: v10+
 - **PostgreSQL**: 15+ (Supabase)
 - **Redis**: 6+ 
@@ -229,14 +229,16 @@ web1_bakerywebsite/
 │   │   │   ├── auth/
 │   │   │   ├── products/
 │   │   │   ├── categories/
+│   │   │   ├── options/
 │   │   │   ├── cart/
 │   │   │   ├── orders/
 │   │   │   ├── users/
 │   │   │   ├── reviews/
 │   │   │   ├── coupons/
 │   │   │   ├── loyalty/
-│   │   │   ├── analytics/
-│   │   │   └── options/
+│   │   │   ├── banners/
+│   │   │   ├── blog/
+│   │   │   └── analytics/
 │   │   ├── routes/             # Route aggregator
 │   │   ├── types/              # TypeScript types
 │   │   └── utils/              # Utilities
@@ -263,14 +265,13 @@ web1_bakerywebsite/
 │   ├── package.json
 │   └── tsconfig.json
 │
-├── document/                   # Tài liệu chi tiết
-│   ├── api_contract.md
-│   ├── schema.md
-│   ├── erd.md
-│   ├── dfd.md
-│   ├── tech_stack.md
-│   └── ...
+├── document/                   # Tài liệu & dữ liệu seed
+│   ├── erd.md                  # Sơ đồ thực thể (ERD)
+│   ├── dfd.md                  # Sơ đồ luồng dữ liệu (DFD)
+│   ├── tech_stack.md           # Chi tiết công nghệ
+│   └── backend/                # CSV seed dùng bởi prisma/seed.ts
 │
+├── vercel.json                 # Cấu hình deploy frontend (SPA + CSP)
 └── README.md                   # File này
 ```
 
@@ -311,15 +312,21 @@ http://localhost:3000/api-docs
 - `PUT /orders/:id/status` - Cập nhật trạng thái
 
 #### 👤 Users (`/api/users`)
-- `GET /users/profile` - Lấy hồ sơ
-- `PUT /users/profile` - Cập nhật hồ sơ
-- `GET /users/addresses` - Danh sách địa chỉ
-- `POST /users/addresses` - Thêm địa chỉ
+- `GET /users/me` - Lấy hồ sơ hiện tại
+- `PUT /users/me` - Cập nhật hồ sơ
+- `GET /users/me/addresses` - Danh sách địa chỉ
+- `POST /users/me/addresses` - Thêm địa chỉ
 
-#### 🎁 Loyalty (`/api/loyalty`)
-- `GET /loyalty/member` - Thông tin thành viên
-- `GET /loyalty/points` - Lịch sử điểm
-- `POST /loyalty/redeem` - Sử dụng điểm
+#### 🎁 Loyalty & Thành viên
+- `GET /users/me/loyalty` - Thông tin điểm & hạng của khách
+- `GET /users/me/loyalty/logs` - Lịch sử tích/dùng điểm
+- `POST /users/me/loyalty/redeem` - Đổi điểm lấy voucher
+- `POST /admin/loyalty/cycles/evaluate` - Xét lại hạng thành viên theo chu kỳ (Admin)
+
+#### 📰 Blog & Banner
+- `GET /blog` · `GET /blog/:slug` - Bài viết công khai
+- `GET /banners` - Banner đang hiển thị
+- CRUD tương ứng dưới `/admin/blog` và `/admin/banners` (Admin)
 
 ---
 
@@ -332,10 +339,7 @@ Xem chi tiết tại [document/erd.md](document/erd.md)
 Xem tại [backend/prisma/schema.prisma](backend/prisma/schema.prisma)
 
 ### Migrations
-Các migration hiện có:
-- `20260615185556_init` - Schema ban đầu
-- `20260618102000_add_loyalty_membership_cycles` - Thêm chu kỳ thành viên
-- `20260627120000_set_membership_tier_member_default` - Đặt tier mặc định
+Toàn bộ migration nằm trong [backend/prisma/migrations/](backend/prisma/migrations/) (khởi tạo từ `_init`, sau đó bổ sung dần: loyalty/membership, auth action tokens, banners, blog posts, option group dùng chung...). Áp dụng bằng `npm run prisma:migrate`.
 
 ### Seed Data
 Để nhập dữ liệu mẫu:
